@@ -1,0 +1,136 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.16.42.58;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.17.50;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point interval from integer.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      I <- SFIFI(a)
+a2 91
+Single-precision floating-point interval from integer.  
+
+Inputs
+  a : an integer.  
+
+Outputs
+  I : the smallest single-precision floating-point interval containing a.
+======================================================================*/
+#include "saclib.h"
+
+Word SFIFI(a)
+       Word a;
+{
+       Word I,a1,a2,ap,app,appp,d,d0,d1,e1,e2,h,m,r;
+       /* hide a1,a2,ap,app,appp,d,d0,d1,e1,e2,h,m,r; */
+
+Step1: /* a=0. */
+       if (a == 0)
+         {
+         I = LIST2(0,0);
+         goto Return;
+         }
+
+Step2: /* a single-precision. */
+       r = 0;
+       if (a < BETA)
+         {
+         d0 = a;
+         d1 = 0;
+         e1 = 0;
+         goto Step4;
+         }
+
+Step3: /* a multiple-precision. */
+       ap = a;
+       app = RED(ap);
+       appp = RED(app);
+       e1 = ZETA;
+       while (appp != NIL)
+         {
+         e1 = e1 + ZETA;
+         if (FIRST(ap) != 0)
+           r = 1;
+         ap = app;
+         app = appp;
+         appp = RED(app);
+         }
+       d0 = FIRST(app);
+       d1 = FIRST(ap);
+
+Step4: /* Normalize. */
+       d = ABS(d0);
+       h = ZETA;
+       while (d < TABP2[h])
+         h = h - 1;
+       h = ZETA - h;
+       m = TABP2[h + 1];
+       e1 = e1 - h;
+       d0 = d0 * m;
+       DPR(d1,m,&d1,&m);
+       a1 = d0 + d1;
+       a2 = a1;
+       e2 = e1;
+       if (r == 1 || m != 0)
+         {
+         if (a1 > 0)
+           {
+           a2 = a1 + 1;
+           if (a2 == BETA)
+             {
+             a2 = BETA / 2;
+             e2 = e2 + 1;
+             }
+           }
+         else
+           {
+           a1 = a1 - 1;
+           if (a1 == -BETA)
+             {
+             a1 = -BETA / 2;
+             e1 = e1 + 1;
+             }
+           }
+         }
+
+Step5: /* Assemble output. */
+       I = LIST2(LIST2(e1,a1),LIST2(e2,a2));
+
+Return: /* Prepare for return. */
+       return(I);
+}
+@

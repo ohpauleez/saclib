@@ -1,0 +1,98 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2002.03.28.18.29.41;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2002.03.28.17.58.56;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Gaussian integral polynomial to integral polynomials.
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@[ removed from library ]
+/*======================================================================
+                             GPTOIP(A; A1,A2)
+
+Gaussian integral polynomial to integral polynomials.
+
+Inputs
+   A : a univariate polynomial with Gaussian integer coefficients.
+
+Outputs
+  A1, A2: bivariate integral polynomials such that A(x + i y)
+          = A1(x,y) + i A2(x,y). 
+======================================================================*/
+#include "saclib.h"
+
+void GPTOIP(A, A1_,A2_)
+        Word A, *A1_,*A2_;
+{
+        int e,ep,j;
+        Word a,A1,A2,Ap,B,C,D;
+
+Step1:  /* Initialize. */
+         A1 = 0;
+         A2 = 0;
+         Ap = A;
+
+Step2:  /* A = 0. */
+         if (A == 0) goto Return;
+
+Step3:  /* Horner scheme. */
+         while (Ap != NIL) {
+           ADV2(Ap,&e,&a,&Ap);
+           A1 = IPSUM(2,A1,PINV(0,GIRP(a),2));
+           A2 = IPSUM(2,A2,PINV(0,GIIP(a),2));
+           if (Ap == NIL) ep = 0;
+           else ep = FIRST(Ap);
+           for (j = 1; j <= e - ep; j++) {
+             B = PMPSV(A1,1,1,1);
+             C = PMPMV(A2,1);
+             D = IPDIF(2,B,C);
+             B = PMPMV(A1,1);
+             C = PMPSV(A2,1,1,1);
+             A2 = IPSUM(2,B,C);
+             A1 = D; } }
+
+Return: /* Prepare for return. */
+        *A1_ = A1;
+        *A2_ = A2;
+        return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+d20 1
+a20 1
+        Word a,A1,A2,Ap,B,C,D,e,ep,j;
+d38 1
+a38 1
+             B = PMPSV(A1,1);
+d42 1
+a42 1
+             C = PMPSV(A2,1);
+@

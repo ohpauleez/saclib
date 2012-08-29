@@ -1,0 +1,76 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.16.47.30;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.18.42;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point real absolute value.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFRABS(u)
+a2 31
+Single-precision floating-point real absolute value.  
+
+Inputs
+  u : a single-precision floating-point real number.  
+
+Outputs
+  w : abs(u).
+======================================================================*/
+#include "saclib.h"
+
+Word SFRABS(u)
+       Word u;
+{
+       Word a,ap,e,w;
+       /* hide algorithm */
+
+Step1: /* u=0. */
+       if (u == 0)
+         {
+         w = 0;
+         goto Return;
+         }
+
+Step2: /* u /= 0. */
+       FIRST2(u,&e,&a);
+       ap = ABS(a);
+       w = LIST2(e,ap);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

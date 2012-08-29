@@ -1,0 +1,75 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.11.59.03;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.11.58.25;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic module univariate polynomial binary homothetic transformation.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			     B <- AMUPBHT(A,k)
+
+Algebraic module univariate polynomial binary homothetic transformation.
+
+Inputs
+  A : in Z[alpha,X], A non-zero.
+  k : a BETA-digit.
+
+Outputs
+  B : in Z[X], B(X) = 2^(-h) * A(2^k*X),
+      where h is uniquely determined so that B is an
+      integral polynomial not divisible by 2.
+===========================================================================*/
+#include "saclib.h"
+
+Word AMUPBHT(A,k)
+       Word A,k;
+{
+       Word B;
+
+Step1: /* Compute. */
+       B = IPBHTMV(2,A,k);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      B <- AMUPBHT(A,k)
+d8 1
+a8 1
+  k : a GAMMA-integer.
+d14 1
+a14 1
+======================================================================*/
+@

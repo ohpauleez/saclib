@@ -1,0 +1,56 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2002.03.28.17.42.08;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Hardware interval difference.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      K <- HIDIF(I,J)
+
+Hardware interval difference.
+
+Inputs
+   I, J : Hardware intervals.  
+
+Output
+   K : the smallest hardware interval containing I - J.
+
+Warning
+   HIDIF is not floating-point overflow-underflow protected.
+======================================================================*/
+#include "saclib.h"
+#include "complex.h"
+
+interval HIDIF(I,J)
+	interval I,J;
+{
+	interval K;
+
+Step1: /* Subtract opposite endpoints. */
+	rounddown();
+        K.left = I.left - J.right;
+        roundup();
+        K.right = I.right - J.left;
+
+Return: /* Return K. */
+	return(K);
+}
+@

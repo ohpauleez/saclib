@@ -1,0 +1,52 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	95.08.11.09.20.32;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Free matrix.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			FREEMATRIX(A,n)
+
+Free matrix.
+
+Input
+  A : a pointer to an array of pointers to Words.  The memory for A
+      was allocated by the function GETMATRIX.
+  n : the dimension of A (the number of pointers).
+
+Side effect
+  The memory allocated to A is freed.
+===========================================================================*/
+#include "saclib.h"
+
+void FREEMATRIX(A,n)
+       Word **A,n;
+{
+       Word i;
+Step1:  /* Free memory. */
+       for (i = 0; i < n; i++)
+	  FREEARRAY(A[i]);
+       free(A);
+
+Return: /* Prepare for return. */
+       return;
+}
+@

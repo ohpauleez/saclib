@@ -1,0 +1,88 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	99.07.15.15.14.46;	author George;	state embe;
+branches;
+next	1.2;
+
+1.2
+date	95.10.11.13.21.40;	author Chris;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	95.08.16.22.31.24;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Finite ring array polynomial get memory.
+@
+
+
+1.3
+log
+@Removed the line #include <stdlib> since this include statement is
+now in saclib.h.
+@
+text
+@/*===========================================================================
+			A <- FRAPGET(d,n)
+
+Finite ring array polynomial get memory.
+
+Inputs
+  d, n: positive BETA-digits.
+
+Outputs
+  A : a pointer to an array large enough to hold an element of
+      (Z/(m)[x])/(M)[y] having degree d, where M has degree n.
+===========================================================================*/
+#include <stdio.h>
+#include "saclib.h"
+
+Word **FRAPGET(d,n)
+       Word d,n;
+{
+       Word **A,i;
+
+Step1: /* Allocate memory for polynomial. */
+       A = (Word **)malloc((d+2)*sizeof(Word *));
+       if (A == NULL)
+          FAIL("FRAPGET","Out of memory.");
+       A = A + 1;
+       A[-1] = GETARRAY(2);
+       FRAPSIZE(A) = d;
+       for (i = 0; i <= d; i++)
+	  FRAPCF(A,i) = MAPGET(n);
+
+Return: /* Prepare for return. */
+       return(A);
+}
+@
+
+
+1.2
+log
+@Included stdio.h to ensure that NULL is always defined.
+@
+text
+@a13 1
+#include <stdlib.h>
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d13 1
+@

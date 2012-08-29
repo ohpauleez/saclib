@@ -1,0 +1,191 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.17.01.07;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.17.00.43;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial mod ideal quadratic hensel lemma.
+@
+
+
+1.2
+log
+@Calls to IQ have been replaced by calls to IEQ.
+@
+text
+@/*===========================================================================
+		     IPIQH(r,p,D,Ab,Bb,Sb,Tb,M,C; A,B)
+
+Integral polynomial mod ideal quadratic hensel lemma.
+
+Inputs
+ r        : a BETA-digit, r >= 1.
+ p        : a BETA-digit, p prime.
+ D        : a list (d1,...,d_{r-1}), with di BETA-digits, di >= 0.
+ Ab       : in Z/(p)[x_1,...,x_{r-1},y]/(x_1^d1,...,x_{r-1}^d_{r-1}), 
+            Ab monic, deg_y(Ab) > 0.
+ Bb,Sb,Tb : in Z/(p)[x_1,...,x_{r-1},y]/(x_1^d1,...,x_{r-1}^d_{r-1}),
+            such that Ab*Sb + Bb*Tb = 1.
+ M        : in Z, M = p^j for some j in Z, j > 0.
+ C        : in Z[x_1,...,x_{r-1}], C congruent to Ab*Bb.
+
+Outputs
+ A,B : Z/(M)[x_1,...,x_{r-1},y]/(x_1^d1,...,x_{r-1}^d_{r-1}), with
+       A monic, 
+       deg_y(A) = deg_y(Ab), 
+       A congruent to Ab, 
+       B congruent to Bb, and 
+       A*B congruent to C.
+===========================================================================*/
+#include "saclib.h"
+
+void IPIQH(r,p,D,Ab,Bb,Sb,Tb,M,C, A_,B_)
+       Word r,p,D,Ab,Bb,Sb,Tb,M,C, *A_,*B_;
+{
+       Word A,As,At,B,Bs,Bt,I,R,Rp,S,Ss,St,T,Ts,Tt,U,U1,Ut,Y,Y1,Z,Z1,
+            c,q,qs,qt;
+
+Step1: /* Initialize. */
+       q = p;
+       A = Ab;
+       B = Bb;
+       S = Sb;
+       T = Tb;
+       I = PINV(0,1,r);
+       if (q == M)
+	  goto Return;
+
+Step2: /* Compute Y,Z. */
+       R = MIPIPR(r,M,D,A,B);
+       R = IPDIF(r,C,R);
+       U = IPIQ(r,R,q);
+       qs = IPROD(q,q);
+       c = ICOMP(qs,M);
+       if (c > 0) {
+	  qt = IEQ(M,q);
+	  At = MIPHOM(r,qt,A);
+	  Bt = MIPHOM(r,qt,B);
+	  St = MIPHOM(r,qt,S);
+	  Tt = MIPHOM(r,qt,T); }
+       else {
+	  qt = q;
+	  At = A;
+	  Bt = B;
+	  St = S;
+	  Tt = T; }
+       Ut = MIPHOM(r,qt,U);
+       MIPISE(r,qt,D,At,Bt,St,Tt,Ut,&Y,&Z);
+
+Step3: /* Compute As,Bs and check for end. */
+       R = IPIP(r,q,Z);
+       As = IPSUM(r,A,R);
+       R = IPIP(r,q,Y);
+       Bs = IPSUM(r,B,R);
+       if (c >= 0) {
+	  A = As;
+	  B = Bs;
+	  goto Return; }
+
+Step4: /* Compute Y1,Z1. */
+       R = MIPIPR(r,qs,D,As,S);
+       Rp = MIPIPR(r,qs,D,Bs,T);
+       R = MIPSUM(r,qs,R,Rp);
+       R = MIPDIF(r,qs,R,I);
+       U1 = IPIQ(r,R,q);
+       MIPISE(r,q,D,A,B,S,T,U1,&Y1,&Z1);
+
+Step5: /* Compute Ss,Ts. */
+       R = IPIP(r,q,Y1);
+       Ss = MIPDIF(r,qs,S,R);
+       R = IPIP(r,q,Z1);
+       Ts = MIPDIF(r,qs,T,R);
+
+Step6: /* Advance. */
+       q = qs;
+       A = As;
+       B = Bs;
+       S = Ss;
+       T = Ts;
+       goto Step2;
+
+Return: /* Prepare for return. */
+       *A_ = A;
+       *B_ = B;
+       return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      IPIQH(r,p,D,Ab,Bb,Sb,Tb,M,C; A,B)
+d10 3
+a12 4
+ Ab       : in Z/(p)[X1,...,X_{r-1},Y]/(X1^d1,...,X_{r-1}^d_{r-1}), 
+            Ab monic,
+            deg_Y(Ab) > 0.
+ Bb,Sb,Tb : in Z/(p)[X1,...,X_{r-1},Y]/(X1^d1,...,X_{r-1}^d_{r-1}),
+d15 1
+a15 1
+ C        : in Z[X1,...,X_{r-1}], C congruent to Ab*Bb.
+d18 1
+a18 1
+ A,B : Z/(M)[X1,...,X_{r-1},Y]/(X1^d1,...,X_{r-1}^d_{r-1}), with
+d20 1
+a20 1
+       deg_Y(A) = deg_Y(Ab), 
+d24 1
+a24 1
+======================================================================*/
+a31 1
+       /* hide c; */
+d41 1
+a41 1
+         goto Return;
+d49 12
+a60 16
+       if (c > 0)
+         {
+         qt = IQ(M,q);
+         At = MIPHOM(r,qt,A);
+         Bt = MIPHOM(r,qt,B);
+         St = MIPHOM(r,qt,S);
+         Tt = MIPHOM(r,qt,T);
+         }
+       else
+         {
+         qt = q;
+         At = A;
+         Bt = B;
+         St = S;
+         Tt = T;
+         }
+d69 4
+a72 6
+       if (c >= 0)
+         {
+         A = As;
+         B = Bs;
+         goto Return;
+         }
+@

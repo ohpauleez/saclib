@@ -1,0 +1,385 @@
+head	1.13;
+access;
+symbols;
+locks
+	saclib:1.13; strict;
+comment	@ * @;
+
+
+1.13
+date	95.08.16.23.09.50;	author Mark;	state algo;
+branches;
+next	1.12;
+
+1.12
+date	95.08.16.22.38.11;	author Mark;	state algo;
+branches;
+next	1.11;
+
+1.11
+date	95.08.16.14.53.43;	author Mark;	state bug;
+branches;
+next	1.10;
+
+1.10
+date	95.08.11.12.04.25;	author Mark;	state algo;
+branches;
+next	1.9;
+
+1.9
+date	94.09.18.12.49.42;	author Mark;	state algo;
+branches;
+next	1.8;
+
+1.8
+date	94.08.21.12.02.08;	author George;	state algo;
+branches;
+next	1.7;
+
+1.7
+date	94.01.31.18.12.34;	author Werner;	state bug;
+branches;
+next	1.6;
+
+1.6
+date	94.01.09.22.28.37;	author Mark;	state bug;
+branches;
+next	1.5;
+
+1.5
+date	94.01.09.17.54.52;	author George;	state algo;
+branches;
+next	1.4;
+
+1.4
+date	93.09.18.10.38.12;	author Werner;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	93.06.01.17.37.17;	author Mark;	state new;
+branches;
+next	1.2;
+
+1.2
+date	93.05.17.12.55.56;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.12.53.57;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Header file for SACLIB macro definitions
+@
+
+
+1.13
+log
+@Made FREEARRAY a macro that is always defined.
+@
+text
+@/*===========================================================================
+			  sacmacros.h
+
+Header file for SACLIB macro definitions
+===========================================================================*/
+#ifndef SACMACROS_H
+#define SACMACROS_H
+
+#include "sacsys.h"
+#include "sactypes.h"
+
+
+/*---------------------------------------------------------------------------
+		Macros that are always defined.
+---------------------------------------------------------------------------*/
+
+#define FIRST(L)       SPACEB1[(L)]
+#define GCAGET(A,i)    (GCASPACEBp[(A)].array[(i)])
+#define GCASET(A,i,a)  (GCASPACEBp[(A)].array[(i)] = (a))
+#define ILENGTH(A)     (((A) < BETA) ? 1 : LENGTH(A))
+#define ILOG2A(A,n)    (((n)==0) ? 0 : ((n)-1)*ZETA + DLOG2((A)[(n)-1]))
+#define ISIGNA(A,n)    ((n) == 0 ? 0 : (((A)[(n)-1] > 0) ? 1 : -1))
+#define ISNIL(a)       ((a) == NIL)
+#define ISZERO(a)      ((a) == 0)
+#define RED(L)         SPACEB[(L)]
+#define SFIRST(L,a)    (SPACEB1[(L)] = (a))
+#define SRED(L,Lp)     (SPACEB[(L)] = (Lp))
+
+#define absm(a)        (((a) >= 0) ? (a) : -(a))
+#define maxm(a,b)      (((a) > (b)) ? (a) : (b))
+#define minm(a,b)      (((a) < (b)) ? (a) : (b))
+#define signm(a)       ((a) > 0 ? 1 : ((a) < 0 ? -1 : 0))
+
+
+/*---------------------------------------------------------------------------
+			     Arrays.
+---------------------------------------------------------------------------*/
+
+#define FREEARRAY(A)   free((A))
+
+
+/*---------------------------------------------------------------------------
+		       Array polynomials.
+---------------------------------------------------------------------------*/
+
+/* MAP coefficient */
+#define MAPCF(A,e)  (A[e])
+
+/* MAP degree */
+#define MAPDEG(A)   (A[-1])
+
+/* MAP free memory */
+#define MAPFREE(A)  FREEARRAY((A)-1)
+
+/* MAP get memory */
+#define MAPGET(n)   (GETARRAY((n)+2) + 1)
+
+/* MAP leading coefficient */
+#define MAPLDCF(A)  (MAPCF(A,MAPDEG(A)))
+
+/* MAP zero test */
+#define MAPZERO(A)  (MAPDEG(A) == 0 && MAPCF(A,0) == 0)
+
+
+/*---------------------------------------------------------------------------
+		 Finite ring array polynomials.
+---------------------------------------------------------------------------*/
+
+/* FRAP degree */
+#define FRAPDEG(A) (A[-1][0])
+
+/* FRAP size---the size of the array */
+#define FRAPSIZE(A) (A[-1][1])
+
+/* FRAP coefficient */
+#define FRAPCF(A,i)  (A[i])
+
+/* FRAP leading coefficient */
+#define FRAPLDCF(A)  (FRAPCF(A,FRAPDEG(A)))
+
+/* FRAP zero test */
+#define FRAPZERO(A) (FRAPDEG(A) == 0 && MAPZERO(FRAPLDCF(A)))
+
+
+/*---------------------------------------------------------------------------
+			   Matrices.
+---------------------------------------------------------------------------*/
+
+/* matrix element */
+#define MATELT(M,i,j)  (M[i][j])
+
+
+#ifndef NO_SACLIB_MACROS
+
+
+/*---------------------------------------------------------------------------
+			List processing.
+---------------------------------------------------------------------------*/
+
+#define RED2(L)        RED(RED(L))
+#define SECOND(L)      FIRST(RED(L))
+
+
+/* Arithmetic */
+
+#define ODD(a)         ((a) & 1)
+#define EVEN(a)        (!ODD(a))
+#define DAND(a,b)      ((a) & (b))
+#define DOR(a,b)       ((a) | (b))
+#define DNOT(a)        (~(a))
+#define DNIMP(a,b)     ((a) & ~(b))
+#define MDSUM(m,a,b)  (((a)+(b))%(m))
+
+
+/***
+ *
+ * The following macros give troubles w.r.t. side effects and therefore
+ * are commented out for the time being.
+ *
+ ***/
+
+/*
+#define ISATOM(a)      (-BETA < (a) && (a) < BETA)
+#define ISLIST(a)      ((BETA < (a) && (a) < BETAp && ((a) & 1)) || (a) == BETA)
+#define ISOBJECT(a)    (ISATOM(a) || ISLIST(a))
+#define ISGCA(a)       (BETAp < (a) && (a) < BETApp)
+#define ADV(L,a,Lp)    do {*(a)=FIRST(L); *(Lp)=RED(L);} while (0)
+#define QREM(a,b,q,r)  do {*(q)=(a)/(b); *(r)=(a)%(b);} while (0)
+#define MDDIF(m,a,b)   (((a)-(b)+(m))%(m))
+#define MDNEG(m,a)     ((a)==0?0:(m)-(a))
+*/
+
+#endif /* NO_SACLIB_MACROS */
+
+#endif /* SACMACROS_H */
+@
+
+
+1.12
+log
+@Introduced finite ring array polynomial macros.
+@
+text
+@d36 7
+a112 7
+
+
+/*---------------------------------------------------------------------------
+			     Arrays.
+---------------------------------------------------------------------------*/
+
+#define FREEARRAY(A)   free((A))
+@
+
+
+1.11
+log
+@Enclosed MAPDEG in parentheses.
+@
+text
+@d59 20
+@
+
+
+1.10
+log
+@Introduced modular array polynomial macros.
+Introduced macro for accessing matrix elements.
+@
+text
+@d43 1
+a43 1
+#define MAPDEG(A)  A[-1]
+d49 1
+a49 1
+#define MAPGET(n)  (GETARRAY((n)+2) + 1)
+@
+
+
+1.9
+log
+@Added macros ILENGTH, ILOG2A, and ISIGNA.
+@
+text
+@d2 1
+a2 1
+				sacmacros.h
+d13 3
+a15 1
+/* Macros which are always defined. */
+d34 32
+d69 3
+a71 1
+/* List processing */
+d88 3
+a90 1
+/* Arrays */
+d93 1
+@
+
+
+1.8
+log
+@A macro for EVEN was added.
+@
+text
+@d18 3
+@
+
+
+1.7
+log
+@signm(0) incorrectly returned -1.
+@
+text
+@d41 1
+@
+
+
+1.6
+log
+@Changed macro names of abs, max, min and sign to
+absm, maxm, minm and signm since abs had a conflict in stdlib.h.
+@
+text
+@d27 1
+a27 3
+#define signm(a)       (((a) > 0) ? 1 : -1)
+
+
+@
+
+
+1.5
+log
+@Added macro definitions of abs, max, min and sign.
+@
+text
+@d24 4
+a27 4
+#define abs(a)         (((a) >= 0)? (a) : -(a))
+#define max(a,b)       (((a) > (b)) ? (a) : (b))
+#define min(a,b)       (((a) < (b)) ? (a) : (b))
+#define sign(a)        (((a) > 0) ? 1 : -1)
+@
+
+
+1.4
+log
+@Modified ISLIST macro to return true on a == BETA.
+@
+text
+@d1 2
+a2 2
+/*===============================================
+                 sacmacros.h
+d4 2
+a5 2
+   Header file for SACLIB macro definitions
+===============================================*/
+d16 4
+d23 6
+a28 4
+#define ISNIL(a)       ((a) == NIL)
+#define ISZERO(a)      ((a) == 0)
+#define GCASET(A,i,a)  (GCASPACEBp[(A)].array[(i)] = (a))
+#define GCAGET(A,i)    (GCASPACEBp[(A)].array[(i)])
+d33 1
+d39 1
+d48 1
+@
+
+
+1.3
+log
+@A macro definition for FREEARRAY was added.
+@
+text
+@d54 1
+a54 1
+#define ISLIST(a)      (BETA <= (a) && (a) < BETAp && ((a) & 1))
+@
+
+
+1.2
+log
+@Macro definition for REM was removed since REM is now a subroutine.
+@
+text
+@d41 4
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a20 1
+#define REM(a,b)       ((a) % (b))
+@

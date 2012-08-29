@@ -1,0 +1,71 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.08.30.11.18.46;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.12.13.20.09.46;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Clear array.
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@/*===========================================================================
+				 CLEAR(A,n)
+
+Clear array.
+
+Inputs
+  A    : array of length >= n.
+  n    : positive BETA-digit.
+
+Effect : A[0],...,A[n-1] are set to 0.
+===========================================================================*/
+#include "saclib.h"
+
+void CLEAR(A,n)
+	Word *A,n;
+{
+        Word i;
+
+Step1: /* Do it. */
+       for (i = 0; i < n; i++)
+         A[i] = 0;
+
+Return: /* Prepare for return. */
+        return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d15 1
+a15 2
+	Word *A;
+        BDigit n;
+d17 1
+a17 1
+        BDigit i;
+@

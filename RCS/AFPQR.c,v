@@ -1,0 +1,126 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.05.17.14.59.35;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.14.55.15;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic number field polynomial quotient and remainder.
+@
+
+
+1.2
+log
+@The specification previously defined Q as B / A.
+@
+text
+@/*==========================================================================
+                      AFPQR(r,M,A,B; Q,R)
+
+Algebraic number field polynomial quotient and remainder.  
+
+Inputs
+    r : a BETA-digit, r >= 1.
+    M : in Z[x], the minimal polynomial for an algebraic number alpha.
+  A,B : in Q(alpha)[X1,...,Xr], B not zero.
+
+Outputs
+  Q,R : in Q(alpha)[X1,...,Xr].
+        Q and R are the unique algebraic number field polynomials
+        such that either B divides A, Q = A / B, and R = 0 or else B
+        does not divide A and A = BQ+R with degree(R) minimal.
+==========================================================================*/
+#include "saclib.h"
+
+void AFPQR(r,M,A,B, Q_,R_)
+       Word r,M,A,B, *Q_,*R_;
+{
+       Word Bp,Q,Q1,Qp,R,Rp,a,b,d,m,n,q,rp,s;
+
+Step1: /* Initialize. */
+       n = PDEG(B);
+       b = PLDCF(B);
+       Bp = PRED(B);
+       Q = NIL;
+       R = A;
+       rp = r - 1;
+
+Step2: /* Compute quotient terms. */
+       while (R != 0) {
+         m = PDEG(R);
+         d = m - n;
+         if (d < 0)
+           goto Step3;
+         a = PLDCF(R);
+         if (rp == 0) {
+           q = AFQ(M,a,b);
+           s = 0;
+	 } else
+           AFPQR(rp,M,a,b,&q,&s);
+         if (s != 0)
+           goto Step3;
+         Q = COMP2(q,d,Q);
+         Q1 = LIST2(d,q);
+         Rp = PRED(R);
+         Qp = AFPPR(r,M,Bp,Q1);
+         R = AFPDIF(r,Rp,Qp);
+       }
+
+Step3: /* Finish. */
+       if (Q == NIL)
+         Q = 0;
+       else
+         Q = INV(Q);
+
+Return: /* Prepare for return. */
+       *Q_ = Q;
+       *R_ = R;
+       return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d14 3
+a16 3
+        such that either B divides A, Q = B/A, and R = 0 or else B does not
+        divide A and A = BQ+R with degree(R) minimal.
+======================================================================*/
+a22 1
+       /* hide Rp,a,d,m,n,rp; */
+d33 1
+a33 2
+       while (R != 0)
+         {
+d39 1
+a39 2
+         if (rp == 0)
+           {
+d42 1
+a42 2
+           }
+         else
+d51 1
+a51 1
+         }
+@

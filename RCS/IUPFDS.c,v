@@ -1,0 +1,135 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.07.14.12.10.08;	author Mark;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	95.07.14.12.05.53;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral univariate polynomial factor degree set.
+@
+
+
+1.2
+log
+@Changed SMPRM to SPRIME.
+Initialized the prime list to the reductum of SPRIME
+so that the prime 2 will not be used.
+@
+text
+@/*===========================================================================
+			IUPFDS(A; p,F,C)
+
+Integral univariate polynomial factor degree set.
+
+Inputs
+  A : in Z[x], A non-zero, square-free.
+
+Outputs
+  p : in Z, the least examined prime in SPRIME which gave the smallest
+      number of factors unless A is found to be irreducible, in which
+      case p = 0.
+  F : a list, the distinct degree factorization of A over Z/(p) unless
+      p = 0, in which case F = ().
+  C : a characteristic set, the intersection of the degree sets of
+      factorizations over Z/(p) for as many as NPFDS primes p (fewer
+      only if SPRIME is exhausted or A is proved irreducible).
+===========================================================================*/
+#include "saclib.h"
+
+void IUPFDS(A, p_,F_,C_)
+       Word A, *p_,*F_,*C_;
+{
+       Word B,Bp,C,D,F,G,H,I,J,L,P,a,b,c,f,h,i,j,k,n,p,r,s;
+
+Step1: /* Initialize. */
+       p = 0;
+       P = RED(SPRIME); /* don't use the prime 2 */
+       n = PDEG(A);
+       a = PLDCF(A);
+       i = 0;
+       J = LIST2(0,1);
+       I = CSUN(IMP2(1,n),1);
+       n = n + 1;
+       C = IDIF(IMP2(1,n),1);
+
+Step2: /* Try primes. */
+       while (EQUAL(C,I) == 0 && i < NPFDS) {
+	  if (P == NIL) {
+	     if (p != 0)
+		goto Return;
+	     FAIL("IUPFDS","Prime list exhausted",A); }
+	  ADV(P,&r,&P);
+	  if (IDREM(a,r) != 0) {
+	     B = MPHOM(1,r,A);
+	     Bp = MUPDER(r,B);
+	     if (EQUAL(MUPGCD(r,B,Bp),J) == 1) {
+		Bp = MPMON(1,r,B);
+		G = MUPDDF(r,Bp);
+		H = G;
+		L = NIL;
+		k = 0;
+		do {
+		   ADV(H,&h,&H);
+		   FIRST2(h,&f,&b);
+		   c = PDEG(b);
+		   j = c / f;
+		   k = k + j;
+		   for (s = 1; s <= j; s++)
+		      L = COMP(f,L); }
+		while (H != NIL);
+		if (k < n) {
+		   p = r;
+		   n = k;
+		   F = G; }
+		D = CSFPAR(L);
+		C = CSINT(C,D);
+		i = i + 1; } } }
+
+Step3: /* Clean up. */
+       if (EQUAL(C,I) == 1) {
+	  p = 0;
+	  F = NIL; }
+
+Return: /* Prepare for return. */
+       *p_ = p;
+       *F_ = F;
+       *C_ = C;
+       return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+			      IUPFDS(A; p,F,C)
+d7 1
+a7 1
+  A : in Z[X], A non-zero, square-free.
+d10 1
+a10 1
+  p : in Z, the least examined prime in SMPRM which gave the smallest
+d17 1
+a17 1
+      only if SMPRM is exhausted or A is proved irreducible).
+d28 1
+a28 1
+       P = SMPRM;
+@

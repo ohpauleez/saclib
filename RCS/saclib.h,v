@@ -1,0 +1,307 @@
+head	1.7;
+access;
+symbols;
+locks
+	saclib:1.7; strict;
+comment	@ * @;
+
+
+1.7
+date	95.07.20.11.36.16;	author Mark;	state algo;
+branches;
+next	1.6;
+
+1.6
+date	95.07.19.12.56.01;	author Mark;	state algo;
+branches;
+next	1.5;
+
+1.5
+date	95.07.14.12.25.06;	author Mark;	state embe;
+branches;
+next	1.4;
+
+1.4
+date	94.01.09.17.57.13;	author George;	state algo;
+branches;
+next	1.3;
+
+1.3
+date	93.12.13.22.13.22;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	93.11.07.11.06.19;	author Werner;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.11.01.49;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Header file for SACLIB.
+@
+
+
+1.7
+log
+@Added declaration of NMPRIME.
+@
+text
+@/*===========================================================================
+				  saclib.h
+
+Header file for SACLIB
+===========================================================================*/
+#ifndef SACLIB_H
+#define SACLIB_H
+
+#include "sacsys.h"
+#include "sactypes.h"
+
+
+/*-------------------------------------------
+  Constants
+-------------------------------------------*/
+
+#define NIL            BETA
+
+#define GC_CHECK    0
+#define GC_NO_CHECK 1
+
+#define SAC_KEEPMEM 0
+#define SAC_FREEMEM 1
+
+/* FIXED   = dimension of fixed size array used in IPROD  to hold
+ * the operands. FIXEDX2 / 2 > FIXED >= MAXCLASSICAL.
+ */
+#define FIXED    200
+
+/* FIXEDX2 =  dimension of fixed size array used in IPROD to hold
+ * the result. FIXEDX2 > FIXED * 2.
+ */
+#define FIXEDX2  401
+
+/* WORK is the dimension of the fixed size work array for KARATSUBA
+ * it has to be >= 2(FIXED - a + 3 floor(log_2(FIXED - 3))),
+ * where a = 2^(k - 1) + 3 * k
+ * and k = ceiling(log_2(MAXCLASSICAL - 3)).
+ */
+#define WORK     400
+
+/* If integers are of length  <= MAXCLASSICAL
+ * classical multiplication is used,
+ * i.e. the Karatsuba algorithm is not invoked.
+ * MAXCLASSICAL <= FIXED.
+ * Also the Karatsuba algorithm KARATSUBA uses classical multiplication
+ * for operands of length <= MAXCLASSICAL.
+ * The Karatsuba algorithm requires MAXCLASSICAL >= 4.
+ */
+#define MAXCLASSICAL  14
+
+
+/*-------------------------------------------
+  Function Prototypes
+-------------------------------------------*/
+
+#include "sacproto.h"
+
+
+/*-------------------------------------------
+  Macros
+--------------------------------------------*/
+
+#include "sacmacros.h"
+
+
+/*-------------------------------------------
+  External Variables
+-------------------------------------------*/
+
+/* List processing
+ */
+extern Word AVAIL;
+extern char *BACSTACK;
+extern Word GCC;
+extern Word GCCC;
+extern Word GCAC;
+extern Word GCGLOBALS;
+extern Word GCM;
+extern Word NU;
+extern Word RHO;
+extern Word *SPACE;
+extern Word *SPACEB;
+extern Word *SPACEB1;
+extern Word GCAAVAIL;
+extern GCArray *GCASPACE;
+extern GCArray *GCASPACEBp;
+extern Word NUp;
+extern Word BETAp;
+extern Word BETApp;
+
+/* Timing
+ */
+extern Word TAU;
+extern Word TAU0;
+extern Word TAU1;
+
+/* Integer arithmetic
+ */
+extern Word DELTA;
+extern Word EPSIL;
+extern Word ETA;
+extern Word RINC;
+extern Word RMULT;
+extern Word RTERM;
+extern Word TABP2[];
+extern Word THETA;
+extern Word TMI[128];
+extern Word ZETA;
+
+/* Miscellaneous
+ */
+extern Word NPFDS;
+extern Word SPRIME;
+extern Word NSPRIME;
+extern Word MPRIME;
+extern Word NMPRIME;
+extern Word LPRIME;
+extern Word NLPRIME;
+extern Word UZ210;
+extern Word NPTR1;
+extern Word GCAPTR1;
+
+/* Input/Output
+ */
+extern Word LASTCHAR;
+
+#endif
+@
+
+
+1.6
+log
+@Added declaration for the medium prime list MPRIME.
+@
+text
+@d114 5
+a119 4
+extern Word LPRIME;
+extern Word MPRIME;
+extern Word NSPRIME;
+extern Word SPRIME;
+@
+
+
+1.5
+log
+@Changed PRIME to LPRIME, and SMPRM to SPRIME.
+@
+text
+@d116 1
+@
+
+
+1.4
+log
+@Added extern declaration of TMI[128], the table of inverses
+modulo BETA = 2^29.
+@
+text
+@d114 4
+a117 4
+extern Word NPRIME;
+extern Word PRIME;
+extern Word NSMPRM;
+extern Word SMPRM;
+@
+
+
+1.3
+log
+@Defined the constants:
+	FIXED
+	FIXEDX2
+	WORK
+	MAXCLASSICAL
+
+Deleted definitions of the constants:
+	CLASSICAL
+	CLASSICALX2
+	KARATSUBABASE
+@
+text
+@d4 1
+a4 1
+			   Header file for SACLIB
+d108 1
+@
+
+
+1.2
+log
+@The constants CLASSICAL, CLASSICALX2 and KARATSUBABASE are now defined.
+These are needed in connection with the new integer multiplication
+routines.
+@
+text
+@d1 2
+a2 2
+/*===============================================
+                 saclib.h
+d4 2
+a5 2
+          Header file for SACLIB
+===============================================*/
+d25 26
+a50 4
+/*  If integers are of length  <= CLASSICAL         */
+/*  classical multiplication is used,               */
+/*  i.e. the Karatsuba algorithm is not invoked.    */
+/*  CLASSICALX2 must be >= CLASSICAL * 2.           */
+a51 2
+#define CLASSICAL    25
+#define CLASSICALX2  50
+a52 6
+/*  For operands of length  <=  KARATSUBABASE                 */
+/*  the Karatsuba algorithm uses classical multiplication.    */
+
+#define KARATSUBABASE    8
+
+
+a66 1
+
+d71 2
+a72 2
+/* List processing */
+
+d92 2
+a93 2
+/* Timing */
+
+d98 2
+a99 2
+/* Integer arithmetic */
+
+d110 2
+a111 2
+/* Miscellaneous */
+
+d121 2
+a122 2
+/* Input/Output */
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d25 13
+@

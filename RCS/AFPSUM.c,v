@@ -1,0 +1,187 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.05.11.14.27.43;	author Mark;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.05.11.14.25.14;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic number field polynomial sum.
+@
+
+
+1.2
+log
+@Input r = 0 is OK.
+@
+text
+@/*===========================================================================
+			     C <- AFPSUM(r,A,B)
+
+Algebraic number field polynomial sum. 
+
+Inputs
+    r : a non-negative BETA-digit.
+  A,B : in Q(alpha)[x_1,...,x_r].
+
+Outputs
+    C : in Q(alpha)[x_1,...,x_r], C = A + B.
+===========================================================================*/
+#include "saclib.h"
+
+Word AFPSUM(r,A,B)
+       Word r,A,B;
+{
+       Word Ap,Bp,C,Cp,a,b,c,e,f,rp;
+
+Step1: /* A or B zero. */
+       if (A == 0) {
+	  C = B;
+	  goto Return; }
+       if (B == 0) {
+	  C = A;
+	  goto Return; }
+
+Step2: /* r = 0. */
+       if (r == 0) {
+	  C = AFSUM(A,B);
+	  goto Return; }
+
+Step3: /* Match coefficients. */
+       Ap = A;
+       Bp = B;
+       Cp = NIL;
+       rp = r - 1;
+       do {
+	  e = FIRST(Ap);
+	  f = FIRST(Bp);
+	  if (e > f) {
+	     ADV2(Ap,&e,&a,&Ap);
+	     Cp = COMP2(a,e,Cp); }
+	  else
+	     if (e < f) {
+		ADV2(Bp,&f,&b,&Bp);
+		Cp = COMP2(b,f,Cp); }
+	     else {
+		ADV2(Ap,&e,&a,&Ap);
+		ADV2(Bp,&f,&b,&Bp);
+		if (rp == 0)
+		   c = AFSUM(a,b);
+		else
+		   c = AFPSUM(rp,a,b);
+		if (c != 0)
+		   Cp = COMP2(c,e,Cp); } }
+       while (Ap != NIL && Bp != NIL);
+
+Step4: /* Finish. */
+       if (Ap == NIL)
+	  Ap = Bp;
+       if (Cp == NIL)
+	  C = Ap;
+       else {
+	  C = INV(Cp);
+	  SRED(Cp,Ap); }
+       if (C == NIL)
+	  C = 0;
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- AFPSUM(r,A,B)
+d7 2
+a8 2
+    r : a BETA-digit, r >= 1.
+  A,B : in Q(alpha)[X1,...,Xr].
+d11 2
+a12 2
+    C : in Q(alpha)[X1,...,Xr], C = A+B.
+======================================================================*/
+a18 1
+       /* hide C,a,b,f,rp; */
+d21 6
+a26 10
+       if (A == 0)
+         {
+         C = B;
+         goto Return;
+         }
+       if (B == 0)
+         {
+         C = A;
+         goto Return;
+         }
+d29 3
+a31 5
+       if (r == 0)
+         {
+         C = AFSUM(A,B);
+         goto Return;
+         }
+d38 20
+a57 28
+       do
+         {
+         e = FIRST(Ap);
+         f = FIRST(Bp);
+         if (e > f)
+           {
+           ADV2(Ap,&e,&a,&Ap);
+           Cp = COMP2(a,e,Cp);
+           }
+         else
+           if (e < f)
+             {
+             ADV2(Bp,&f,&b,&Bp);
+             Cp = COMP2(b,f,Cp);
+             }
+           else
+             {
+             ADV2(Ap,&e,&a,&Ap);
+             ADV2(Bp,&f,&b,&Bp);
+             if (rp == 0)
+               c = AFSUM(a,b);
+             else
+               c = AFPSUM(rp,a,b);
+             if (c != 0)
+               Cp = COMP2(c,e,Cp);
+             }
+         }
+       while (!(Ap == NIL || Bp == NIL));
+d61 1
+a61 1
+         Ap = Bp;
+d63 4
+a66 6
+         C = Ap;
+       else
+         {
+         C = INV(Cp);
+         SRED(Cp,Ap);
+         }
+d68 1
+a68 1
+         C = 0;
+@

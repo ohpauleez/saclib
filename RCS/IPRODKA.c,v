@@ -1,0 +1,222 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	93.12.13.19.45.30;	author Werner;	state del;
+branches;
+next	1.2;
+
+1.2
+date	93.11.07.16.46.45;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.11.33.52;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Integer product, Karatsuba algorithm, using arrays.
+@
+
+
+1.3
+log
+@This function has been removed from the library.
+@
+text
+@[ removed from library ]
+/*===========================================================================
+			     IPRODKA(A,m,B,n,C)
+
+Integer product, Karatsuba algorithm, using arrays.
+
+Inputs
+  m,n  : positive beta-integers, m >= n.
+  A, B : arrays of lengths m and n respectively containing non-negative
+         integers A' and B'.
+  C    : an array of length m + n.
+
+Effect : C' = A' * B' is produced in C.
+===========================================================================*/
+#include "saclib.h"
+
+void IPRODKA(A,m,B,n,C)
+       Word *A,m,*B,n,*C;
+{
+       Word cp,i,j,k,mp,np,q,r,s,t,t1,t2,t4,u;
+       Word *Ap,*App,*Bp,*Bpp,*Cp,c;
+       Word *T1,*Tp1,*T2,*Tp2,*T3,*Tp3,*T4,*Tp4;
+
+Step1: /* Use classical algorithm if n is small. */
+       if (n <= KARATSUBABASE) {
+	  IPRODA(A,m,B,n,C);
+	  goto Return; }
+
+Step2: /* m < 2*n. */
+       if (m >= n + n)
+	  goto Step3;
+
+       /* Segment A' and B'. */ 
+       k = (m + ODD(m))/2;
+       mp = k + k;
+       Ap = A + k;
+       Bp = B + k;
+
+       /*Compute the three needed products. */
+       T1 = GETARRAY(mp);
+       Tp1 = T1 + k;
+       if (m - k < k)
+	  App = COPYARRAY(Ap,m - k,k);
+       else
+	  App = Ap;
+       s = IDIFA(k,App,A,T1);
+       if (n - k < k)
+	  Bpp = COPYARRAY(Bp,n - k,k);
+       else
+	  Bpp = Bp;
+       t = IDIFA(k,B,Bpp,Tp1);
+       T2 = GETARRAY(mp);
+       IPRODKA(T1,k,Tp1,k,T2);
+       u = s * t;
+       if (u < 0)
+	  for (i = 0; i < mp; i++)
+	     T2[i] = -T2[i];
+       T3 = GETARRAY(mp);
+       IPRODKA(A,k,B,k,T3);
+       ISUMA(mp,T2,T3,T1,&t1);
+       IPRODKA(App,k,Bpp,k,T2);
+       if (m - k < k)
+	  FREEARRAY(App);
+       if (n - k < k)
+	  FREEARRAY(Bpp);
+       T4 = GETARRAY(mp);   
+       ISUMA(mp,T1,T2,T4,&t2);
+
+       /* Determine t4 = the (2k+1)-th BETA-digit of T4. */
+       if (t1 == 1 || t2 == 1)
+	  t4 = 1;
+       else
+	  t4 = 0;
+       FREEARRAY(T1);
+
+       /* Shift and add. */
+       for (i = 0; i < k; i++)
+	  C[i] = T3[i];
+       cp = 0;
+       Tp3 = T3 + k;
+       Cp = C + k;
+       for (i = 0; i < k; i++) {
+	  c = Tp3[i] + T4[i] + cp;
+	  cp = c >> ZETA;
+	  c = c & BETA1;
+	  Cp[i] = c; }
+       Tp4 = T4 + k;
+       Cp = Cp + k;
+       for (i = 0; i < k; i++) {
+	  c = Tp4[i] + T2[i] + cp;
+	  cp = c >> ZETA;
+	  c = c & BETA1;
+	  Cp[i] = c; }
+       /* remember t4, the (2k+1)-th digit of T4. */
+       cp = cp + t4;
+       Tp2 = T2 + k;
+       Cp = Cp + k;
+       i = 0;
+       while (cp != 0) {
+	  c = Tp2[i] + cp;
+	  cp = c >> ZETA;
+	  c = c & BETA1;
+	  Cp[i] = c;
+	  i = i + 1; }
+       while (i < k) {
+	  Cp[i] = Tp2[i];
+	  i++; }
+       FREEARRAY(T2);
+       FREEARRAY(T3);
+       FREEARRAY(T4);
+       goto Return;
+
+Step3: /* m >= 2 * n. */
+       np = n + n;
+       T1 = GETARRAY(np);
+       q = m/n;
+       r = m - q * n;
+       for (i = 0; i < n; i++)
+	  C[i] = 0;
+       Cp = C;
+       Ap = A;
+       for (j = 0; j < q; j++) {
+	  IPRODKA(Ap,n,B,n,T1);
+	  cp = 0;
+	  for (i = 0; i < n; i++) {
+	     c = Cp[i] + T1[i] + cp;
+	     cp = c >> ZETA;
+	     Cp[i] = c & BETA1; }
+	  while (cp != 0) {
+	     c = T1[i] + cp;
+	     cp = c >> ZETA;
+	     Cp[i] = c & BETA1;
+	     i = i + 1; }
+	  while (i < np) {
+	     Cp[i] = T1[i];
+	     i = i + 1; }
+	  Ap = Ap + n;
+	  Cp = Cp + n; }
+       if (r == 0)
+	  goto Return;
+       IPRODKA(B,n,Ap,r,T1);
+       cp = 0;
+       for (i = 0; i < n; i++) {
+	  c = Cp[i] + T1[i] + cp;
+	  cp = c >> ZETA;
+	  Cp[i] = c & BETA1; }
+       while (cp != 0) {
+	  c = T1[i] + cp;
+	  cp = c >> ZETA;
+	  Cp[i] = c & BETA1;
+	  i = i + 1; }
+       while (i < n + r) {
+	  Cp[i] = T1[i];
+	  i = i+ 1; }
+       FREEARRAY(T1);
+
+Return: /* Prepare for return. */
+	return;
+}
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d1 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d17 1
+a17 5
+       Word *A;
+       BDigit m;
+       Word *B;
+       Word n;
+       Word *C;
+d19 1
+a19 1
+       BDigit cp,i,j,k,mp,np,q,r,s,t,t1,t2,t4,u;
+@

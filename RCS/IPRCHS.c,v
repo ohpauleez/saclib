@@ -1,0 +1,132 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.27.52;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.19.12;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial real root calculation, high-precision special.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			     L <- IPRCHS(A,I,k)
+
+Integral polynomial real root calculation, high-precision special.
+
+Inputs
+  A : in Z[x], positive, primitive, squarefree, deg(A) > 0, gcd(A,A'')=1.
+  I : either the null list () or a standard interval or an interval
+      whose positive and non-positive parts are standard.
+  k : a BETA-digit.
+
+Outputs
+  L : a list (I_1,...,I_r) of binary rational isolating intervals
+      I_j=(a_j,b_j) for the r distinct real roots of A if I=(), for the
+      r distinct real roots of A in I if I /= (), with b_j - a_j <= 2^k.
+      I_j is a left-open and right-closed interval if a_j /= b_j,
+      a one-point interval if a_j=b_j.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPRCHS(A,I,k)
+       Word A,I,k;
+{
+       Word J,L,L1,b,s,sp,spp,t;
+
+Step1: /* Find strong isolation list for A. */
+       L = NIL;
+       L1 = IPSRM(A,I);
+       if (L1 == NIL)
+	  goto Return;
+
+Step2: /* Refine isolation list. */
+       do {
+	  ADV(L1,&J,&L1);
+	  b = SECOND(J);
+	  if (IUPBRE(A,b) == 0)
+	     J = LIST2(b,b);
+	  else {
+	     IPRCNP(A,J,&sp,&spp,&J);
+	     t = RILC(J,k);
+	     if (t == 0) {
+		s = sp * spp;
+		J = IPRCN1(A,J,s,k); } }
+	  L = COMP(J,L); }
+       while (L1 != NIL);
+       L = INV(L);
+
+Return: /* Prepare for return. */
+       return(L);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      L <- IPRCHS(A,I,k)
+d7 1
+a7 1
+  A : in Z[X], positive, primitive, squarefree, deg(A) > 0, gcd(A,A'')=1.
+d10 1
+a10 1
+  k : a GAMMA-integer.
+d13 6
+a18 6
+  L : a list (I1,...,Ir) of binary rational isolating intervals
+      Ij=(aj,bj) for the r distinct real roots of A if I=(), for the r
+      distinct real roots of A in I if I /= (), with bj - aj <= 2^k.
+      Ij is a left-open and right-closed interval if aj /= bj,
+      a one-point interval if aj=bj.
+======================================================================*/
+a24 1
+       /* hide b,s,sp,spp,t; */
+d30 1
+a30 1
+         goto Return;
+d33 13
+a45 19
+       do
+         {
+         ADV(L1,&J,&L1);
+         b = SECOND(J);
+         if (IUPBRE(A,b) == 0)
+           J = LIST2(b,b);
+         else
+           {
+           IPRCNP(A,J,&sp,&spp,&J);
+           t = RILC(J,k);
+           if (t == 0)
+             {
+             s = sp * spp;
+             J = IPRCN1(A,J,s,k);
+             }
+           }
+         L = COMP(J,L);
+         }
+       while (!(L1 == NIL));
+@

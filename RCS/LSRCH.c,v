@@ -1,0 +1,112 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.08.08.12.57.28;	author George;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	94.07.02.23.33.18;	author saclib;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.07.02.23.32.59;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@List search.
+@
+
+
+1.3
+log
+@Output specification was made clearer.
+@
+text
+@/*===========================================================================
+			      i <- LSRCH(a,A)
+
+List search.
+
+Input
+  A : is a list (A_1,...,A_n) of objects.
+  a : is an object. 
+  
+Output
+  i : the least j, if any, such that a = A_j; otherwise 0.
+===========================================================================*/
+#include "saclib.h"
+
+Word LSRCH(a,A)
+       Word a,A;
+{
+       Word Ap,a1,i;
+
+Step1: /* Search. */
+       Ap = A; i = 1;
+       while (Ap != NIL) {
+	  ADV(Ap,&a1,&Ap);
+	  if (EQUAL(a1,a))
+	     goto Return;
+	  i = i + 1; }
+       i = 0;
+
+Return: /* Prepare for return. */
+       return(i);
+}
+@
+
+
+1.2
+log
+@Algorithm was generalized to allow objects in the lists.
+@
+text
+@d11 1
+a11 2
+  i : the least j such that a = A_j as objects, if there exists such a j.
+      Otherwise i = 0.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      i <- LSRCH(a,A)
+d6 8
+a13 7
+Inputs
+  A  : list of BETA-integers  (a1,...,an), n >= 0.
+
+Outputs
+  i  : the smallest index such that ai = a ,if there exists such an index.
+       Otherwise i=0.
+======================================================================*/
+a19 1
+       /* hide algorithm */
+d22 6
+a27 9
+       Ap = A;
+       i = 1;
+       while (Ap != NIL)
+         {
+         ADV(Ap,&a1,&Ap);
+         if (a == a1)
+           goto Return;
+         i = i + 1;
+         }
+@

@@ -1,0 +1,140 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	98.11.16.14.39.22;	author saclib;	state del;
+branches;
+next	1.1;
+
+1.1
+date	98.11.16.14.39.08;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Matrix of modular digits null-space basis.
+@
+
+
+1.2
+log
+@This has been superceded by MMAMNSB.
+@
+text
+@/*======================================================================
+                      B <- MMDNSB(p,M)
+
+Matrix of modular digits null-space basis.
+
+Inputs
+  p : a BETA-digit, prime.
+  M : an m by n matrix over Z/(p).
+
+Outputs
+  B : a list (b1,...,br) of m-vectors representing a basis for the null
+      space of M (the set of all x such that Mx = 0). B is the empty list
+      if the null space of M is 0.
+
+Remarks:
+   M is modified.
+   If M represents a matrix by columns, 
+   then B is a basis for the null space 
+   consisting of all x such that xM = 0.
+======================================================================*/
+#include "saclib.h"
+
+Word MMDNSB(p,M)
+       Word p,M;
+{
+       Word B,C,Cp,M1,M2,Mp1,Mp2,V,Vp,a,c,i,k,m,v;
+       /* hide C,Cp,Mp2,Vp,a,c,i,k,m,v; */
+
+Step1: /* Initialize. */
+       M1 = M;
+       M2 = NIL;
+       B = NIL;
+       k = 1;
+       m = LENGTH(FIRST(M));
+
+Step2: /* Search for a pivot column. */
+       Mp1 = M1;
+       M1 = NIL;
+       while (Mp1 != NIL)
+         {
+         ADV(Mp1,&C,&Mp1);
+         ADV(C,&a,&C);
+         if (a != 0)
+           goto Step4;
+         M1 = COMP(C,M1);
+         }
+
+Step3: /* Generate a basis vector. */
+       V = NIL;
+       for (i = 1; i <= m - k; i++)
+         V = COMP(0,V);
+       V = COMP(1,V);
+       Mp2 = M2;
+       while (Mp2 != NIL)
+         {
+         ADV(Mp2,&C,&Mp2);
+         a = VMPIP(0,p,C,V);
+         V = COMP(a,V);
+         }
+       B = COMP(V,B);
+       M2 = COMP(0,M2);
+       goto Step5;
+
+Step4: /* Perform pivot operations. */
+       M2 = COMP(C,M2);
+       a = p - MDINV(p,a);
+       Cp = C;
+       while (Cp != NIL)
+         {
+         c = MDPROD(p,FIRST(Cp),a);
+         SFIRST(Cp,c);
+         Cp = RED(Cp);
+         }
+       while (Mp1 != NIL)
+         {
+         ADV(Mp1,&Vp,&Mp1);
+         ADV(Vp,&v,&Vp);
+         M1 = COMP(Vp,M1);
+         if (v != 0)
+           {
+           Cp = C;
+           while (Cp != NIL)
+             {
+             ADV(Cp,&c,&Cp);
+             a = MDPROD(p,c,v);
+             a = MDSUM(p,FIRST(Vp),a);
+             SFIRST(Vp,a);
+             Vp = RED(Vp);
+             }
+           }
+         }
+
+Step5: /* Finish. */
+       if (k < m)
+         {
+         k = k + 1;
+         goto Step2;
+         }
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

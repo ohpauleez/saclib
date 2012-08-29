@@ -1,0 +1,55 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	98.04.23.20.27.03;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+IEEE decimal write.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+			IEEEDWRITE(F,k)
+
+IEEE decimal write.
+
+Inputs
+   F : an ieee double.
+   k : a positive beta-digit.
+
+Effect
+   F is printed as a rounded k-decimal digit fraction, with a
+   trailing '+' or '-' indicating whether the exact value is
+   larger or smaller.
+======================================================================*/
+#include "saclib.h"
+
+void IEEEDWRITE(F,k)
+	ieee F;
+	BDigit k;
+{
+	Word G;
+
+Step1: /* Convert  and write. */
+	   G = IEEELBRN(F);
+	   LBRNDWRITE(G,k);
+
+Return: /* Return. */
+	return;
+}
+@

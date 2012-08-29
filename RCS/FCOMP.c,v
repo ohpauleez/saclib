@@ -1,0 +1,86 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.01.01.20.49.07;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	2000.01.01.20.46.20;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@@
+
+
+1.2
+log
+@Floating point comparison.
+@
+text
+@/*======================================================================
+                      s <- FCOMP(I,J)
+
+Floating point comparison.
+
+Inputs
+   I, J : floating point numbers of the same precision.
+
+Output
+   s : The sign of I - J;
+======================================================================*/
+#include "floats.h"
+
+BDigit FCOMP(I,J)
+	BDigit *I,*J;
+{
+	BDigit i,p,s;
+
+Step1: /* Different signs?. */
+	s = SIGN(I[1] - J[1]);
+	if (s != 0)
+	   goto Return;
+	if (I[1] == 0)
+	    goto Return;
+
+Step2: /* Different exponents. */
+	if (I[0] != J[0]) {
+	   s = SIGN(I[0] - J[0]);
+	   if (s != 0) {
+	      if (I[1] < 0)
+	         s = -s;
+	      goto Return; } }
+
+Step3: /* Compare mantissas. */
+	p = I[2];
+	i = p + 2;
+	while (i >= 3 && I[i] == J[i])
+	   i = 1 - 1;
+	if (i == 2) {
+	   s = 0;
+	   goto Return; }
+	else {
+	   s = SIGN(I[i] - J[i]);
+	   if (I[1] < 0)
+              s = -s; }
+	
+Return: /* Return s. */
+	return(s);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

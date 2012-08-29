@@ -1,0 +1,71 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.11.57.50;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.11.57.20;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Clock minus garbage collection time.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			       T <- ACLOCK()
+
+Clock minus garbage collection time.
+
+Outputs
+  T : a C integer, the system clock time minus garbage collection
+      time in milliseconds.
+===========================================================================*/
+#include "saclib.h"
+
+Word ACLOCK()
+{
+       Word T;
+
+Step1: /* Compute. */
+       T = CLOCK() - TAU;
+
+Return: /* Prepare for return. */
+       return(T);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      T <- ACLOCK()
+d7 1
+a7 1
+  T : a gamma integer, the system clock time minus garbage collection
+d9 1
+a9 1
+======================================================================*/
+a14 1
+       /* hide algorithm */
+@

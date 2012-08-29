@@ -1,0 +1,652 @@
+head	1.6;
+access;
+symbols;
+locks
+	saclib:1.6; strict;
+comment	@ * @;
+
+
+1.6
+date	99.07.26.17.37.19;	author Werner;	state embe;
+branches;
+next	1.5;
+
+1.5
+date	95.08.30.11.22.40;	author Mark;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	94.09.11.09.34.47;	author Werner;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	94.02.24.15.58.04;	author George;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	94.02.23.20.10.04;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.02.23.20.09.35;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer quotient and remainder.
+@
+
+
+1.6
+log
+@Replaced "SIZE" with "IQR_SIZE" to enable compilation of several
+programs in one file.
+@
+text
+@/*===========================================================================
+			       IQR(A,B; Q,R)
+
+Integer quotient and remainder.  
+
+Inputs
+  A, B  : in Z, B /= 0.  
+
+Outputs
+  Q     : the quotient, integral part of A/B.
+  R     : the remainder A - B * Q.
+===========================================================================*/
+#include "saclib.h"
+#include <malloc.h>
+#define IQR_SIZE 100
+
+void IQR(A,B, Q_,R_)
+       Word A,B, *Q_,*R_;
+{
+       Word *Ah,Ap[IQR_SIZE],*Bh,Bp[IQR_SIZE],Q,Qp[IQR_SIZE],*Qh,R;
+       Word a,ap,a0,a1,a2,b,bp,b0,b1,c,c0,c1,c2,
+            h,hp,i,j,k,m,N,n,s,s1,s2,o,q;
+
+Step1: /* B single-precision. */
+       if (B < BETA) {
+	  IDQR(A,B,&Q,&R);
+	  goto Return; }
+
+Step2: /* A single-precision. */
+       if (A < BETA) {
+	  Q = 0;
+	  R = A;
+	  goto Return; }
+
+Step3: /* Copy |A| and |B| into arrays; determine lengths and signs. */
+       IFLTA(A,Ap,IQR_SIZE,&Ah,&m,&s1,&o);
+       IFLTA(B,Bp,IQR_SIZE,&Bh,&n,&s2,&o);
+
+Step4: /* m <= n. */
+       if ( (m < n) || (m == n && Ah[m-1] < Bh[n-1]) ) {
+	  Q = 0;
+	  R = A;
+          goto Return; }
+
+Step5: /* Normalize. */
+       b = Bh[n-1];
+       hp = PDLOG2(b);
+       h = ZETA - hp;
+       ap = 0;
+       if (h > 0) {
+	  for (i = 0; i < m; i++) {
+	     a = Ah[i];
+	     Ah[i] = ((a << h) & BETA1) | ap;
+	     ap = a >> hp; }
+	  bp = 0;
+	  for (i = 0; i < n; i++) {
+	     b = Bh[i];
+	     Bh[i] = ((b << h) & BETA1) | bp;
+	     bp = b >> hp; } }
+       
+Step6: /* Obtain leading digits of divisor. */
+       b1 = Bh[n-1];
+       b0 = Bh[n-2];
+       
+Step7: /* Get array for quotient. */
+       if (m - n + 1 <= IQR_SIZE)
+	  Qh = Qp;
+       else 
+	  Qh = GETARRAY(m-n+1);
+
+Step8: /* Initialize loop. */
+       j = m;
+       k = m - n;
+
+Step9: /* Obtain high-order digits of dividend. */
+       if (j == m)
+	  a2 = ap;
+       else
+	  a2 = Ah[j];
+       a1 = Ah[j-1];
+       a0 = Ah[j-2];
+
+Step10: /* Compute quotient digit approximation q. */
+       if (a2 == b1) {
+          q = BETA - 1;
+          a1 = a1 + a2;
+          a2 = 0;
+          if (a1 >= BETA) {
+             a1 = a1 - BETA;
+             a2 = 1; } }
+       else {
+          PNDQR(a2,a1,b1,&q,&a1);
+          a2 = 0; }
+       DPR(b0,q,&c1,&c0);
+       a0 = a0 - c0;
+       if (a0 < 0) {
+	  a0 = a0 + BETA;
+	  a1 = a1 - 1; }
+       a1 = a1 - c1;
+       if ( a1 < 0) {
+	  a1 = a1 + BETA;
+	  a2 = a2 - 1; }
+       if (a2 < 0) {
+	  q = q - 1;
+	  a0 = a0 + b0;
+	  if (a0 >= BETA) {
+	     a0 = a0 - BETA;
+	     a1 = a1 + 1; }
+	  a1 = a1 + b1;
+	  if (a1 >= BETA) {
+	     a1 = a1 - BETA;
+	     a2 = a2 + 1; } }
+       
+Step11: /* Subtract q  times the remaining digits of the divisor. */
+       c = 0;
+       for (i = 0; i <= n - 3; i++) {
+	  DPR(Bh[i],q,&c2,&c1);
+	  a = Ah[j - n + i];
+	  a = a - c;
+	  if (a < 0) {
+	     a = a + BETA;
+	     c2 = c2 + 1; }
+	  a = a - c1;
+	  if (a < 0) {
+	     a = a + BETA;
+	     c2 = c2 + 1; }
+	  c = c2;
+	  Ah[j - n + i] = a; }
+       a0 = a0 - c;
+       if (a0 < 0) {
+	  a0 = a0 + BETA;
+	  a1 = a1 - 1;
+	  if (a1 < 0) {
+	     a1 = a1 + BETA;
+	     a2 = a2 - 1; } }
+       Ah[j - 2] = a0;
+       Ah[j - 1] = a1;
+       if (j < m)
+	  Ah[j] = a2;
+
+Step12: /* If the remainder is negative, decrease q by 1 and 
+	   add the divisor to the remainder. */
+       if (a2 < 0) {
+	  q = q - 1;
+	  c = 0;
+	  for (i = 0; i <= n - 1; i++) {
+	     a = Ah[j - n + i] + Bh[i] + c;
+	     if (a >= BETA) {
+		a = a - BETA;
+		c = 1; }
+	     else
+		c = 0;
+	     Ah[j - n + i] = a; }
+	  if (j < m)
+	     Ah[j] = 0; }
+
+Step13: /* Store q and return for next quotient digit, if any. */
+       Qh[k] = q;
+       if (j > n) {
+	  j = j - 1;
+	  k = k - 1;
+	  goto Step9; }
+
+Step14: /* De-normalize quotient and remainder. */
+       if (s2 > 0)
+	  s = s1;
+       else
+	  s = -s1;
+       Q = IFATL(Qh,m-n+1,s);
+       if (h > 0) {
+	  ap = 0;
+	  N = (01 << h) - 1;
+	  for (i = n - 1; i >= 0; i--) {
+	     a = Ah[i];
+	     Ah[i] = (a >> h) | ap; 
+	     ap = (a & N) << hp; } }
+       R = IFATL(Ah,n,s1);
+       
+Step15: /* Free dynamic arrays. */
+       if (m > IQR_SIZE) 
+	  FREEARRAY(Ah);
+       if (n > IQR_SIZE) 
+	  FREEARRAY(Bh);
+       if (m - n + 1 > IQR_SIZE)
+	  FREEARRAY(Qh);
+
+Return: /* Prepare for return. */
+       *Q_ = Q;
+       *R_ = R;
+       return;
+}
+@
+
+
+1.5
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d15 1
+a15 1
+#define SIZE 100
+d20 1
+a20 1
+       Word *Ah,Ap[SIZE],*Bh,Bp[SIZE],Q,Qp[SIZE],*Qh,R;
+d36 2
+a37 2
+       IFLTA(A,Ap,SIZE,&Ah,&m,&s1,&o);
+       IFLTA(B,Bp,SIZE,&Bh,&n,&s2,&o);
+d66 1
+a66 1
+       if (m - n + 1 <= SIZE)
+d180 1
+a180 1
+       if (m > SIZE) 
+d182 1
+a182 1
+       if (n > SIZE) 
+d184 1
+a184 1
+       if (m - n + 1 > SIZE)
+@
+
+
+1.4
+log
+@The first if-else statement in Step10 was changed.
+@
+text
+@d21 2
+a22 2
+       BDigit a,ap,a0,a1,a2,b,bp,b0,b1,c,c0,c1,c2,
+              h,hp,i,j,k,m,N,n,s,s1,s2,o,q;
+@
+
+
+1.3
+log
+@Logical connectives in Step4 were fixed.
+Step4: Ah[m] < Bh[m] changed to Ah[m-1] < Bh[n-1].
+Step15: Condition to free Qh fixed.
+@
+text
+@d85 6
+a90 5
+	  q = BETA - 1;
+	  a1 = a1 + a2;
+	  if (a1 >= BETA) {
+	     a1 = a1 - BETA;
+	     a2 = a2 - 1; } }
+d92 2
+a93 2
+	  PNDQR(a2,a1,b1,&q,&a1);
+	  a2 = 0; }
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d1 1
+a1 1
+/*================================================================
+d12 1
+a12 1
+=================================================================*/
+d14 1
+d20 3
+a22 3
+        Word *Ah,Ap[SIZE],*Bh,Bp[SIZE],Q,Qp[SIZE],*Qh,R;
+        BDigit a,ap,a0,a1,a2,b,bp,b0,b1,c,c0,c1,c2,
+               h,hp,i,j,k,m,N,n,s,s1,s2,o,q;
+d25 3
+a27 3
+        if (B < BETA) {
+	   IDQR(A,B,&Q,&R);
+	   goto Return; }
+d30 3
+a32 3
+        if (A < BETA) {
+	   Q = 0;
+	   R = A;
+d36 2
+a37 2
+        IFLTA(A,Ap,SIZE,&Ah,&m,&s1,&o);
+        IFLTA(B,Bp,SIZE,&Bh,&n,&s2,&o);
+d40 3
+a42 3
+        if ( (m < n) | (m == n & Ah[m] < Bh[n]) ) {
+           Q = 0;
+           R = A;
+d46 11
+a56 11
+        b = Bh[n-1];
+        hp = PDLOG2(b);
+        h = ZETA - hp;
+	ap = 0;
+        if (h > 0) {
+	   for (i = 0; i < m; i++) {
+	      a = Ah[i];
+	      Ah[i] = ((a << h) & BETA1) | ap;
+	      ap = a >> hp; }
+	   bp = 0;
+	   for (i = 0; i < n; i++) {
+d58 3
+a60 3
+	      Bh[i] = ((b << h) & BETA1) | bp;
+	      bp = b >> hp; } }
+ 
+d62 3
+a64 3
+        b1 = Bh[n-1];
+        b0 = Bh[n-2];
+
+d66 4
+a69 4
+	if (m - n + 1 <= SIZE)
+	   Qh = Qp;
+	else 
+           Qh = GETARRAY(m-n+1);
+d72 2
+a73 2
+        j = m;
+        k = m - n;
+d76 6
+a81 6
+        if (j == m)
+	   a2 = ap;
+        else
+	   a2 = Ah[j];
+	a1 = Ah[j-1];
+        a0 = Ah[j-2];
+d84 29
+a112 29
+        if (a2 == b1) {
+	   q = BETA - 1;
+ 	   a1 = a1 + a2;
+	   if (a1 >= BETA) {
+	      a1 = a1 - BETA;
+	      a2 = a2 - 1; } }
+	else  {
+	   PNDQR(a2,a1,b1,&q,&a1);
+	   a2 = 0; }
+	DPR(b0,q,&c1,&c0);
+	a0 = a0 - c0;
+	if (a0 < 0) {
+	   a0 = a0 + BETA;
+	   a1 = a1 - 1; }
+	a1 = a1 - c1;
+	if ( a1 < 0) {
+	   a1 = a1 + BETA;
+	   a2 = a2 - 1; }
+	if (a2 < 0) {
+	   q = q - 1;
+	   a0 = a0 + b0;
+	   if (a0 >= BETA) {
+	      a0 = a0 - BETA;
+	      a1 = a1 + 1; }
+	   a1 = a1 + b1;
+	   if (a1 >= BETA) {
+	      a1 = a1 - BETA;
+	      a2 = a2 + 1; } }
+
+d114 25
+a138 25
+        c = 0;
+        for (i = 0; i <= n - 3; i++) {
+	   DPR(Bh[i],q,&c2,&c1);
+	   a = Ah[j - n + i];
+	   a = a - c;
+	   if (a < 0) {
+	      a = a + BETA;
+	      c2 = c2 + 1; }
+	   a = a - c1;
+	   if (a < 0) {
+	      a = a + BETA;
+	      c2 = c2 + 1; }
+	   c = c2;
+	   Ah[j - n + i] = a; }
+	a0 = a0 - c;
+	if (a0 < 0) {
+	   a0 = a0 + BETA;
+	   a1 = a1 - 1;
+	   if (a1 < 0) {
+	      a1 = a1 + BETA;
+	      a2 = a2 - 1; } }
+	Ah[j - 2] = a0;
+	Ah[j - 1] = a1;
+	if (j < m)
+	   Ah[j] = a2;
+d142 13
+a154 13
+	if (a2 < 0) {
+	   q = q - 1;
+	   c = 0;
+	   for (i = 0; i <= n - 1; i++) {
+	      a = Ah[j - n + i] + Bh[i] + c;
+	      if (a >= BETA) {
+	         a = a - BETA;
+	         c = 1; }
+	      else
+	         c = 0;
+	      Ah[j - n + i] = a; }
+	   if (j < m)
+	      Ah[j] = 0; }
+d157 5
+a161 5
+	Qh[k] = q;
+        if (j > n) {
+	   j = j - 1;
+	   k = k - 1;
+	   goto Step9; }
+d164 14
+a177 14
+        if (s2 > 0)
+           s = s1;
+        else
+           s = -s1;
+        Q = IFATL(Qh,m-n+1,s);
+        if (h > 0) {
+	   ap = 0;
+	   N = (01 << h) - 1;
+	   for (i = n - 1; i >= 0; i--) {
+	      a = Ah[i];
+	      Ah[i] = (a >> h) | ap; 
+	      ap = (a & N) << hp; } }
+        R = IFATL(Ah,n,s1);
+
+d179 6
+a184 6
+        if (m > SIZE) 
+	   FREEARRAY(Ah);
+        if (n > SIZE) 
+	   FREEARRAY(Bh);
+	if (m - n + 1 > 0)
+	   FREEARRAY(Qh);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*===========================================================================
+d12 1
+a12 1
+===========================================================================*/
+d14 1
+d19 3
+a21 2
+       Word Ah,Ap,App,Appp,As,Bp,Bpp,Bs,Q,R,T,a,a0,a1,a2,b,b0,b1,c,
+            c0,c1,c2,cp1,d,i,m,n,q,r,s,t,u;
+d24 3
+a26 3
+       if (B < BETA) {
+	  IDQR(A,B,&Q,&R);
+	  goto Return; }
+d29 3
+a31 3
+       if (A < BETA) {
+	  Q = 0;
+	  R = A;
+d34 29
+a62 7
+Step3: /* Compare lengths. */
+       m = LENGTH(A);
+       n = LENGTH(B);
+       if (m < n) {
+	  Q = 0;
+	  R = A;
+	  goto Return; }
+d64 120
+a183 122
+Step4: /* Compute signs and normalize. */
+       s = ISIGNF(A);
+       T = LASTCELL(B);
+       b = FIRST(T);
+       t = SIGN(b);
+       b = ABS(b);
+       d = BETA / (b + 1);
+       Ap = IDPR(A,s * d);
+       Bp = IDPR(B,t * d);
+
+Step5: /* Compute App and Appp. */
+       App = Ap;
+       Appp = NIL;
+       for (i = 1; i <= m - n; i++) {
+	  ADV(App,&a,&App);
+	  Appp = COMP(a,Appp); }
+
+Step6: /* Obtain leading digits of divisor. */
+       Bpp = Bp;
+       for (i = 1; i <= n - 2; i++) 
+	  Bpp = RED(Bpp);
+       ADV2(Bpp,&b0,&b1,&Bpp);
+
+Step7: /* Initialize quotient. */
+       Q = NIL;
+
+Step8: /* Obtain high-order digits of dividend. */
+       As = App;
+       for (i = 1; i <= n - 2; i++) 
+	  As = RED(As);
+       ADV2(As,&a0,&a1,&As);
+       if (As == NIL)
+	  a2 = 0;
+       else
+	  a2 = FIRST(As);
+
+Step9: /* Compute quotient digit approximation q. */
+       if (a2 == b1)
+	  q = BETA - 1;
+       else
+	  DQR(a2,a1,b1,&q,&r);
+       do {
+	  DPR(b0,q,&c1,&c0);
+	  DPR(b1,q,&c2,&cp1);
+	  c1 = c1 + cp1;
+	  if (c1 >= BETA) {
+	     c1 = c1 - BETA;
+	     c2 = c2 + 1; }
+	  u = a2 - c2;
+	  if (u == 0)
+	     u = a1 - c1;
+	  if (u == 0)
+	     u = a0 - c0;
+	  q = q - 1; }
+       while (u < 0);
+       q = q + 1;
+
+Step10: /* Subtract q*Bp from App. */
+       As = App;
+       Bs = Bp;
+       Ah = NIL;
+       c = 0;
+       for (i = 1; i <= n; i++) {
+	  ADV(Bs,&b,&Bs);
+	  DPR(b,q,&c2,&c1);
+	  ADV(As,&a,&As);
+	  a = a - c;
+	  a = a - c1;
+	  c = c2;
+	  while (a < 0) {
+	     a = a + BETA;
+	     c = c + 1; }
+	  Ah = COMP(a,Ah); }
+       if (As == NIL)
+	  a = 0;
+       else
+	  a = FIRST(As);
+       a = a - c;
+
+Step11: /* Adjust q if necessary. */
+       if (a < 0) {
+	  q = q - 1;
+	  goto Step10; }
+       else
+	  App = INV(Ah);
+
+Step12: /* Put q in list. */
+       if (Q != NIL || q != 0)
+	  Q = COMP(q,Q);
+
+Step13: /* Return for next quotient digit, if any. */
+       if (Appp != NIL) {
+	  ADV(Appp,&a,&Appp);
+	  App = COMP(a,App);
+	  goto Step8; }
+
+Step14: /* Normalize quotient and remainder. */
+       if (Q == NIL)
+	  Q = 0;
+       else
+	  if (RED(Q) == NIL)
+	     Q = FIRST(Q);
+       T = 0;
+       As = App;
+       do {
+	  a = FIRST(As);
+	  if (a != 0)
+	     T = As;
+	  As = RED(As); }
+       while (As != NIL);
+       if (T == 0)
+	  R = 0;
+       else {
+	  SRED(T,NIL);
+	  R = App;
+	  if (RED(R) == NIL)
+	     R = FIRST(R); }
+
+Step15: /* Modify quotient and remainder. */
+       if (s * t == -1)
+	  Q = INEG(Q);
+       IDQR(R,s * d,&R,&T);
+@

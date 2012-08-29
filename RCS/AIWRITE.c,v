@@ -1,0 +1,48 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2001.05.11.18.26.00;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Array integer write.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                          AIWRITE(A)
+
+Input
+   A : an integer in array representation.
+
+Effect
+   A is written in the output stream.
+======================================================================*/
+#include "saclib.h"
+
+void AIWRITE(A)
+	BDigit *A;
+{
+	Word B;
+
+Step1: /* Convert to list representation and write. */
+	B = AII(A);
+	IWRITE(B);
+
+Return: /* Return. */
+	return;
+}
+@

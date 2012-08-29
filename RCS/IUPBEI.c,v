@@ -1,0 +1,146 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	96.04.29.08.13.29;	author Werner;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	96.04.29.08.11.30;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral univariate polynomial binary rational evaluation, integer
+output.
+@
+
+
+1.2
+log
+@Evaluation is now done using arrays.
+@
+text
+@/*=============================================================================
+                         B <- IUPBEI(A,c,k)
+
+Integral univariate polynomial binary rational evaluation. Using arrays.
+
+Inputs 
+   A : a univariate integral polynomial.
+   c : an integer.
+   k : a nonnegative BETA-digit.
+
+Output
+   B : an integer. B = 2^(k*n) * A(c/2^k), where n = deg(A).
+==============================================================================*/
+#include "saclib.h"
+
+Word IUPBEI(A,c,k)
+	Word A,c,k;
+{
+        BDigit d,e,f,M,M2,m,n,o,p,s,t;
+        Word B,Bh[LARGE],*Bp,*C,Ch[SMALL];
+
+Step1: /* Copy c into array. */
+        IFLTA(c,Ch,SMALL,&C,&m,&t,&o);
+
+Step2: /* Upper bound for length of result. */
+        n = PDEG(A);
+        d = ILOGB(IPSUMN(1,A));
+        e = (k + 1) / ZETA + 1;
+        f = maxm(e,m);
+        M = n * f + d + 1;
+
+Step3: /* Get an array of twice the length. */
+        M2 = 2 * M;
+        if (M2 > LARGE)
+          Bp = GETARRAY(M2);
+        else
+          Bp = Bh;
+
+Step4: /* Accumulate result in array. */
+        IUPBREA(A,C,m,t,k,Bp,M,&p,&s);
+
+Step5: /* Copy result to list. */
+	B = IFATL(Bp,p,s);
+
+Step6: /* Free up memory. */
+       if (M2 > LARGE)
+          FREEARRAY(Bp);
+       if (m > SMALL)
+          FREEARRAY(C);
+
+Return:	/* Return B. */
+	return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      b <- IUPBEI(A,c,m)
+d4 1
+a4 2
+Integral univariate polynomial binary rational evaluation, integer    
+output.
+d6 8
+a13 9
+Inputs
+  A : in Z[X].
+  c : in Z.
+  m : a BETA-digit, m >= 0.
+
+Outputs
+  b : in Z, b = 2^(n*m) * A(c/2^m),
+      where n= deg(A).
+======================================================================*/
+d16 2
+a17 2
+Word IUPBEI(A,c,m)
+       Word A,c,m;
+d19 2
+a20 2
+       Word Ap,a,ap,b,e,k,n;
+       /* hide Ap,a,e,k,n; */
+d22 2
+a23 21
+Step1: /* A=0. */
+       if (A == 0)
+         {
+         b = 0;
+         goto Return;
+         }
+
+Step2: /* Apply Horner method. */
+       ADV2(A,&n,&b,&Ap);
+       k = 1;
+       while (k <= n)
+         {
+         b = IPROD(b,c);
+         if (Ap != NIL && FIRST(Ap) == n - k)
+           {
+           ADV2(Ap,&e,&a,&Ap);
+           ap = ITRUNC(a,-m * k);
+           b = ISUM(b,ap);
+           }
+         k = k + 1;
+         }
+d25 28
+a52 2
+Return: /* Prepare for return. */
+       return(b);
+@

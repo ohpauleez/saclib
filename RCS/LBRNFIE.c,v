@@ -1,0 +1,78 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	97.05.15.19.31.02;	author Chris;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	97.05.13.19.52.10;	author Chris;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number from integer and exponent.
+@
+
+
+1.2
+log
+@Program and specifications needed to be cleaned up to conform to
+saclib conventions.
+@
+text
+@/*======================================================================
+                      Ib <- LBRNFIE(I,e)
+
+Logarithmic binary rational number from integer and exponent.
+
+Inputs
+      I : an integer.
+      e : a BETA-digit.
+Outputs
+      R : logarithmic binary rational representation of I*2^e.
+
+======================================================================*/
+#include "saclib.h"
+
+Word LBRNFIE(I,e)
+       Word I,e;
+{
+      Word R;
+
+Step1: /* Compute I*2^e. */
+      R = LBRNP2PROD( ILBRN(I) , e );
+
+Return: /* Prepare to return. */
+       return (R);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 2
+a8 2
+      I : An integer.
+      e : A BETA-digit.
+d10 1
+a10 1
+      R: Logarithmic binary rational representation of I*2^e.
+d18 1
+a18 1
+       Word J,g,n;
+d20 3
+d24 1
+a24 1
+       return LBRNP2PROD( ILBRN(I) , e );
+@

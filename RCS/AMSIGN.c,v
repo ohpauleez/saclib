@@ -1,0 +1,89 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.08.18.13.39.20;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	95.08.18.13.35.51;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic module sign.
+@
+
+
+1.2
+log
+@Please COMPARE the following program with the one presently in SACLIB.
+I have only changed the specification and changed the variable
+B to lower case.  I think this is a needed improvement.
+@
+text
+@/*======================================================================
+                      s <- AMSIGN(M,I,b)
+
+Algebraic module sign.
+
+Inputs
+  M : the minimal integral polynomial of a real algebraic
+      number alpha.
+  I : an acceptable isolating interval for alpha.
+  b : an element of Z[alpha].
+
+Outputs
+  s  : sign(b).
+======================================================================*/
+#include "saclib.h"
+
+Word AMSIGN(M,I,b)
+
+       Word M,I,b;
+{
+       Word s,Is;
+
+Step1:
+      AMSIGNIR(M,I,b,&s,&Is);
+
+Return:
+       return(s);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      s <- AMSIGN(M,I,B)
+d7 2
+a8 1
+  M : an element of Z[X].  M(alpha) = 0.  alpha a real algebraic number.
+d10 1
+a10 1
+  B : an element of Z[alpha]. gcd(M(X),B(X)) = 1.
+d13 1
+a13 1
+  s  : sign(a).
+d17 1
+a17 1
+Word AMSIGN(M,I,B)
+d19 1
+a19 1
+       Word M,I,B;
+d24 1
+a24 1
+      AMSIGNIR(M,I,B,&s,&Is);
+@

@@ -1,0 +1,50 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2002.03.28.17.45.54;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational interval negative.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                          J <- LBRINEG(I)
+
+Logarithmic binary rational interval negative.
+
+Input
+   I : a logarithmic binary rational interval.
+
+Output
+   J : the negative of I.
+======================================================================*/
+#include "saclib.h"
+#include "complex.h"
+
+Word LBRINEG(I)
+	Word I;
+{
+	Word J;
+
+Step1: /* Negate and interchange endpoints. */
+	J = LIST2(LBRNNEG(SECOND(I)),LBRNNEG(FIRST(I)));
+
+Return: /* Return J. */
+	return(J);
+}
+@

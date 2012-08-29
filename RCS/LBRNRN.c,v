@@ -1,0 +1,94 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.09.13.12.49.10;	author Chris;	state typo;
+branches;
+next	1.2;
+
+1.2
+date	95.08.30.11.24.28;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	95.07.30.14.51.32;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number to rational number.
+@
+
+
+1.3
+log
+@ Replaced <-- with <- so sdesc would work right.
+@
+text
+@/*========================================================================
+                      B <- LBRNRN(A)
+
+Logarithmic binary rational number to rational number.
+
+Input
+   A : a logarithmic binary rational number.
+
+Output
+   B : A represented as a rational number.
+=========================================================================*/
+#include "saclib.h"
+
+Word LBRNRN(A)
+       Word A;
+{
+       Word a,b,k,B;
+
+Step1: /* A = 0. */
+       if (A == 0) {
+	  B = 0;
+	  goto Return; }
+
+Step2: /* A /= 0. */
+       FIRST2(A,&a,&k);
+       if (k >= 0)
+	  b = IMP2(1,k);
+       else {
+	  a = IMP2(a,-k);
+	  b = 1; }
+       B = LIST2(a,b);
+
+Return: /* Prepare for return. */
+	return(B);
+}
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d2 1
+a2 1
+                      B <-- LBRNRN(A)
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d17 1
+a17 2
+       BDigit k;
+       Word a,b,B;
+@

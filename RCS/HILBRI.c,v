@@ -1,0 +1,52 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	98.04.23.20.26.59;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Hardware interval to logarithmic binary rational interval.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*========================================================================
+			J <- HILBRI(I)
+
+Hardware interval to logarithmic binary rational interval.
+
+Input
+   I : a hardware interval.
+
+Output
+   J : the interval I in logarithmic binary rational representation.
+=========================================================================*/
+#include "saclib.h"
+
+Word HILBRI(I)
+	interval I;
+{
+	Word a,b,J;
+
+Step1: /* Convert endpoints and make list. */
+	a = IEEELBRN(I.left);
+	b = IEEELBRN(I.right);
+	J = LIST2(a,b);
+
+Return: /* Return J. */
+	return(J);
+}
+@

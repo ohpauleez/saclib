@@ -1,0 +1,66 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.08.16.23.10.21;	author Mark;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	93.06.01.17.35.17;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Free array.
+@
+
+
+1.2
+log
+@Made this a macro that is always defined.
+@
+text
+@/*==========================================================================
+<macro>                       FREEARRAY(A)
+
+Free array.
+
+Input
+  A : a pointer to an array of Words.
+
+Side effect
+  The memory allocated to A is freed.
+
+#define FREEARRAY(A)   free((A))
+===========================================================================*/
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d11 2
+a13 13
+#define NO_SACLIB_MACROS
+#include <stdlib.h>
+#include "saclib.h"
+
+void FREEARRAY(A)
+       Word *A;
+{
+Step1: /* Free memory. */
+       free(A);
+
+Return: /* Prepare for return. */
+       return;
+}
+@

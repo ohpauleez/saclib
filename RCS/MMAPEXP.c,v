@@ -1,0 +1,70 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	95.08.11.12.37.37;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Medium modulus array polynomial exponentiation.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+		      B <- MMAPEXP(m,A,n)
+
+Medium modulus array polynomial exponentiation.
+
+Inputs
+  m : a medium BETA-digit.
+  A : in Z/(m), in array representation, and ldcf(A) is a unit.
+  n : a non-negative BETA-digit.
+
+Output
+  B : in Z/(p), B = x^n modulo A(x).  B is in array representation.
+===========================================================================*/
+#include "saclib.h"
+
+Word *MMAPEXP(m,A,n)
+       Word m,*A,n;
+{
+       Word d,*B,i,k,*C;
+
+Step1: /* Get array B. */
+       d = MAPDEG(A);
+       B = MAPGET(2 * (d - 1));
+
+Step2: /* n < m. */
+       if (n < d) { 
+	  MAPDEG(B) = n;
+	  MAPCF(B,n) = 1;
+	  for (i = 0; i < n; i++)
+	     MAPCF(B,i) = 0;
+	  goto Return; }
+
+Step3: /* n >= m. */
+       k = n / 2; 
+       C = MMAPEXP(m,A,k); 
+       MMAPPROD(m,C,C,B);
+       MAPFREE(C); 
+       MMAPREM(m,B,A); 
+       if (ODD(n)) {
+	  MAPMPV(B,1);
+	  MMAPREM(m,B,A); }
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@

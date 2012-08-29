@@ -1,0 +1,59 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.27.20.49.48;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.28.51;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex conjugation.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 18
+/*======================================================================
+                      w <- SFCCCN(u,v)
+
+Single-precision floating-point complex difference.  
+
+Inputs
+  u,v : single-precision ploating-point complex numbers.  
+
+Outputs
+  w   : a single-precision floating-point complex approximation to u-v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCCON(u,v)
+       Word u,v;
+{
+       Word vp,w;
+}
+@

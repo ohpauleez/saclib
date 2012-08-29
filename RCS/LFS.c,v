@@ -1,0 +1,74 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	99.07.15.16.46.01;	author Werner;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	99.07.15.16.40.40;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@List from String.
+@
+
+
+1.2
+log
+@Inserted "#include <string.h>", removed "extern int strlen();".
+@
+text
+@/*======================================================================
+                         L <- LFS(s)
+
+List from String.
+
+Inputs
+  s : a character string.
+
+Outputs
+  L : the list of the characters in s.
+======================================================================*/
+#include "saclib.h"
+#include <string.h>
+
+Word LFS(s)
+       char *s;
+{
+       Word L,i,l;
+       char *p;
+
+Step1: /* Make a list from the string s. */
+       L =NIL;
+       l = strlen(s);
+       p = s + l - 1;
+       for (i=1; i<=l; i++)
+         {
+         L = COMP(*p,L);
+         p--;
+         }
+
+Return: /* Prepare for return. */
+       return(L);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d13 1
+a19 1
+       extern int strlen();
+@

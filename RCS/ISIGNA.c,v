@@ -1,0 +1,38 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.09.21.11.51.13;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Integer sign function, array version. <macro>
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+<macro>                       s <- ISIGNA(A)
+
+Integer sign function, array version.
+
+Input
+  A : in Z, in array representation.
+
+Output
+  s : the sign of A.
+
+#define ISIGNA(A,n)    ((n) == 0 ? 0 : (((A)[(n)-1] > 0) ? 1 : -1))
+===========================================================================*/
+@

@@ -1,0 +1,128 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.05.11.19.41.30;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	2000.01.02.19.44.15;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Software interval polynomial translation by 1.
+@
+
+
+1.2
+log
+@Revised the program so as to eliminate a copy after each addition.
+@
+text
+@/*======================================================================
+                           SIPTR1(A,B)
+
+Software interval polynomial translation by 1.
+
+Inputs
+   A : a software interval polynomial of positive degree.
+   B : an array large enough for A(x + 1).
+
+Effect
+    The software interval polynomial  A(x + 1) is placed in B.
+======================================================================*/
+#include "saclib.h"
+
+void SIPTR1(A,B)
+	BDigit *A,*B;
+{
+	BDigit i,j,n,p,q1,q2,t;
+	BDigit *Ap,*Bp.*C,*Cp,*Dp;
+
+Step1: /* Get sizes. */
+	n = A[0];
+	p = A[3];
+	q1 = p + 3;
+	q2 = q1 + q1;
+	t = n * q2;
+
+Step2: /* Get an array C. */
+	C = GETARRAY(t + q2 + 1);
+
+Step3: /* Start with array B if n is even, else with array C. */
+	Ap = A + 1;
+	if (EVEN(n)) {
+	   Bp = B + 1;
+	   Cp = C + 1; }
+	else {
+	   Bp = C + 1;
+	   Cp = B + 1; }
+
+Step4: /* Apply Horner's method. */
+	SICOPY(Ap + t,Bp + t);
+	SICOPY(Ap + t,Cp + t);
+	for (j = t; j > 0; j = j - q2) {
+	   SISUM(Ap + j - q2,Bp + j,Cp + j - q2);
+	   for (i = j; i < t; i = i + q2)
+	      SISUM(Bp + i,Bp + i + q2,Cp + i);
+	   Dp = Bp;
+	   Bp = Cp;
+	   Cp = Dp; }
+
+Step5: /* Store the degree in B. */
+	B[0] = n;
+
+Step6: /* Free array C. */
+	FREEARRAY(C);
+
+Return: /* Return. */
+	return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d13 1
+a13 1
+#include "floats.h"
+d18 2
+a19 1
+	BDigit *C,i,j,n,p,q1,q2,S,T;
+d26 1
+a26 1
+	S = (n + 1) * q2 + 1;
+d28 2
+a29 2
+Step2: /* Get an array. */
+	C = GETARRAY(q2);
+d31 8
+a38 3
+Step3: /* Copy A into B. */
+	for (i = 0; i < S; i++)
+	   B[i] = A[i];
+d41 9
+a49 8
+	S =  S - q2;
+	for (i = 1; i <= n; i++) {
+	   S = S - q2;
+	   T = S;
+	   for (j = 1; j <= i; j++) {
+	      SISUM(B + T,B + T + q2,C);
+	      SICOPY(C,B + T);
+	      T = T + q2; } }
+d51 4
+a54 1
+Step5: /* Free array. */
+@

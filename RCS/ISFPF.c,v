@@ -1,0 +1,360 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	95.07.14.11.43.16;	author Mark;	state embe;
+branches;
+next	1.4;
+
+1.4
+date	94.01.05.13.30.23;	author Mark;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	93.12.21.15.57.34;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	93.06.14.17.35.53;	author Mark;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	93.06.14.17.20.38;	author Mark;	state init;
+branches;
+next	;
+
+
+desc
+@Integral squarefree polynomial factorization.
+@
+
+
+1.5
+log
+@Changed PRIME to LPRIME.
+@
+text
+@/*===========================================================================
+			L <- ISFPF(r,A)
+
+Integral squarefree polynomial factorization.
+
+Inputs
+  r : a BETA-digit, r >= 1.
+  A : in Z[X1,...,Xr], A positive, of positive degree, primitive, and
+      squarefree with respect to its main variable Xr.
+
+Outputs
+  L : a list (A1,...,Ak), with Ai in Z[X1,...,Xr], the distinct positive
+      irreducible factors of A.
+===========================================================================*/
+#include "saclib.h"
+
+Word ISFPF(r,A)
+       Word r,A;
+{
+       Word Abp,Ap,Ap1,As,As1,B,Bp,B1,C,D,F,L,Lp,Ls,M,N,P,T,Tp,V,
+            ap,b,d,f,k,m,n,p,t,v;
+
+Step1: /* r = 1. */
+       if (r == 1) {
+         L = IUSFPF(A);
+         goto Return; }
+
+Step2: /* Degree 1. */
+       n = PDEG(A);
+       if (n == 1) {
+         L = LIST1(A);
+         goto Return; }
+
+Step3: /* Degree 2. */
+       if (n == 2) {
+         L = ISPFAC2(r,A);
+         goto Return; }
+
+Step4: /* Look for variable of degree 1 or 2. */
+       IPVDEG12(r,A,&k,&B);
+       if (k > 0) {
+         IPFAC(r,B,&t,&d,&N);
+         L = NIL;
+         while (N != NIL) {
+           ADV(N,&F,&N);
+           FIRST2(F,&f,&B1);
+           B1 = PCPV(r,B1,k,r);
+           B1 = IPABS(r,B1);
+           L = COMP(B1,L); }
+         goto Return; }
+
+Step5: /* Evaluate to univariate polynomial, As, and factor As. */
+       IPCEVP(r,A,&As,&T);
+       As = IPABS(1,As);
+       As = IPPP(1,As);
+       Ls = IUSFPF(As);
+
+Step6: /* As irreducible. */
+       if (RED(Ls) == NIL) {
+         L = LIST1(A);
+         goto Return; }
+
+Step7: /* Translate A to Ap and find prime p not dividing discr(As). */
+       T = COMP(0,INV(T));
+       Ap = IPTRAN(r,A,T);
+       P = LPRIME;
+       n = PDEG(As);
+       do {
+         if (P == NIL)
+           FAIL("ISFPF","Prime list exhausted",r,A);
+         ADV(P,&p,&P);
+         B = MPHOM(1,p,As);
+         m = PDEG(B);
+         if (m == n) {
+           Bp = MUPDER(p,B);
+           C = MUPGCD(p,B,Bp);
+           k = PDEG(C); } }
+       while (m != n || k != 0);
+
+Step8: /* Convert As factors to monic factors modulo p. */
+       Lp = NIL;
+       do {
+         ADV(Ls,&As1,&Ls);
+         Ap1 = MPHOM(1,p,As1);
+         Ap1 = MPMON(1,p,Ap1);
+         Lp = COMP(Ap1,Lp); }
+       while (Ls != NIL);
+
+Step9: /* Compute a factor coefficient bound for Abp = Ap*ldcf(Ap). */
+       ap = PLDCF(Ap);
+       Abp = IPPROD(r,Ap,LIST2(0,ap));
+       b = IPGFCB(r,Abp);
+       b = IMP2(b,1);
+       M = p;
+       while (ICOMP(M,b) <= 0)
+         M = IDPR(M,p);
+
+Step10: /* Compute factor degree bounds. */
+       V = PDEGV(r,Abp);
+       D = NIL;
+       V = RED(V);
+       do {
+         ADV(V,&v,&V);
+         d = v + 1;
+         D = COMP(d,D); }
+       while (V != NIL);
+
+Step11: /* Lift modular factors. */
+       L = MPIQHL(r,p,Lp,M,D,Ap);
+
+Step12: /* Combine lifted factors. */
+       Lp = IPFLC(r,M,D,Ap,L,0);
+
+Step13: /* Translate Ap factors to A factors. */
+       Tp = NIL;
+       do {
+         ADV(T,&t,&T);
+         Tp = COMP(INEG(t),Tp); }
+       while (T != NIL);
+       Tp = INV(Tp);
+       L = NIL;
+       do {
+         ADV(Lp,&Ap1,&Lp);
+         L = COMP(IPTRAN(r,Ap1,Tp),L); }
+       while (Lp != NIL);
+
+Return: /* Prepare for return. */
+       return(L);
+}
+@
+
+
+1.4
+log
+@n was not initialized to PDEG(A).
+@
+text
+@d2 1
+a2 1
+			      L <- ISFPF(r,A)
+d66 1
+a66 1
+       P = PRIME;
+@
+
+
+1.3
+log
+@Step2 in the previous version is not necessary since A is required
+to be of positive degree.  This step has been deleted.
+@
+text
+@d29 1
+@
+
+
+1.2
+log
+@Introduced special handling for degree 2.
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      L <- ISFPF(r,A)
+d14 1
+a14 1
+======================================================================*/
+d23 1
+a23 1
+Step1: /* r=1. */
+d28 1
+a28 7
+Step2: /* Degree 0. */
+       n = PDEG(A);
+       if (n == 0) {
+         L = NIL;
+         goto Return; }
+
+Step3: /* Degree 1. */
+d33 1
+a33 1
+Step4: /* Degree 2. */
+d38 1
+a38 1
+Step5: /* Look for variable of degree 1 or 2. */
+d51 1
+a51 1
+Step6: /* Evaluate to univariate polynomial, As, and factor As. */
+d57 1
+a57 1
+Step7: /* As irreducible. */
+d62 1
+a62 1
+Step8: /* Translate A to Ap and find prime p not dividing discr(As). */
+d79 1
+a79 1
+Step9: /* Convert As factors to monic factors modulo p. */
+d88 1
+a88 1
+Step10: /* Compute a factor coefficient bound for Abp = Ap*ldcf(Ap). */
+d97 1
+a97 1
+Step11: /* Compute factor degree bounds. */
+d107 1
+a107 1
+Step12: /* Lift modular factors. */
+d110 1
+a110 1
+Step13: /* Combine lifted factors. */
+d113 1
+a113 1
+Step14: /* Translate Ap factors to A factors. */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d15 1
+a15 1
+#include "saclib.h"
+d20 2
+a21 3
+       Word Abp,Ap,Ap1,As,As1,B,Bp,C,D,L,Lp,Ls,M,P,T,Tp,V,ap,b,d,k,m,
+            n,p,t,v;
+       /* hide P,d,k,m,n,p,v; */
+d24 1
+a24 2
+       if (r == 1)
+         {
+d26 1
+a26 2
+         goto Return;
+         }
+d28 30
+a57 1
+Step2: /* Evaluate to univariate polynomial, As, and factor As. */
+d63 2
+a64 3
+Step3: /* As irreducible. */
+       if (RED(Ls) == NIL)
+         {
+d66 1
+a66 2
+         goto Return;
+         }
+d68 1
+a68 1
+Step4: /* Translate A to Ap and find prime p not dividing discr(As). */
+d73 1
+a73 2
+       do
+         {
+d79 1
+a79 2
+         if (m == n)
+           {
+d82 1
+a82 3
+           k = PDEG(C);
+           }
+         }
+d85 1
+a85 1
+Step5: /* Convert As factors to monic factors modulo p. */
+d87 1
+a87 2
+       do
+         {
+d91 1
+a91 2
+         Lp = COMP(Ap1,Lp);
+         }
+d94 1
+a94 1
+Step6: /* Compute a factor coefficient bound for Abp = Ap*ldcf(Ap). */
+d103 1
+a103 1
+Step7: /* Compute factor degree bounds. */
+d107 1
+a107 2
+       do
+         {
+d110 1
+a110 2
+         D = COMP(d,D);
+         }
+d113 1
+a113 1
+Step8: /* Lift modular factors. */
+d116 1
+a116 1
+Step9: /* Combine lifted factors. */
+d119 1
+a119 1
+Step10: /* Translate Ap factors to A factors. */
+d121 1
+a121 2
+       do
+         {
+d123 1
+a123 2
+         Tp = COMP(INEG(t),Tp);
+         }
+d127 1
+a127 2
+       do
+         {
+d129 1
+a129 2
+         L = COMP(IPTRAN(r,Ap1,Tp),L);
+         }
+@

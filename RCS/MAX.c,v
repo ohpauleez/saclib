@@ -1,0 +1,86 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.28.31;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.21.16;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Maximum.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			       c <- MAX(a,b)
+
+Maximum.  
+
+Inputs
+  a, b : C integers.  
+
+Output
+  c    : the maximum of a and b.
+===========================================================================*/
+#include "saclib.h"
+
+Word MAX(a,b)
+       Word a,b;
+{
+       Word c;
+
+Step1: /* Compute. */
+       if (a >= b)
+	  c = a;
+       else
+	  c = b;
+
+Return: /* Prepare for return. */
+       return(c);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      c <- MAX(a,b)
+d7 1
+a7 1
+  a, b : gamma-integers.  
+d9 1
+a9 1
+Outpus
+d11 1
+a11 1
+======================================================================*/
+a17 1
+       /* hide algorithm */
+d21 1
+a21 1
+         c = a;
+d23 1
+a23 1
+         c = b;
+@

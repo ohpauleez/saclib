@@ -1,0 +1,244 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	93.12.13.19.48.17;	author Werner;	state del;
+branches;
+next	1.4;
+
+1.4
+date	93.11.07.16.50.44;	author Mark;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	93.11.02.17.59.00;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	93.10.30.10.07.23;	author Werner;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.10.30.10.06.12;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer shifted sum.
+@
+
+
+1.5
+log
+@This function has been removed from the library.
+@
+text
+@[ removed from library ]
+/*===========================================================================
+			      C <- ISSUM(n,L)
+
+Integer shifted sum.
+
+Inputs
+  n : in Z. n > 0.
+  L : a list (C_0,C_1,...,C_k), k non-negative, of integers C_i with          
+      abs(C_i) less than BETA^(2*n+1).  
+      Either each C_i is non-negative or each C_i is non-positive.  
+
+Outputs
+  C : the sum on i, from 0 to k, of C_i*(BETA^(i*n)).
+===========================================================================*/
+#include "saclib.h"
+
+Word ISSUM(n,L)
+       Word n,L;
+{
+       Word C,C0,C1,Lp,a,a0,a1,c,i;
+
+Step1: /* Initialize. */
+       C = NIL;
+       c = 0;
+       ADV(L,&C0,&Lp);
+       if (C0 < BETA)
+	  C0 = LIST1(C0);
+       for (i = 1; i <= n; i++) {
+	  AADV(C0,&a0,&C0);
+	  C = COMP(a0,C); }
+
+Step2: /* Add. */
+       while (Lp != NIL) {
+	  ADV(Lp,&C1,&Lp);
+	  if (C1 < BETA)
+	     C1 = LIST1(C1);
+	  for (i = 1; i <= n; i++) {
+	     AADV(C0,&a0,&C0);
+	     AADV(C1,&a1,&C1);
+	     a = a0 + a1;
+	     a = a + c;
+	     c = 0;
+	     if (a >= BETA) {
+		a = a - BETA;
+		c = 1; }
+	     else
+		if (a <= -BETA) {
+		   a = a + BETA;
+		   c = -1; }
+	     C = COMP(a,C); }
+	  if (C0 != NIL)
+	     c = c + FIRST(C0);
+	  C0 = C1; }
+
+Step3: /* Finish. */
+       while (C0 != NIL || c != 0) {
+	  AADV(C0,&a0,&C0);
+	  a = a0 + c;
+	  c = 0;
+	  if (a >= BETA) {
+	     a = a - BETA;
+	     c = 1; }
+	  else
+	     if (a <= -BETA) {
+		a = a + BETA;
+		c = -1; }
+	  C = COMP(a,C); }
+
+Step4: /* Normalize. */
+       while (C != NIL && FIRST(C) == 0)
+	  C = RED(C);
+       C = INV(C);
+       if (C == NIL)
+	  C = 0;
+       else
+	  if (RED(C) == NIL)
+	     C = FIRST(C);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.4
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d1 1
+@
+
+
+1.3
+log
+@Removed the unused variable cp.
+@
+text
+@d18 1
+a18 2
+       BDigit n;
+       Word L;
+@
+
+
+1.2
+log
+@The previous version used (in Step 2) "/" for negative operands,
+a case for which the operator is not unambiguously defined by ANSI-C.
+@
+text
+@d21 1
+a21 1
+       Word C,C0,C1,Lp,a,a0,a1,c,cp,i;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- ISSUM(n,L)
+d4 1
+a4 1
+Integer shifted sum.  
+d14 1
+a14 1
+======================================================================*/
+d18 2
+a19 1
+       Word n,L;
+a21 1
+       /* hide C0,C1,Lp,a,a0,a1,c,cp,i; */
+d28 4
+a31 6
+         C0 = LIST1(C0);
+       for (i = 1; i <= n; i++)
+         {
+         AADV(C0,&a0,&C0);
+         C = COMP(a0,C);
+         }
+d34 21
+a54 20
+       while (Lp != NIL)
+         {
+         ADV(Lp,&C1,&Lp);
+         if (C1 < BETA)
+           C1 = LIST1(C1);
+         for (i = 1; i <= n; i++)
+           {
+           AADV(C0,&a0,&C0);
+           AADV(C1,&a1,&C1);
+           a = a0 + a1;
+           a = a + c;
+           c = a / BETA;
+           cp = c * BETA;
+           a = a - cp;
+           C = COMP(a,C);
+           }
+         if (C0 != NIL)
+           c = c + FIRST(C0);
+         C0 = C1;
+         }
+d57 12
+a68 18
+       while (C0 != NIL || c != 0)
+         {
+         AADV(C0,&a0,&C0);
+         a = a0 + c;
+         c = 0;
+         if (a >= BETA)
+           {
+           a = a - BETA;
+           c = 1;
+           }
+         else
+           if (a <= -BETA)
+             {
+             a = a + BETA;
+             c = -1;
+             }
+         C = COMP(a,C);
+         }
+d72 1
+a72 1
+         C = RED(C);
+d75 1
+a75 1
+         C = 0;
+d77 2
+a78 2
+         if (RED(C) == NIL)
+           C = FIRST(C);
+@

@@ -1,0 +1,100 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.17.20.14;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.23.30;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point real quotient.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFRQ(u,v)
+a2 55
+Single-precision floating-point real quotient.  
+
+Inputs
+  u,v : single-precision floating-point real numbers, v /= 0.  
+
+Outputs
+  w   : a single-precision floating-point real approximation to u/v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFRQ(u,v)
+       Word u,v;
+{
+       Word a,ap,app,b,c,d,e,f,g,r,w;
+       /* hide algorithm */
+
+Step1: /* u=0. */
+       if (u == 0)
+         {
+         w = 0;
+         goto Return;
+         }
+
+Step2: /* Set up for quotient. */
+       FIRST2(u,&e,&a);
+       FIRST2(v,&f,&b);
+       if (ABS(a) < ABS(b))
+         {
+         ap = a;
+         app = 0;
+         g = e - f - ZETA;
+         }
+       else
+         {
+         QREM(a,2,&ap,&c);
+         app = c * TABP2[ZETA];
+         g = e - f - ZETA + 1;
+         }
+
+Step3: /* Divide. */
+       DQR(ap,app,b,&d,&r);
+
+Step4: /* Test for overflow. */
+       if (g >= BETA)
+         FAIL("SFRQ","Overflow",u,v,g);
+
+Step5: /* Form list. */
+       if (g <= -BETA)
+         w = 0;
+       else
+         w = LIST2(g,d);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

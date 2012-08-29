@@ -1,0 +1,54 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2000.01.02.18.41.16;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational interval to software interval.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                           LBRISI(I,p,J)
+
+Logarithmic binary rational interval to software interval.
+
+Inputs
+   I : a logarithmic binary rational interval.
+   p : a BETA-digit, the desired precision.
+   J : (pointer to) an array of size at least 2 p + 6.
+
+Effect
+   The smallest p-precision software interval containing I is placed
+   in J.
+======================================================================*/
+#include "floats.h"
+
+void LBRISI(I,p,J)
+       Word I;
+       BDigit p;
+       Word *J;
+{
+
+Step1: /* Apply LBRNF to endpoints. */
+        LBRNF(FIRST(I),p,-1,J);
+	LBRNF(SECOND(I),p,+1,J + p + 3);
+
+Return: /* Return. */
+        return;
+}
+@

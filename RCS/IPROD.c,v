@@ -1,0 +1,541 @@
+head	1.6;
+access;
+symbols;
+locks
+	saclib:1.6; strict;
+comment	@ * @;
+
+
+1.6
+date	99.12.03.16.19.33;	author Werner;	state bug;
+branches;
+next	1.5;
+
+1.5
+date	95.08.30.11.21.15;	author Mark;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	93.12.13.21.15.03;	author Werner;	state algo;
+branches;
+next	1.3;
+
+1.3
+date	93.11.07.16.45.48;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	93.11.07.10.27.25;	author Werner;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.10.25.30;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer product.
+@
+
+
+1.6
+log
+@Fixed storage allocation bug due to an error in formula (18) in
+Maeder's 1993 DISCO paper, "Storage allocation for the Karatsuba
+Integer multiplication algorithm".
+@
+text
+@/*===========================================================================
+			      C <- IPROD(A,B)
+
+Integer product.
+
+Inputs
+  A,B : in Z.
+
+Outputs
+  C   : A * B.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPROD(A,B)
+       Word A,B;
+{
+       Word c,cp,n,n1,n2,n3,o1,o2,s1,s2,w;
+       Word *Ap,Ah[FIXED];
+       Word *Bp,Bh[FIXED];
+       Word C,*Cp,Ch[FIXEDX2],W[WORK],*Wp;
+
+Step1: /* A or B zero. */
+       if (A == 0 || B == 0) {
+	  C = 0;
+	  goto Return; }
+
+Step2: /* A and B single-precision. */
+       if (A < BETA && B < BETA) {
+	  DPR(A,B,&cp,&c);
+	  if (cp == 0)
+	     C = c;
+	  else
+	     C = LIST2(c,cp);
+	  goto Return; }
+
+Step3: /* A or B single-precision. */
+       if (A < BETA) {
+	  C = IDPR(B,A);
+	  goto Return; }
+       if (B < BETA) {
+	  C = IDPR(A,B);
+	  goto Return; }
+
+Step4: /* A and B double or triple precision. */
+       if (RED2(B) == NIL) {
+	  if (RED2(A) == NIL) {
+	     C = IPROD2X2(A,B);
+	     goto Return; }
+         else
+	    if (RED3(A) == NIL) {
+	       C = IPROD3X2(A,B);
+	       goto Return; } }
+       else {
+	  if (RED3(B) == NIL)
+	     if (RED2(A) == NIL) {
+		C = IPROD3X2(B,A);
+		goto Return; }
+           else
+	      if (RED3(A) == NIL) {
+		 C = IPROD3X3(A,B);
+		 goto Return; } }
+
+Step5: /* Copy |A|,|B| into arrays, determine lengths and signs. */
+       IFLTA(A,Ah,FIXED,&Ap,&n1,&s1,&o1);
+       IFLTA(B,Bh,FIXED,&Bp,&n2,&s2,&o2);
+       n3 = n1 + n2;
+       n = MAX(n1,n2);
+
+Step6: /* Classical multiplication or Karatsuba. */
+       if (n <= MAXCLASSICAL) {
+	  Cp = Ch;
+	  if (n1 >= n2)
+	     IPRODA(Ap,n1,Bp,n2,Cp);
+	  else
+	     IPRODA(Bp,n2,Ap,n1,Cp); }
+       else {
+	  if (n > FIXED) {
+	     Cp = GETARRAY(n3 + 1);
+	     w = 2 * (n - 4 + 3 * (DLOG2(n - 3) - 1));
+	     Wp = GETARRAY(w); }
+	  else {
+	     Cp = Ch;
+	     Wp = W; }
+	  CLEAR(Cp,n3 + 1);
+	  if (n1 >= n2)
+	     KARATSUBA(Ap,n1,Bp,n2,Cp,Wp);
+	  else
+	     KARATSUBA(Bp,n2,Ap,n1,Cp,Wp); }
+
+Step7: /* Store the product in a list. */
+       if (s1 == s2)
+	  C = IFATL(Cp,n3,1);
+       else
+	  C = IFATL(Cp,n3,-1);
+
+Step8: /* Free up memory. */
+       if (n > FIXED) {
+	  if (n1 > FIXED)
+	     FREEARRAY(Ap);
+	  if (n2 > FIXED)
+	     FREEARRAY(Bp);
+	  FREEARRAY(Cp);
+	  FREEARRAY(Wp); }
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.5
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d17 1
+a17 1
+       Word a,c,cp,k,n,n1,n2,n3,o1,o2,s1,s2,w;
+d79 1
+a79 3
+	     k = DLOG2(MAXCLASSICAL - 3);
+	     a = TABP2[k] + 3 * k;
+	     w = 2 * (n - a + 3 * (DLOG2(n - 3) - 1));
+@
+
+
+1.4
+log
+@*** empty log message ***
+@
+text
+@d17 1
+a17 1
+       BDigit a,c,cp,k,n,n1,n2,n3,o1,o2,s1,s2,w;
+d23 3
+a25 5
+       if (A == 0 || B == 0)
+         {
+         C = 0;
+         goto Return;
+         }
+d28 7
+a34 9
+       if (A < BETA && B < BETA)
+         {
+         DPR(A,B,&cp,&c);
+         if (cp == 0)
+           C = c;
+         else
+           C = LIST2(c,cp);
+         goto Return;
+         }
+d37 6
+a42 10
+       if (A < BETA)
+         {
+         C = IDPR(B,A);
+         goto Return;
+         }
+       if (B < BETA)
+         {
+         C = IDPR(A,B);
+         goto Return;
+         }
+d45 17
+a61 27
+       if (RED2(B) == NIL)
+         {
+         if (RED2(A) == NIL)
+           {
+           C = IPROD2X2(A,B);
+           goto Return;
+           }
+         else if (RED3(A) == NIL)
+                {
+                C = IPROD3X2(A,B);
+                goto Return;
+	        }
+         }
+       else
+         {
+         if (RED3(B) == NIL)
+           if (RED2(A) == NIL)
+             {
+             C = IPROD3X2(B,A);
+             goto Return;
+             }
+           else if (RED3(A) == NIL)
+                  {
+                  C = IPROD3X3(A,B);
+                  goto Return;
+	          }
+         }
+d70 21
+a90 29
+       if (n <= MAXCLASSICAL)
+         {
+         Cp = Ch;
+	 if (n1 >= n2)
+           IPRODA(Ap,n1,Bp,n2,Cp);
+         else
+           IPRODA(Bp,n2,Ap,n1,Cp);
+         }
+       else
+         {
+         if (n > FIXED)
+           {
+	   Cp = GETARRAY(n3 + 1);
+           k = DLOG2(MAXCLASSICAL - 3);
+           a = TABP2[k] + 3 * k;
+           w = 2 * (n - a + 3 * (DLOG2(n - 3) - 1));
+           Wp = GETARRAY(w);
+	   }
+         else
+           {
+           Cp = Ch;
+           Wp = W;
+	   }
+         CLEAR(Cp,n3 + 1);
+	 if (n1 >= n2)
+	   KARATSUBA(Ap,n1,Bp,n2,Cp,Wp);
+	 else
+	   KARATSUBA(Bp,n2,Ap,n1,Cp,Wp);
+         }
+d94 1
+a94 1
+         C = IFATL(Cp,n3,1);
+d96 1
+a96 1
+         C = IFATL(Cp,n3,-1);
+d99 7
+a105 9
+       if (n > FIXED)
+         {
+         if (n1 > FIXED)
+           FREEARRAY(Ap);
+         if (n2 > FIXED)
+	   FREEARRAY(Bp);
+         FREEARRAY(Cp);
+         FREEARRAY(Wp);
+         }
+@
+
+
+1.3
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d4 1
+a4 1
+Integer product.  
+d17 4
+a20 3
+       Word a,b,cp,c0,c1,i,j,k,m,n,p,s,t,u;
+       Word *Ab,Ah[CLASSICAL],*Bb,Bh[CLASSICAL],*Cb,Ch[CLASSICALX2];
+       Word Ap,Bp,C,Cp,c;
+d23 5
+a27 3
+       if (A == 0 || B == 0) {
+	  C = 0;
+	  goto Return; }
+d30 9
+a38 7
+       if (A < BETA && B < BETA) {
+	  DPR(A,B,&cp,&c);
+	  if (cp == 0)
+	     C = c;
+	  else
+	     C = LIST2(c,cp);
+	  goto Return; }
+d41 25
+a65 82
+       if (A < BETA) {
+	  C = IDPR(B,A);
+	  goto Return; }
+       if (B < BETA) {
+	  C = IDPR(A,B);
+	  goto Return; }
+
+Step4: /* Copy |A| and |B| into arrays, determine signs and lengths. */
+       s = 1;
+       m = 0;
+       Ap = A;
+       do {
+	  a = FIRST(Ap);
+	  if (a < 0) {
+	     s = -1;
+	     a = -a; }
+	  Ah[m] = a;
+	  m = m + 1;
+	  Ap = RED(Ap); }
+       while (Ap != NIL && m < CLASSICAL);
+       t = 1;
+       n = 0;
+       Bp = B;
+       do {
+	  b = FIRST(Bp);
+	  if (b < 0) {
+	     t = -1;
+	     b = -b; }
+	  Bh[n] = b;
+	  n = n + 1;
+	  Bp = RED(Bp); }
+       while (Bp != NIL && n < CLASSICAL);
+
+Step5: /* Use Karatsuba method? */
+       if (Ap != NIL || Bp != NIL) {
+	  IFLTA(A,&Ab,&m,&s);
+	  IFLTA(B,&Bb,&n,&t);
+	  u = s * t;
+	  p = m + n;
+	  Cb = GETARRAY(p);
+	  if (m >= n)
+	     IPRODKA(Ab,m,Bb,n,Cb);
+	  else
+	     IPRODKA(Bb,n,Ab,m,Cb);
+	  C = IFATL(Cb,p,u);
+	  FREEARRAY(Ab);
+	  FREEARRAY(Bb);
+	  FREEARRAY(Cb);
+	  goto Return; }
+
+Step6: /* Set product to zero. */
+       p = m + n;
+       for (k = 0; k < p; k++)
+	  Ch[k] = 0;
+
+Step7: /* Compute the product of A and B. */
+       for (j = 0; j < n; j++) {
+	  b = Bh[j];
+	  if (b != 0) {
+	     cp = 0;
+	     for (i = 0; i <= m - 1; i++) {
+		k = i + j;
+		a = Ah[i];
+		DPR(a,b,&c1,&c0);
+		c = Ch[k] + c0 + cp;
+		cp = c >> ZETA;
+		c  = c & BETA1;
+		Ch[k] = c;
+		cp = cp + c1; }
+	     Ch[j+m] = cp; } }
+
+Step8: /* Store the product in a list. */
+       if (cp == 0)
+	  p = p - 1;
+       C = GETLIST(p);
+       u = s + t;
+       Cp = C;
+       if (u == 0)
+	  for (k = 0; k < p; k++) {
+	     c = -Ch[k];
+	     SFIRST(Cp,c);
+	     Cp = RED(Cp); }
+d67 67
+a133 4
+	  for (k = 0; k < p; k++) {
+	     c = Ch[k];
+	     SFIRST(Cp,c);
+	     Cp = RED(Cp); }
+@
+
+
+1.2
+log
+@This is an improved version of the previous program.
+The idea is to copy list-integers into arrays and then multiply.
+An array version of IPRODK is invoked automatically for long operands.
+@
+text
+@d17 1
+a17 1
+       BDigit a,b,cp,c0,c1,i,j,k,m,n,p,s,t,u;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- IPROD(A,B)
+d11 1
+a11 1
+======================================================================*/
+d17 3
+a19 2
+       Word Ap,App,Bp,C,C2,Cp,Cpp,I,a,b,c,cp,e,f,m,n;
+       /* hide Ap,App,Bp,C2,Cp,Cpp,I,a,b,c,cp,e,f,m,n; */
+d22 3
+a24 5
+       if (A == 0 || B == 0)
+         {
+         C = 0;
+         goto Return;
+         }
+d27 7
+a33 9
+       if (A < BETA && B < BETA)
+         {
+         DPR(A,B,&cp,&c);
+         if (cp == 0)
+           C = c;
+         else
+           C = LIST2(c,cp);
+         goto Return;
+         }
+d36 70
+a105 30
+       if (A < BETA)
+         {
+         C = IDPR(B,A);
+         goto Return;
+         }
+       if (B < BETA)
+         {
+         C = IDPR(A,B);
+         goto Return;
+         }
+
+Step4: /* Interchange if B is longer. */
+       m = LENGTH(A);
+       n = LENGTH(B);
+       if (m >= n)
+         {
+         Ap = A;
+         Bp = B;
+         }
+       else
+         {
+         Ap = B;
+         Bp = A;
+         }
+
+Step5: /* Set product to zero. */
+       C2 = LIST2(0,0);
+       C = C2;
+       for (I = 1; I <= m + n - 2; I++)
+         C = COMP(0,C);
+d107 5
+a111 1
+Step6: /* Multiply digits and add products. */
+d113 10
+a122 39
+       do
+         {
+         App = Ap;
+         ADV(Bp,&b,&Bp);
+         if (b != 0)
+           {
+           Cpp = Cp;
+           cp = 0;
+           do
+             {
+             ADV(App,&a,&App);
+             DPR(a,b,&e,&f);
+             c = FIRST(Cpp);
+             c = c + f;
+             c = c + cp;
+             if (c > 0)
+               {
+               cp = c >> ZETA;
+               c  = c & BETA1;
+	       }
+             else
+               {
+               cp = -((-c) >> ZETA);
+               c  = -((-c) & BETA1);
+               }
+             SFIRST(Cpp,c);
+             cp = e + cp;
+             Cpp = RED(Cpp);
+             }
+           while (App != NIL);
+           SFIRST(Cpp,cp);
+           }
+         Cp = RED(Cp);
+         }
+       while (Bp != NIL);
+
+Step7: /* Leading digit zero. */
+       if (cp == 0)
+         SRED(C2,NIL);
+@

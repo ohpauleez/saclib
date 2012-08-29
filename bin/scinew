@@ -1,0 +1,19 @@
+#! /bin/csh 
+
+# USAGE
+#   scinew <author> <filenames>
+#
+# FUNCTION
+#   Checks-in files <filenames> using <author> as author and
+#   the file's header description as the message to sci.  The
+#   nawk program file "scinew.nawk" is used to pull the 
+#   program description from the file.
+
+if ($#argv < 2) then
+  echo "USAGE:"
+  echo "  scinew <author> <filenames>"
+else
+  foreach fname (${argv[2-]})
+    nawk -f $saclib/bin/scinew.nawk $fname | $saclib/bin/sci $fname new $1
+  end
+endif

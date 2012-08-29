@@ -1,0 +1,55 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	95.09.05.13.20.32;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Characteristic set from set.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			  C <- CSFS(S)
+
+Characteristic set from set.
+
+Input
+  S : a list of non-negative BETA-digits.
+
+Output
+  C : a characteristic set.  An element is in C if and only if it is in S.
+===========================================================================*/
+#include "saclib.h"
+
+Word CSFS(S)
+       Word S;
+{
+       Word C,Sp,s;
+
+Step1: /* Initialize. */
+       C = 0;
+
+Step2: /* Loop. */
+       Sp = S;
+       while (Sp != NIL) {
+	  ADV(Sp,&s,&Sp);
+	  C = CSUN(C,IMP2(1,s)); }
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@

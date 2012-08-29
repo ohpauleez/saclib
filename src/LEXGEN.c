@@ -1,0 +1,57 @@
+/*=========================================================================
+			LEXGEN(A,n,d)
+
+Lexicographic generation.
+
+Inputs
+   A : an array of n + 1  BETA digits.
+   n : a BETA digit, n >= 2.
+   d : a positive BETA digit.
+
+Effect
+   LEXGEN generates in lexicographical order all (n + 1)-tuples 
+   (a_n,a_{n-1},...,a_1,a_0) such that |a_i| <= d for all i,
+   a_n > 0 and a_{n - 1} >= 0.  a_i is stored in A[i].
+   If A[n] = 0 when LEXGEN is entered, LEXGEN stores in A the first
+   such (n + 1)-tuple, (1,0,-d,...,-d).  Otherwise LEXGEN replaces
+   the (n + 1)-tuple in A with the  next one, if any.  If A contains
+   the last (n + 1)-tuple when LEXGEN is entered, LEXGEN stores 0 
+   in A[n].
+=========================================================================*/
+#include "saclib.h"
+
+void LEXGEN(A,n,d)
+	BDigit *A,d,n;
+{
+
+	BDigit i,j;
+
+Step1: /* Initialize if appropriate. */
+	if (A[n] == 0) {
+	   A[n] = 1;
+	   A[n - 1] = 0;
+	   for (i = 0; i <= n - 2; i++)
+	      A[i] = - d;
+	   return; }
+
+Step2: /* Find the last digit that can be increased, if any. */
+	j = 0;
+	while (j <= n && A[j] == d)
+	   j = j + 1;
+
+Step3: /* If one was found, increase it, and set the following digits*/
+       /* to their minimum values. */
+	if (j <= n) {
+	   A[j] = A[j] + 1;
+	   for (i = 0; i < j; i++)
+	      A[i] = - d;
+	   if (j == n)
+	      A[n-1] = 0;
+	   goto Return;  }
+
+Step4: /* If none was found, set A[n} = 0. */
+	A[n] = 0;
+
+Return: /* Return. */
+	return;
+}

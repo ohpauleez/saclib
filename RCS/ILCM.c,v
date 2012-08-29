@@ -1,0 +1,99 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.16.45.08;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.44.26;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer least common multiple.
+@
+
+
+1.2
+log
+@Calls to IQ have been replaced by calls to IEQ.
+@
+text
+@/*===========================================================================
+			       C <- ILCM(A,B)
+
+Integer least common multiple.  
+
+Inputs
+  A,B : in Z.
+
+Outputs
+  C : lcm(A,B), C >= 0.
+===========================================================================*/
+#include "saclib.h"
+
+Word ILCM(A,B)
+       Word A,B;
+{
+       Word Ap,App,Bp,C,Cp;
+
+Step1: /* A or B = 0. */
+       Ap = IABSF(A);
+       Bp = IABSF(B);
+       if (Ap == 0) {
+	  C = Bp;
+	  goto Return; }
+       else
+	  if (Bp == 0) {
+	     C = Ap;
+	     goto Return; }
+
+Step2: /* A and B nonzero. */
+       Cp = IGCD(Ap,Bp);
+       App = IEQ(Ap,Cp);
+       C = IPROD(App,Bp);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- ILCM(A,B)
+d11 1
+a11 1
+======================================================================*/
+d22 3
+a24 5
+       if (Ap == 0)
+         {
+         C = Bp;
+         goto Return;
+         }
+d26 3
+a28 5
+         if (Bp == 0)
+           {
+           C = Ap;
+           goto Return;
+           }
+d32 1
+a32 1
+       App = IQ(Ap,Cp);
+@

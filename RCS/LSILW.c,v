@@ -1,0 +1,184 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	2002.03.28.17.18.13;	author George;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	95.09.13.12.47.35;	author Chris;	state typo;
+branches;
+next	1.3;
+
+1.3
+date	95.08.30.11.25.16;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	95.08.16.12.01.15;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	95.07.30.14.53.43;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic standard interval - logarithm of width.
+@
+
+
+1.5
+log
+@The previous version was correct only for open standard intervals
+not containing zero.  This new version remedies that defect.
+@
+text
+@/*======================================================================
+                         w <- LSILW(I)
+
+Logarithmic standard interval - logarithm of width.
+
+Inputs
+   I    : an open logarithmic standard interval.
+
+Outputs
+   w    : a BETA-integer. Width(I) = 2^w.
+======================================================================*/
+#include "saclib.h"
+
+BDigit LSILW(I)
+       Word I;
+{
+       Word a,b,k,l,w;
+
+Step1: /* Case analysis. */
+       FIRST2(I,&a,&b);
+       if (a == 0)
+          w = -SECOND(b);
+       else if (b == 0)
+          w = -SECOND(a);
+       else {
+          k = SECOND(a);
+          l = SECOND(b);
+	  if (LBRNSIGN(a) > 0 || LBRNSIGN(b) < 0)
+             w = - maxm(k,l);
+	  else
+	     w = - k + 1; }
+
+Return: /* Prepare for return. */
+        return(w);
+}
+@
+
+
+1.4
+log
+@ Replaced <-- with <- so sdesc would work right.
+@
+text
+@d14 1
+a14 1
+Word LSILW(I)
+d19 1
+a19 1
+Step1: /* Consider three cases. */
+d23 2
+d26 6
+a31 6
+          if (b == 0)
+             w = -SECOND(a);
+          else {
+             k = SECOND(a);
+             l = SECOND(b);
+             w = -maxm(k,l); } }
+@
+
+
+1.3
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d2 1
+a2 1
+                         w <-- LSILW(I)
+@
+
+
+1.2
+log
+@LSILW is a new program that was recently added to SACLIB 2.1.
+Werner and I have decided that it is better to require
+that the input be an open standard interval; previously
+a one-point interval was also allowed.  So we have
+changed the specification and simplified the program
+accordingly.  Below is the new version, which we would
+like to have supersede the former version in the
+SACLIB2.1 directory.
+
+George
+@
+text
+@d17 1
+a17 2
+       BDigit k,l,w;
+       Word a,b;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      w <-- LSILW(I)
+d7 1
+a7 1
+   I    : a logarithmic standard interval.
+d10 1
+a10 3
+   w    : a BETA-integer.
+          If  I  is an open interval, width(I) = 2^w.
+          otherwise,  w = -BETA1.
+d17 2
+a18 2
+       BDigit k,l;
+       Word a,b,w;
+d20 1
+a20 1
+Step1: /* Do it. */
+d22 2
+a23 5
+       if (a == 0) {
+	  if (b == 0)
+	     w = -BETA1;
+	  else
+	     w = -SECOND(b); }
+d25 6
+a30 9
+	  if (b == 0)
+	     w = -SECOND(a);
+	  else {
+	     k = SECOND(a);
+	     l = SECOND(b);
+	     if (k == l)
+		w = -BETA1;
+	     else
+		w = -maxm(k,l); } }
+d33 1
+a33 1
+	return(w);
+@

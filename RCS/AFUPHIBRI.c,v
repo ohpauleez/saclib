@@ -1,0 +1,425 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	2000.05.19.16.01.24;	author George;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	98.06.19.15.23.04;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	98.04.23.20.27.01;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Algebraic number field univariate polynomial hardware interval basis
+real root isolation.
+@
+
+
+1.3
+log
+@Revised the algorithm and the specifications.
+@
+text
+@/*======================================================================
+                      AFUPHIBRI(M,I,B; L,t)
+
+Algebraic number field univariate polynomial hardware interval basis 
+real root isolation.
+
+Inputs
+   M : the minimal integral polynomial of an algebraic number
+       \alpha.
+   I : an open standard logarithmic isolating interval for \alpha.
+   B : a non-empty list of univariate polynomials over Q(\alpha).
+       B is a squarefree basis. Each element of B has its
+       nonzero coefficients represented by a pair (r,a) where
+       r is a rational number and a is a univariate integral 
+       polynomial of degree less than n.
+
+Outputs
+   L : If t = 0, L is a a list (I_1,B_1,...,I_m,B_m).  (I_1,...,I_m)
+       is a list of strongly disjoint intervals, each of which has
+       logarithmic binary rational endpoints and is either open
+       or one-point, and that are isolating intervals for the
+       real roots of B.  I_1 < I_2 < ... < I_m and each I_i is an
+       isolating interval for a root of B_i.
+   t : 0, 1 or 2.  If t = 1, the program failed to produce an
+       isolation list L because of exponent limitation.  If t = 2, 
+       the failure was due to mantissa limitation.
+======================================================================*/
+#include "saclib.h"
+
+void AFUPHIBRI(M,I,B, L_,t_)
+	Word M,I,B;
+	Word *L_;
+	BDigit *t_;
+{
+	Word a1,a2,B1,B2,Bp,*D,I1,Ip,L,L1,Lp,Lp1,*N,*T,*X;
+	BDigit h,i,j,k,m,n,n1,n2,np,q,r,s,s1,t,t1,u,x;
+	interval *A,*Bp1,Is,It,*J,K,**P;
+	ieee F1,F2;
+	double p,w1,w2;
+
+Step1: /* Convert the isolating interval for \alpha to a
+          hardware interval. */
+	L = NIL;
+	LBRNIEEEE(FIRST(I), &t,&F1,&n1);
+	if (t != 0)
+	   goto Return;
+	w1 = F1.num;
+	LBRNIEEEE(SECOND(I), &t,&F2,&n2);
+        if (t != 0)
+           goto Return;
+	w2 = F2.num;
+	np = MIN(n1,n2);
+
+Step2: /* Convert the minimal polynomial to a hardware interval
+          polynomial and refine the hardware interval. */
+	FPCATCH();
+	IUPHIP(M,&A,&t);
+	if (t == 0) {
+	   t = 1;
+	   goto Return; }
+	n = PDEG(M);
+	t = HIPFES(n,A,w2);
+	if (FPFLAG == 1) {
+	   t = 1;
+	   goto Return; }
+	if (t == NIL) {
+	   t = 2;
+	   goto Return; }
+	u = 0;
+	while (u == 0 && np > 0) {
+	   p = (w1 + w2) / 2.0;
+	   s = HIPFES(n,A,p);
+	   if ((FPFLAG == 1) || (s == NIL))
+	      u = 1;
+	   else if (s == t)
+	      w2 = p;
+	   else if (s == -t)
+	      w1 = p;
+	   else {
+	      w1 = p;
+	      w2 = p; }
+	   np = np - 1; }
+	K.left = w1;
+	K.right = w2;
+	
+Step3: /* Convert the basis polynomials to hardware interval polynomials;
+	isolate and count their roots. */
+	L = NIL;
+	m = LENGTH(B);
+	P = GETAHIA(m);
+	D = GETARRAY(m);
+	r = 0;
+	Bp = B;
+	i = 0;
+	while (Bp != NIL) {
+	   ADV(Bp, &B1,&Bp);
+	   AFPHIP(K,B1, &Bp1,&t);
+	   n1 = PDEG(B1);
+	   D[i] = n1;
+	   P[i] = Bp1;
+	   HIPRRID(n1,Bp1, &L1,&t);
+	   if (t != 0) {
+              FREEARRAY(P);
+              FREEARRAY(D);
+              L = NIL;
+              goto Return; }
+	   r = r + LENGTH(L1);
+	   L = COMP(L1,L);
+	   i = i + 1; }
+	L = INV(L);
+
+Step4: /* Convert the isolating intervals to hardware intervals; store
+	their indices, trends and numbers of trailing zero bits. */
+	J = GETHIPARRAY(r);
+	X = GETARRAY(r);
+	N = GETARRAY(r);
+	T = GETARRAY(r);
+	Bp = B;
+	Lp = L; 
+	i = 0;
+	j = 0;
+	while (Bp != NIL) {
+	   ADV(Bp, &B1,&Bp);
+	   ADV(Lp, &L1,&Lp);
+	   n1 = PDEG(B1);
+	   s1 = ISIGNF(PLDCF(B1));
+	   if ((EVEN(n1) && s1 > 0) || (ODD(n1) && s1 < 0))
+	      t1 = -1;
+	   else
+	      t1 = +1;
+	   Lp1 = L1;
+	   while (Lp1 != NIL) {
+	      ADV(Lp1, &I1,&Lp1);
+	      FIRST2(I1, &a1,&a2);
+	      LBRNIEEEE(a1, &t,&F1,&n1);
+	      if (t != 0) 
+	         goto Step7;
+	      LBRNIEEEE(a2, &t,&F2,&n2);
+	      if (t != 0)
+	         goto Step7;
+	      n = MIN(n1,n2);
+	      J[j].left = F1.num;
+	      J[j].right = F2.num;
+	      X[j] = i;
+	      T[j] = t1;
+	      N[j] = n;
+	      t1 = - t1;
+	      j = j + 1; }
+	   i = i + 1; }
+	   
+Step5: /* Bubble-sort the isolating intervals, refining as necessary. */
+     q = r;
+     do {
+        i = -1;
+	for (j = 0; j < q - 1; j++) {
+	   while (!(J[j].right < J[j+1].left) && !(J[j+1].right < J[j].left)) {
+	      w1 = J[j].right - J[j].left;
+	      w2 = J[j + 1].right - J[j + 1].left;
+	      if (w1 > w2)
+	         h = j;
+	      else
+	         h = j + 1;
+	      if (N[h] <= 0) {
+	         t = 2;
+	         goto Step7; }
+	      p = (J[h].right + J[h].left) / 2.0;
+	      k = X[h];
+	      s = HIPFES(D[k],P[k],p);
+	      if (s == NIL) {
+	         t = 2;
+	         goto Step7; }
+	      if (FPFLAG == 1) {
+	         t = 1;
+	         goto Step7; }
+	      if (s == T[h])
+	         J[h].right = p;
+	      else if (s == - T[h])
+	         J[h].left = p;
+	      else {
+	         J[h].left = p;
+	         J[h].right = p; }
+	      N[h] = N[h] - 1; }
+	   if (J[j + 1].right < J[j].left) {
+	      K = J[j];
+	      J[j] = J[j + 1];
+	      J[j + 1] = K;
+	      x = X[j];
+	      X[j] = X[j + 1];
+	      X[j + 1] = x;
+	      t = T[j];
+	      T[j] = T[j + 1];
+	      T[j + 1] = t;
+	      n = N[j];
+	      N[j] = N[j + 1];
+	      N[j + 1] = n;
+	      i = j + 1; } }
+	q = i; }
+     while (q > 0);
+
+Step6: /* Convert the isolating intervals to binary rational and
+	match each with a basis polynomial. */
+	L = NIL;
+	for (i = r - 1; i >= 0; i--) {
+	   j = X[i];
+	   B1 = LELTI(B,j + 1);
+	   I1 = HILBRI(J[i]);
+	   L = COMP2(I1,B1,L); }
+	t = 0;
+
+Step7: /* Free arrays. */
+	FREEARRAY(P);
+	FREEARRAY(D);
+	FREEARRAY(J);
+	FREEARRAY(N);
+	FREEARRAY(T);
+	FREEARRAY(X);
+
+Return: /* Return L and t. */
+	*L_ = L;
+	*t_ = t;
+	return;
+}
+@
+
+
+1.2
+log
+@The function has been changed so that it outputs a list of strongly
+disjoint intervals.
+@
+text
+@d2 1
+a2 1
+                      L <- AFUPHIBRI(M,I,B)
+d10 1
+a10 1
+   I : an open standard isolating interval for \alpha.
+d17 10
+a26 11
+Output
+   L : either 0 or a list (I_1,B_1,...,I_m,B_m).  (I_1,...,I_m)
+       is a list of strongly disjoint intervals, each of which
+       is either open and standard or one-point, that are
+       isolating intervals for the real roots of B.  The
+       intervals have binary rational endpoints and I_1 < I_2
+       < ... , I_m.  If L = 0, the program failed to produce
+       such a list for the given inputs.
+       
+Remark
+   AFUPHIBRI is floating-point overflow-underflow protected.
+d30 1
+a30 1
+Word AFUPHIBRI(M,I,B)
+d32 2
+d35 5
+a39 3
+	Word B1,B2,Bp,I1,I2,Ip,L,L1,Lp,Lp1,N,N1,N1p,N2,N2p;
+	BDigit h,i,j,k,n,t,u;
+	interval *A,J,K;
+d41 12
+a52 3
+Step1: /* Assign a value to the target accuracy for the roots of
+             the basis polynomials. */
+	k = 15;
+d54 1
+a54 8
+Step2: /* Convert the isolating interval to a hardware interval. */
+	Ip = BRILBRI(I);
+	LBRIHI(Ip,&J,&t);
+	if (t == 0) {
+	   L = 0;
+	   goto Return; }
+
+Step3: /* Convert the minimal polynomial to a hardware interval
+d56 1
+d59 1
+a59 1
+	   L = 0;
+d62 4
+a65 1
+	t = HIPFES(n,A,J.right);
+d67 1
+a67 1
+	   L = 0;
+d69 16
+a84 2
+	h = - LSILW(Ip);
+	HIPIR(n,A,J,t,h,52, &K,&u);
+d86 7
+a92 1
+Step4: /* Isolate and refine the roots of each basis polynomial. */
+d94 1
+a94 1
+	L = NIL;
+d96 14
+a109 7
+	   ADV(Bp,&B1,&Bp);
+	   L1 = AFPHIIR(n,K,B1,k);
+	   if (L1 == 0) {
+	      SWRITE("AFUPHIBRI failure in Step 4.\n");
+	      L = 0;
+	      goto Return; }
+	   L = COMP(L1,L); }
+d111 7
+a117 3
+	
+Step5: /* Attach each polynomial to each of its isolating intervals,
+          forming an unsorted list N. */
+d119 3
+a121 2
+	Lp = L;
+	N = NIL;
+d123 8
+a130 2
+	   ADV(Bp,&B1,&Bp);
+	   ADV(Lp,&L1,&Lp);
+d133 66
+a198 3
+	      ADV(Lp1,&I1,&Lp1);
+	      N = COMP2(B1,I1,N); } }
+	N = INV(N);
+d200 9
+a208 4
+Step6: /* Case of no real roots. */
+	if (N == NIL) {
+	   L = NIL;
+	   goto Return; }
+d210 7
+a216 26
+Step7: /* Bubble sort N. */
+	h = LENGTH(N);
+	h = h >> 1;
+	while (h > 0) {
+	   N1 = N;
+	   N2 = RED2(N1);
+	   j = 0;
+	   for (i = 1; i < h; i++) {
+	      I1 = FIRST(N1);
+	      I2 = FIRST(N2);
+	      if (LBRNCOMP(SECOND(I2),FIRST(I1)) < 0) {
+	         j = i;
+	         SFIRST(N1,I2);
+	         SFIRST(N2,I1);
+	         N1p = RED(N1);
+	         N2p = RED(N2);
+	         B1 = FIRST(N1p);
+	         B2 = FIRST(N2p);
+	         SFIRST(N1p,B2);
+	         SFIRST(N2p,B1); }
+	      else if (LBRNCOMP(SECOND(I1),FIRST(I2)) >= 0) {
+	         L = 0;
+	         goto Return; }
+	      N1 = N2;
+	      N2 = RED2(N1); }
+	   h = j; }
+d218 4
+a221 10
+Step8: /* Convert the interval endpoints to rational number representation. */
+	L = N;
+	while (N != NIL) {
+	   I1 = FIRST(N);
+	   I2 = LIST2(LBRNRN(FIRST(I1)),LBRNRN(SECOND(I1)));
+	   SFIRST(N,I2);
+	   N = RED2(N); }
+
+Return: /* Return L. */
+	return(L);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d19 7
+a25 5
+       is a list of open standard and one-point intervals with
+       binary rational endpoints for all the real roots of B
+       with I_1 < I_2 < ... < I_m.  If L = 0, the program 
+       failed to produce such a list for the given inputs.
+
+d105 1
+a105 1
+	      if (LBRNCOMP(SECOND(I2),FIRST(I1)) <= 0) {
+d115 1
+a115 1
+	      else if (LBRNCOMP(SECOND(I1),FIRST(I2)) > 0) {
+@

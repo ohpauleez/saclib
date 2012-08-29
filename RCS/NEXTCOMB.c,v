@@ -1,0 +1,103 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.10.24.10.04.09;	author Chris;	state del;
+branches;
+next	1.2;
+
+1.2
+date	95.10.24.10.02.49;	author Mark;	state init;
+branches;
+next	1.1;
+
+1.1
+date	95.09.05.13.34.49;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Next combination.
+@
+
+
+1.3
+log
+@This functions name was changed to LEXNEXTC.
+@
+text
+@[ removed from library ]
+/*===========================================================================
+		       LEXNEXTC(n,k,I; t)
+
+Lexicographically next combination.
+
+Inputs
+  n : a postiive BETA-digit.
+  k : a positive BETA-digit, 1 <= k <= n.
+  I : an array of k indices, i.e, 0 <= I[0] < I[1] < ... < I[k-1] < n.
+
+Output
+  t : the last-changed index
+
+Side effects
+  I is modified to contain the lexicographically next index set.
+  If I[k-i] = n-i, for i = 1,...,k, then I[0] is set to -1.
+===========================================================================*/
+#include "saclib.h"
+
+void LEXNEXTC(n,k,I,t_)
+       Word n,k,*I,*t_;
+{
+       Word c,i,j,t;
+
+Step1: /* Get next index set. */
+       i = 1;
+       while (i <= k && I[k-i] == n-i)
+	  i++;
+       t = k - i;
+       if (i > k)
+	  I[0] = -1;
+       else {
+	  c = I[t] + 1;
+	  I[t] = c;
+	  for (j = k-i+1; j < k; j++)
+	     I[j] = ++c; }
+
+Return: /* Prepare for return. */
+       *t_ = t;
+       return;
+}
+@
+
+
+1.2
+log
+@Next combination.
+@
+text
+@d1 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+		       NEXTCOMB(n,k,I; t)
+d4 1
+a4 1
+Next combination.
+d20 1
+a20 1
+void NEXTCOMB(n,k,I,t_)
+@

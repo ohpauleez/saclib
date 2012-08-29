@@ -1,0 +1,99 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	97.06.03.15.51.11;	author Chris;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	97.05.15.19.32.58;	author Chris;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	97.05.13.19.51.33;	author Chris;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number product.
+@
+
+
+1.3
+log
+@There are a few cosmetic changes and spec typo corrections.
+@
+text
+@/*======================================================================
+                      t <- LBRNPROD(r,s)
+
+Logarithmic binary rational number product.
+
+Inputs
+      r,s : logarithmic binary rational numbers.
+Outputs
+      t: logarithmic binary rational representation of r*s;
+
+======================================================================*/
+#include "saclib.h"
+
+Word LBRNPROD(r,s)
+       Word r,s;
+{
+  Word t,r1,r2,s1,s2;
+
+Step1: /* Multiply numerators & add denominator exponents. */
+  if (r == 0 || s == 0)
+    t = 0;
+  else {
+    FIRST2(r,&r1,&r2);
+    FIRST2(s,&s1,&s2);
+    t = LIST2(IPROD(r1,s1),r2 + s2); }
+
+Return: /* Prepare to return. */
+  return t;
+}
+@
+
+
+1.2
+log
+@The program needed to be cleaned up to conform with saclib style
+conventions.
+@
+text
+@d2 1
+a2 1
+                      t <- LBRNPROD(r,k)
+d9 1
+a9 1
+      t: Logarithmic binary rational representation of r*s;
+d25 1
+a25 1
+    t = LIST2( IPROD(r1,s1) , r2 + s2 ); }
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      s <- LBRNPROD(r,k)
+d4 1
+a4 1
+Logarithmic binary rational number  product.
+d27 1
+a27 1
+Return: /*  */
+@

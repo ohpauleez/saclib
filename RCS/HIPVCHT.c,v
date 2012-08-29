@@ -1,0 +1,150 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	2001.05.15.19.06.04;	author George;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	2000.05.19.16.07.59;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	98.04.23.20.27.11;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Hardware interval polynomial, variations after circle to half-plane
+transformation.
+@
+
+
+1.3
+log
+@In Step3, following "v = HIPSV(n,C)", inserted the line
+"FREEARRAY(C);".
+@
+text
+@/*======================================================================
+                           HIPVCHT(n,A; v,t)
+
+Hardware interval polynomial, variations after circle to half-plane 
+transformation.
+
+Inputs
+    n : a BETA-digit, n >= 1.
+    A : in HI[X], deg(A) = n.
+
+Outputs
+    v :  A beta-digit.  Let B(x) = x^n A(1/x), C(x) = B(x + 1).
+         If t = 0, v is an indication of the number of sign 
+         variations in C(x) as follows.  If v = 0 or 1, v is the
+         number of variations.  If v = 2, the number of
+         variations is at least 2.  If t /= 0 then v is undefined.
+    t :  0,1 or 2.  If t = 1, the program failed due to
+	 exponent limitation.  If t = 2, the program failed due 
+	 to mantissa limitation.
+======================================================================*/
+#include "saclib.h"
+
+void HIPVCHT(n,A, v_,t_)
+	BDigit n;
+	interval *A;
+	BDigit *v_,*t_;
+{
+	interval a,*B,*C;
+	BDigit t,v;
+	double b;
+
+Step1: /* Compute B(x). */
+	FPCATCH();
+	B = HIPRT(n,A);
+
+Step2: /* Compute C(x). */
+	FPCATCH();
+	C = HIPTR1(n,B);
+	FREEARRAY(B);
+	if (FPFLAG == 1) {
+	   FPCATCH();
+	   FREEARRAY(C);
+	   t = 1;
+	   goto Return; }
+
+Step3: /* Count variations. */
+	v = HIPSV(n,C);
+	FREEARRAY(C);
+	if (v < 0)
+	   t = 2;
+	else
+	   t = 0;
+
+Return: /* Return v and t. */
+	*v_ = v;
+	*t_ = t;
+	return;
+}
+@
+
+
+1.2
+log
+@Revised the specifications and the algorithm in order to
+distinguish the causes of failure.
+@
+text
+@d48 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                           v <- HIPVCHT(n,A)
+d11 1
+a11 1
+Output
+d13 7
+a19 8
+         v is an indication of the number of sign variations in C(x)
+         as follows.  If v = 0 or 1, v is the number of variations.
+         If v = 2, the number of variations is at least 2.  Otherwise
+         v = -1, indicating that the program was unable to determine
+         which of these three possibilities is the case.
+
+Remark
+   HIPVCHT is floating-point overflow-underflow protected.
+d23 1
+a23 1
+BDigit  HIPVCHT(n,A)
+d25 2
+a26 1
+	interval A[];
+d29 1
+a29 1
+	BDigit i,v;
+d33 1
+d43 1
+a43 1
+	   v = -1;
+d48 4
+a51 1
+	FREEARRAY(C);
+d53 4
+a56 2
+Return: /* Return v. */
+	return(v);
+@

@@ -1,0 +1,67 @@
+
+Floating-point arithmetic and Saclib2.1
+--------------------------------------------------------------
+
+One major change in Saclib from 1.1 to 2.1 is the addition of
+functions using floating-point arithmetic.  The functions rely
+on the machine's implementation of floating-point arithmetic
+conforming to the IEEE standard.  This must be the case for your
+machine if you want to make use of floating-point functions in
+Saclib.  Beyond that, there are a few new system-dependencies
+introduced by the inclusion of floating-point arithmetic.
+
+1)  Rounding modes.
+
+    Saclib must be able to control the rounding mode of the
+    machine, and change it "on the fly".  The file 
+
+    /include/hfloats.h
+
+    includes the definitions of macros roundup() and rounddown(),
+    which allow Saclib to change the rounding mode.  The proper
+    definitions for Sun machines under Solaris are given there,
+    as well as definitions for DEC (non-alpha?) machines.  You
+    must ensure that the proper definitions for your machine are
+    in hfloats.h --- and not commented out! ;-)
+
+2)  Machine-dependent representations.
+
+    Saclib manipulates the sign, exponent, and mantissa fields
+    of floating point numbers.  This requires some knowledge of
+    the layout of floating-point numbers in your machine.  The
+    file
+
+    /include/hfloats.h
+
+    includes definitions for the structures ieee_rep and ieee
+    in order to allow this kind of manipulation.  Definitions
+    of these structures for Sun SPARC's and UltraSPARC's (big
+    endian machines), and DEC machines (little endian) are
+    already in hfloats.h.  You must ensure that the proper 
+    definitions for your machine are in hfloats.h --- and not 
+    commented out! ;-)
+    
+
+3)  Floating-point exception handling.
+
+    In certain circumstances, Saclib must be able to determine
+    whether or not a floating point overflow or underflow has
+    occurred.  This is done by exception handling.  There are
+    two functions that accomplish this:  FPCATCH and FPHAND.
+    These functions are C functions, but they may differ from
+    system to system.  FPHAND is the exception handler for 
+    floating-point exceptions.  It must set the global variable
+    FPFLAG to 1, but may also (for efficiency) disable floating
+    point exceptions as well.  FPCATCH is called to set FPHAND
+    as the exception handler for floating-point exceptions, set
+    global variable FPFLAG to 0, and ensure that floating-point
+    overflow and underflow raise exceptions.  These function
+    definitions may need to be changed for your system.  Also,
+    the file 
+
+    include/hfloats.h
+
+    may need to "#include" some system files that are required
+    for signal handling.  Such "#include"'s may need to be added
+    or deleted from hfloats.h in order to compile Saclib on your
+    machine.

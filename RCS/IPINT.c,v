@@ -1,0 +1,114 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.16.59.14;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.58.24;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial integration.
+@
+
+
+1.2
+log
+@Calls to IQ have been replaced by calls to IEQ.
+@
+text
+@/*===========================================================================
+                      B <- IPINT(r,A,b)
+
+Integral polynomial integration.
+
+Inputs
+  A : in Z[x_1,...,x_r], such that the integral of A
+      with respect to its main variable is an  
+      integral polynomial.
+  r : a BETA-digit, r >= 1, the number of variables.
+  b : in Z[x_1,...,x_{r-1}].
+
+Outputs
+  B : in Z[x_1,...,x_r],the integral of A with respect to its
+      main variable, such that B(x_1,...,x_{r-1},0) = b.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPINT(r,A,b)
+       Word r,A,b;
+{
+       Word Ap,B,a,c,e,rp;
+
+Step1: /* Compute. */
+       Ap = A;
+       B = NIL;
+       rp = r - 1;
+       do {
+	  ADV2(Ap,&e,&a,&Ap);
+	  e = e + 1;
+	  if (r == 1)
+	     c = IEQ(a,e);
+	  else
+	     c = IPIQ(rp,a,e);
+	  B = COMP2(c,e,B); }
+       while (Ap != NIL);
+       if (b != 0)
+	  B = COMP2(b,0,B);
+       B = INV(B);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d7 1
+a7 1
+  A : in Z[X1,...,Xr], such that the integral of A
+d11 1
+a11 1
+  b : in Z[X1,...,X_{r-1}].
+d14 3
+a16 4
+  B : in Z[X1,...,Xr],the integral of A with respect
+      to its main variable, such that       
+      B(X1,...,X_{r-1},0) = b.
+======================================================================*/
+a22 1
+       /* hide Ap,a,e,rp; */
+d28 9
+a36 11
+       do
+         {
+         ADV2(Ap,&e,&a,&Ap);
+         e = e + 1;
+         if (r == 1)
+           c = IQ(a,e);
+         else
+           c = IPIQ(rp,a,e);
+         B = COMP2(c,e,B);
+         }
+       while (!(Ap == NIL));
+d38 1
+a38 1
+         B = COMP2(b,0,B);
+@

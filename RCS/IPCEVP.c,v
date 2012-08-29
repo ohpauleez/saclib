@@ -1,0 +1,166 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.14.23.59;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.14.21.48;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial, choice of evaluation points.
+@
+
+
+1.2
+log
+@Fixed the specs to require that the evaluation point is chosen so that
+the resulting polynomial is squarefree.  Prettied up the specs and
+some of the step comments.  Changed the code to use the new functions
+PADV and PPLT.
+@
+text
+@/*===========================================================================
+			     IPCEVP(r,A; B,L)
+
+Integral polynomial, choice of evaluation points.
+
+Inputs
+  r : a BETA-digit, r >= 1.
+  A : in Z[x_1,...,x_r], non-zero and square-free in its main variable x_r.
+
+Outputs
+  L : a list (b_1,...,b_{r-1}) of BETA-digits, 
+      with L as small as possible, in the reverse lexicographic order 
+      in which 0 < 1 < -1 < 2 < -2 < ... , such that 
+      deg_{x_r}(A(x_1,...,x_{r-1},x_r)) = deg_x(A(b_1,...,b_{r-1},x))
+      and A(b_1,...,b_{r-1},x) is squarefree.
+  B : in Z[x], B(x) = A(b_1,...,b_{r-1},x).
+===========================================================================*/
+#include "saclib.h"
+
+void IPCEVP(r,A, B_,L_)
+       Word r,A, *B_,*L_;
+{
+       Word Ab,At,B,C,Cp,D,E,F,L,a,at,b,e,rp;
+
+Step1: /* Initialize. */
+       rp = r - 1;
+       At = A;
+       L = NIL;
+
+Step2: /* Univariate. */
+       if (rp == 0) {
+	  B = At;
+	  goto Return; }
+
+Step3: /* Prepare to choose b_{rp}. */
+       b = 0;
+       PADV(At,&e,&at,&Ab);
+
+Step4: /* Evaluate at and Ab for x_{rp} = b_{rp}. */
+       a = IPEMV(rp,at,b);
+       if (a == 0)
+	  goto Step6;
+       C = IPEVAL(rp + 1,Ab,rp,b);
+       C = PPLT(e,a,C);
+       Cp = IPDMV(rp,C);
+       IPGCDC(rp,C,Cp,&D,&E,&F);
+       if (PDEG(D) > 0)
+	  goto Step6;
+
+Step5: /* Success. */
+       L = COMP(b,L);
+       rp = rp - 1;
+       At = C;
+       goto Step2;
+
+Step6: /* Try again. */
+       if (b > 0)
+	  b = -b;
+       else
+	  b = 1 - b;
+       goto Step4;
+
+Return: /* Prepare for return. */
+       *B_ = B;
+       *L_ = L;
+       return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      IPCEVP(r,A; B,L)
+d8 1
+a8 1
+  A : in Z[X1,...,Xr], square-free in its main variable Xr.
+d11 7
+a17 7
+  B : in Z[X].
+  L : a list (l1,...,l_{r-1}) of BETA-digits, 
+      with L as small as possible in reverse lexicographic order 
+      with 0 < 1 < -1 < 2 < -2 < ... 
+      such that deg_Xr(A(X1,...,X_{r-1},Xr)) = deg_X(A(l1,...,l_{r-1},X)), 
+      and A(l1,...,l_{r-1},X) = B.
+======================================================================*/
+d23 1
+a23 2
+       Word Ab,At,B,C,Cp,D,E,F,L,a,at,e,l,rp;
+       /* hide E,F,at,e,l,rp; */
+d31 7
+a37 9
+       if (rp == 0)
+         {
+         B = At;
+         goto Return;
+         }
+
+Step3: /* Prepare to choose l_{rp}. */
+       l = 0;
+       ADV2(At,&e,&at,&Ab);
+d39 2
+a40 2
+Step4: /* Evaluate alt and at for x sub rlp=ll. */
+       a = IPEMV(rp,at,l);
+d42 3
+a44 8
+         goto Step6;
+       if (Ab != NIL)
+         C = IPEVAL(rp + 1,Ab,rp,l);
+       else
+         C = 0;
+       if (C == 0)
+         C = NIL;
+       C = COMP2(e,a,C);
+d48 1
+a48 1
+         goto Step6;
+d51 1
+a51 1
+       L = COMP(l,L);
+d57 2
+a58 2
+       if (l > 0)
+         l = -l;
+d60 1
+a60 1
+         l = 1 - l;
+@

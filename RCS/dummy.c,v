@@ -1,0 +1,30 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.10.13.23.12.42;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Test.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+this is just a test file.
+
+===========================================================================*/
+test
+@

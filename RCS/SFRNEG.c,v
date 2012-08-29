@@ -1,0 +1,75 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.17.12.17;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.22.12;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point real negation.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFRNEG(u)
+a2 30
+Single-precision floating-point real negation.  
+
+Inputs
+  u : a single-precision floating-point real number. 
+
+Outputs
+  w : -u.
+======================================================================*/
+#include "saclib.h"
+
+Word SFRNEG(u)
+       Word u;
+{
+       Word a,e,w;
+       /* hide algorithm */
+
+Step1: /* u=0. */
+       if (u == 0)
+         {
+         w = 0;
+         goto Return;
+         }
+
+Step2: /* u /= 0. */
+       FIRST2(u,&e,&a);
+       w = LIST2(e,-a);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

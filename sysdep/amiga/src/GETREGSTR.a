@@ -1,0 +1,49 @@
+;#################################################################
+;# void GETREGSTR(Word register_buff[], Word *num_registers, char **stack_top)
+;#################################################################
+;# Get the registers.
+;#
+;# Outputs
+;#   register_buff:  filled with the values of the registers
+;#                   which might contain sac2c list locations.
+;#   num_registers:  the number of registers values stored in
+;#                   the buffer.
+;#   stack_top:      the current top-of-stack.
+;#
+;# Environment
+;#   Processor:         Motorola 68000
+;#   Assembler:         DICE Assembler (das)
+;#   Operating system:  Amiga DOS 1.3
+;#   Computer:          Amiga 1000
+;#
+;#
+;# Remarks
+;#   Just to be sure I copy all registers except A7 (the stackpointer).
+;#   I assume I may use the stack to save A0 which I need for addressing
+;#   the output parameters.
+;#   The size of 'Word' is assumed to be 32 bits.
+;#
+;#
+;# 91-06-02  A. Neubacher : Created this file
+;#
+;################################################################
+
+        section ,code
+
+        xdef    _GETREGSTR
+
+_GETREGSTR:
+        move.l  A0,-(SP)              ; push A0
+        move.l  8(SP),A0              ; get register_buff[]
+        move.l  (SP),(A0)             ; store old value of A0
+        movem.l D0-D7/A1-A6,4(A0)     ; store all other registers
+        move.l  12(SP),A0             ; get num_registers
+        move.l  #15,(A0)              ; store number of copied registers
+        move.l  16(SP),A0             ; get stack_top
+        move.l  SP,(A0)
+        add.l   #4,(A0)               ; store current address of stack
+        move.l  (SP)+,A0              ; pop A0
+        rts
+
+        END
+

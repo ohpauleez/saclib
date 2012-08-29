@@ -1,0 +1,52 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2000.05.19.16.12.07;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational interval to binary rational interval.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      J <- LBRIBRI(I)
+
+Logarithmic binary rational interval to binary rational interval.
+
+Input
+   I : an interval with logarithmic binary rational endpoints.
+
+Output
+   J : the same interval represented with binary rational endpoints.
+======================================================================*/
+#include "saclib.h"
+
+Word LBRIBRI(I)
+	Word I;
+{
+	Word a,b,J;
+
+Step1: /* Convert the endpoints. */
+        FIRST2(I,&a,&b);
+        a = LBRNRN(a);
+        b = LBRNRN(b);
+        J = LIST2(a,b);
+
+Return: /* Return J. */
+        return(J);
+}
+@

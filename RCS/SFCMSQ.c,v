@@ -1,0 +1,78 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.15.01.41;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.13.43;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex modulus squared.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      v <- SFCMSQ(u)
+a2 33
+Single-precision floating-point complex modulus squared.  
+
+Inputs
+  u : a single-precision floating-point complex number.  
+
+Outputs
+  v : a single-precision floating point real approximation 
+      to the square of the modulus of u.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCMSQ(u)
+       Word u;
+{
+       Word a,b,u1,u2,v;
+       /* hide u1,u2,v; */
+
+Step1: /* u=0. */
+       if (u == 0)
+         {
+         v = 0;
+         goto Return;
+         }
+
+Step2: /* u /= 0. */
+       FIRST2(u,&u1,&u2);
+       a = SFRPR(u1,u1);
+       b = SFRPR(u2,u2);
+       v = SFRSUM(a,b);
+
+Return: /* Prepare for return. */
+       return(v);
+}
+@

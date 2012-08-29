@@ -1,0 +1,157 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	94.09.11.09.31.02;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	94.08.21.12.24.42;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.16.25;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer, floor and ceiling, logarithm, base 2.
+@
+
+
+1.3
+log
+@Now uses PDLOG2 in lieu of QREM.
+@
+text
+@/*===========================================================================
+			       IFCL2(a; m,n)
+
+Integer, floor and ceiling, logarithm, base 2.
+
+Inputs
+  a  : non-zero integer.
+
+Outputs
+  m, n : BETA-digits, are the floor and ceiling
+         of log2(abs(a)) respectively.
+===========================================================================*/
+#include "saclib.h"
+
+void IFCL2(a, m_,n_)
+       Word a, *m_,*n_;
+{
+       Word a1,ap,b,k,m,n,t;
+
+Step1: /* Process BETA-digits. */
+       t = 0;
+       if (a < BETA) {
+	  a1 = a;
+	  m = 0; }
+       else {
+	  ap = a;
+	  m = -ZETA;
+	  do {
+	     ADV(ap,&a1,&ap);
+	     m = m + ZETA;
+	     if (ap != NIL && a1 != 0)
+		t = 1; }
+	  while (ap != NIL); }
+
+Step2: /* Process leading digit. */
+       if (a1 < 0)
+	  a1 = -a1;
+       k = PDLOG2(a1) - 1;
+       m = m + k;
+       b = (01 << k);
+       if (a1 != b)
+	  t = 1;
+
+Step3: /* Finish. */
+       n = m + t;
+
+Return: /* Prepare for return. */
+       *m_ = m;
+       *n_ = n;
+       return;
+}
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      IFCL2(a; m,n)
+d12 1
+a12 1
+======================================================================*/
+d18 1
+a18 1
+       Word a1,ap,m,n,r,t;
+d35 1
+a35 1
+Step2: /* Process leading digits. */
+d38 5
+a42 5
+       while (a1 != 1) {
+	  QREM(a1,2,&a1,&r);
+	  if (r != 0)
+	     t = 1;
+	  m = m + 1; }
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d10 1
+a10 1
+  m, n : GAMMA-integers, are the floor and ceiling
+a18 1
+       /* hide algorithm */
+d22 12
+a33 18
+       if (a < BETA)
+         {
+         a1 = a;
+         m = 0;
+         }
+       else
+         {
+         ap = a;
+         m = -ZETA;
+         do
+           {
+           ADV(ap,&a1,&ap);
+           m = m + ZETA;
+           if (ap != NIL && a1 != 0)
+             t = 1;
+           }
+         while (!(ap == NIL));
+         }
+d37 6
+a42 8
+         a1 = -a1;
+       while (a1 != 1)
+         {
+         QREM(a1,2,&a1,&r);
+         if (r != 0)
+           t = 1;
+         m = m + 1;
+         }
+@

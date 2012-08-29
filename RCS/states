@@ -1,0 +1,12 @@
+The state field of the RCS files are set to one of the following:
+
+algo - algorithm change
+bug  - bug fix
+del  - deleted from library
+embe - embellishment
+init - initial revision
+new  - new routine
+typo - typographical correction
+spec - specification correction
+
+mje/94/02/14

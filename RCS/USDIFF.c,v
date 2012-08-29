@@ -1,0 +1,90 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.07.02.23.40.06;	author saclib;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.07.02.23.39.06;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Unordered set difference.
+@
+
+
+1.2
+log
+@Changed specs to allow arbitrary objects in sets.
+@
+text
+@/*===========================================================================
+			     C <- USDIFF(A,B)
+
+Unordered set difference.
+
+Inputs
+  A,B : unordered lists of objects.
+        (A, B represent sets of objects.)
+
+Outputs
+  C : an unordered list representing the difference of the sets A and B.
+===========================================================================*/
+#include "saclib.h"
+
+Word USDIFF(A,B)
+       Word A,B;
+{
+       Word Ap,C,a;
+
+Step1: /* Compute. */
+       Ap = A;
+       C = NIL;
+       while (Ap != NIL) {
+	  ADV(Ap,&a,&Ap);
+	  if (MEMBER(a,B) == 0)
+	     C = COMP(a,C); }
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- USDIFF(A,B)
+d7 2
+a8 2
+  A,B  : unordered lists of BETA-integers.
+         (A, B represent sets of BETA-integers.)
+d11 2
+a12 2
+  C   : unordered list representing the difference of the sets A and B.
+======================================================================*/
+a18 1
+       /* hide Ap,a; */
+d23 4
+a26 6
+       while (Ap != NIL)
+         {
+         ADV(Ap,&a,&Ap);
+         if (MEMBER(a,B) == 0)
+           C = COMP(a,C);
+         }
+@

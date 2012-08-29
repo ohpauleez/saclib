@@ -1,0 +1,51 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.09.18.12.35.20;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Integer negation, array version.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+				INEGA(A,n)
+
+Integer negation, array version.
+
+Inputs
+  A : in Z, in array representation.
+  n : a BETA digit, the length of A.
+
+Side effect
+  A is replaced by -A.
+===========================================================================*/
+#include "saclib.h"
+
+void INEGA(A,n)
+       Word *A,n;
+{
+       Word i;
+
+Step1: /* Negate each digit. */
+       for (i = 0; i < n; i++)
+	  A[i] = -A[i];
+
+Return: /* Prepare for return. */
+       return;
+}
+@

@@ -1,0 +1,128 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	2000.04.10.19.26.49;	author George;	state embe;
+branches;
+next	1.2;
+
+1.2
+date	99.04.21.17.32.45;	author George;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	98.04.23.20.26.59;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Algebraic field polynomial to hardware interval polynomial.
+@
+
+
+1.3
+log
+@Improved the specification.
+@
+text
+@/*======================================================================
+                           AFPHIP(I,A; B,t)
+
+Algebraic field polynomial to hardware interval polynomial.
+
+Inputs
+   I : a hardware interval containing an algebraic number \alpha.
+   A : a univariate polynomial of positive degree over the
+       algebraic number field Q(\alpha).  Each nonzero coefficient
+       of A is represented by a pair (r,a) where r is a
+       rational number and a is an integral polynomial of
+       degree less than the degree of \alpha.
+
+Outputs
+   B : if t = 1, B is a hardware interval polynomial containing A(x).
+       Otherwise t = 0 and the value of B is undefined due to
+       exponent limitation.
+   t : 0 or 1.
+======================================================================*/
+#include "saclib.h"
+
+void AFPHIP(I,A,B_,t_)
+	interval I;
+	Word A;
+	interval **B_;
+	BDigit *t_;
+	
+{
+	interval *B;
+	BDigit i,m,t;
+	Word a,Ap;
+	Word V,v;
+
+Step1: /* Get an array for B. */
+	m = PDEG(A);
+	B = GETHIPARRAY(m);
+
+Step2: /* Convert and evaluate coefficients. */
+	Ap = A;
+	for (i = m; i >= 0; i--) {
+	   if (Ap == NIL || PDEG(Ap) < i)
+	      IHI(0,&B[i],&t);
+	   else {
+	      Ap = RED(Ap);
+	      ADV(Ap,&a,&Ap);
+	      ANHI(I,a,&B[i],&t);
+	      if (t == 0)
+	         goto Return; } }
+	   
+Return: /* Return B and t. */
+	*B_ = B;
+	*t_ = t;
+	return;
+}
+@
+
+
+1.2
+log
+@In Step2, the line
+	if (Ap == NIL | PDEG(Ap) < i)
+was changed to
+	if (Ap == NIL || PDEG(Ap) < i)
+@
+text
+@d15 4
+a18 6
+   B : a hardware interval polynomial containing A(x), if t = 1;
+       otherwise undefined.
+   t : t = 1 if AFPHIP succeeds; otherwise t = 0.
+
+Remark
+   AFPHIP is floating-point overflow-underflow protected.
+d47 2
+a48 3
+	      if (t == 0) {
+	         SWRITE("ANHI failure.\n");
+	         goto Return; } } }
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d43 1
+a43 1
+	   if (Ap == NIL | PDEG(Ap) < i)
+d50 1
+a50 1
+	         SWRITE("ANHHI failure.\n");
+@

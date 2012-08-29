@@ -1,0 +1,55 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	98.04.23.20.27.02;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Hardware sign.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      s <- HSIGN(a)
+
+Hardware sign.
+
+Input
+   a : a hardware double precision number.
+
+Output
+   s : The sign of a.
+======================================================================*/
+#include "saclib.h"
+
+BDigit HSIGN(a)
+	double a;
+{
+	BDigit s;
+
+Step1: /* Obtain sign. */
+	if (a > 0)
+	   s = 1;
+	else if (a < 0)
+	   s = -1;
+	else
+	   s = 0;
+
+Return: /* Return s. */
+	return(s);
+}
+@

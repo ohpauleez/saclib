@@ -1,0 +1,59 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.07.02.23.21.49;	author saclib;	state new;
+branches;
+next	;
+
+
+desc
+@Is the element in the set?
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			      t <- INSET(S,a)
+
+Is the element in the set?
+
+Inputs
+  S : a list of BETA-digits in ascending order.
+  a : a BETA-digit.
+  
+Output
+  t :  is  1 if a in a member of S, 0 otherwise.
+===========================================================================*/
+#include "saclib.h"
+
+Word INSET(S,a)
+       Word S,a;
+{
+       Word S1,Sp,t;
+
+Step1: /* Check. */
+       Sp = S;
+       while (Sp != NIL) {
+	  ADV(Sp,&S1,&Sp);
+	  if (S1 == a) {
+	     t = 1;
+	     goto Return; }
+	  if (S1 > a) {
+	     t = 0;
+	     goto Return; } }
+       t = 0;
+
+Return: /* Prepare for return. */
+       return(t);
+}
+@

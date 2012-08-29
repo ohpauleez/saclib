@@ -1,0 +1,160 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	97.01.22.17.29.47;	author Werner;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	96.04.29.09.32.28;	author Chris;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	96.04.29.07.59.57;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Integral univariate polynomial binary rational evaluation - array version.
+@
+
+
+1.3
+log
+@In step2 a check is made for an evaluation point of zero.  Previously,
+polynomials without constant terms were evaluated incorrectly at zero.
+@
+text
+@/*=============================================================================
+                         IUPBREA(A,C,m,t,k,B,M; p,s)
+
+Integral univariate polynomial binary rational evaluation - array version.
+
+Inputs
+   A : a univariate integral polynomial.
+   C : an array. C,m,t together specify an integer c.
+       If c is non-zero, C contains |c|.
+   m : the BETA-length of c.
+   t : the sign of c.
+   k : a non-negative BETA-digit.
+   B : an array of length >= 2*M.
+   M : a positive BETA-digit, M > the BETA-length of any intermediate result
+       in Horner's scheme. The inequality is strict because subprograms
+       IPRODAP and IMPBAA require an array that might be 1 BETA-digit longer
+       than the result.
+       One may choose M = deg(A) * max(m,ILOGB(2^k)) + ILOGB(IPSUMN(A)) + 1.
+
+Effect
+   The program computes  b = 2^(k*deg(A)) * A(c/2^k).
+   If b is non-zero, B contains the integer |b|.
+
+Output
+   p : the BETA-length of b.
+   s : the sign of b.
+==============================================================================*/
+#include "saclib.h"
+
+void IUPBREA(A,C,m,t,k,B,M, p_,s_)
+        Word A,*C,m,t,k,*B,M,*p_,*s_;
+{
+        BDigit d,e1,e2,i,j,n,o,p,q,r,s,u;
+        Word a1,a2,Ap,*Bp;
+
+Step1: /* A = 0. */
+        if (A == 0) {
+           p = 0;
+           s = 0;
+           goto Return; }
+
+Step2: /* c = 0. */
+        if (t == 0) {
+          if (PORD(A) != 0) {
+            p = 0;
+            s = 0; }
+          else
+            IFLTA(PTRCF(A),B,M,&B,&p,&s,&o);
+          goto Return; }
+
+Step3: /* Put leading coefficient into result array. */
+        ADV2(A,&e1,&a1,&Ap);
+        IFLTA(a1,B,M,&B,&p,&s,&o);
+        if (ODD(e1) && t < 0)
+           s = -s;
+
+Step4: /* Coefficient array. */
+        Bp = B + M;
+
+Step5: /* Horner steps. */
+        n = e1;
+        while (Ap != NIL) {
+           ADV2(Ap,&e2,&a2,&Ap);
+           for (i = 1; i <= e1 - e2; i++)
+              IPRODAP(B,p,C,m,&p);
+           d = k * (n - e2);
+           q = d / ZETA;
+           r = d - q * ZETA;
+           IFLTA(a2,Bp,M,&Bp,&j,&u,&o);
+           IRLSA(Bp,j,r,&j);
+           if (ODD(e2) && t < 0)
+              u = -u;
+           IMPBAA(Bp,B,j,p,u,s,q,&p,&s); 
+           e1 = e2; }
+
+Step6: /* Last term not constant. */
+        for (i = 1; i <= e1; i++)
+           IPRODAP(B,p,C,m,&p);
+
+Return: /* Return p,s. */
+        *p_ = p;
+        *s_ = s;
+        return;
+}
+@
+
+
+1.2
+log
+@The parameter list was split into BDigits and Words, which caused
+problems with the automatically generated prototype list.  All are
+now words.
+@
+text
+@d42 10
+a51 1
+Step2: /* Put leading coefficient into result array. */
+d57 1
+a57 1
+Step3: /* Coefficient array. */
+d60 1
+a60 1
+Step4: /* Horner steps. */
+d76 1
+a76 1
+Step5: /* Last term not constant. */
+d80 1
+a80 1
+Return:	/* Return p,s. */
+d83 1
+a83 1
+	return;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d31 1
+a31 2
+        BDigit m,t,k,M,*p_,*s_;
+        Word A,*C,*B;
+@

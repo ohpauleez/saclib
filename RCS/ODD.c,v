@@ -1,0 +1,75 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.29.42;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.22.32;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Odd.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*======================================================================
+<macro>               t <- ODD(a)
+
+Odd.  
+
+Inputs
+  a : a C integer.  
+
+Outpus
+  t : t=1 if a is odd and t=0 otherwise.
+======================================================================*/
+#ifndef NO_SACLIB_MACROS
+#define NO_SACLIB_MACROS
+#endif
+#include "saclib.h"
+
+Word ODD(a)
+       Word a;
+{
+       Word t;
+
+Step1: /* Decide. */
+       t = REM(a,2);
+       if (t != 0)
+	  t = 1;
+
+Return: /* Prepare for return. */
+       return(t);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+  a : a gamma-integer.  
+a20 1
+       /* hide algorithm */
+d25 1
+a25 1
+         t = 1;
+@

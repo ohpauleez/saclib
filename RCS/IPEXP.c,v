@@ -1,0 +1,86 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.06.02.16.01.17;	author Mark;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.06.02.15.59.58;	author Mark;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial exponentiation.
+@
+
+
+1.2
+log
+@Changed specs to require n to be a BETA-digit.
+@
+text
+@/*======================================================================
+                      B <- IPEXP(r,A,n)
+
+Integral polynomial exponentiation.
+
+Inputs
+  r : a BETA-digit, r >= 0, the number of variables.
+  A : in Z[X1,...,Zr].
+  n : a BETA-digit, n >= 0.
+
+Outputs
+  B : in Z[X1,...,Zr], B = A^n.
+======================================================================*/
+#include "saclib.h"
+
+Word IPEXP(r,A,n)
+       Word r,A,n;
+{
+       Word B,i;
+       /* hide i; */
+
+Step1: /* n=0. */
+       if (n == 0)
+         {
+         B = PINV(0,1,r);
+         goto Return;
+         }
+
+Step2: /* A=0. */
+       if (A == 0)
+         {
+         B = 0;
+         goto Return;
+         }
+
+Step3: /* General case. */
+       B = A;
+       for (i = 1; i <= n - 1; i++)
+         {
+         B = IPPROD(r,B,A);
+         }
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d9 1
+a9 1
+  n : a non-negative integer.
+@

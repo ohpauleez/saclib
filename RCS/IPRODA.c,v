@@ -1,0 +1,182 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.08.30.11.22.13;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	93.12.15.13.10.01;	author Werner;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.11.35.43;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Integer product - array representation. Classical algorithm.
+@
+
+
+1.3
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@/*===========================================================================
+			    IPRODA(A,n1,B,n2,C)
+
+Integer product - array representation. Classical algorithm.
+
+Inputs
+  n1,n2: positive beta-digits.
+  A, B : non-negative integers of lengths n1 and n2 in array representation.
+  C    : an array of length n1 + n2.
+
+Effect : C = A * B in array representation.
+===========================================================================*/
+#include "saclib.h"
+
+void IPRODA(A,n1,B,n2,C)
+        Word *A,n1,*B,n2,*C;
+{
+        Word b,c,c0,c1,cp,i,j,k;
+
+Step1: /* Initialize with first row of digit products. */
+       b = B[0];
+       cp = 0;
+       for (i = 0; i < n1; i++) {
+	  DPR(A[i],b,&c1,&c0);
+	  c = c0 + cp;
+	  cp = c >> ZETA;
+	  C[i] = c & BETA1;
+	  cp = cp + c1; }
+       C[n1] = cp;
+
+Step2: /* Add rows of digit products. */
+       for (j = 1; j < n2; j++) {
+	  b = B[j];
+	  k = j;
+	  cp = 0;
+	  for (i = 0; i < n1; i++) {
+	     DPR(A[i],b,&c1,&c0);
+	     c = C[k] + c0 + cp;
+	     cp = c >> ZETA;
+	     C[k] = c & BETA1;
+	     cp = cp + c1;
+	     k++; }
+	  C[k] = cp; }
+
+Return: /* Prepare for return. */
+	return;
+}
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d16 1
+a16 5
+        Word *A;
+        BDigit n1;
+        Word *B;
+        BDigit n2;
+        Word *C;
+d18 1
+a18 2
+        BDigit b,c0,c1,cp,i,j,k;
+	Word c;
+d23 6
+a28 8
+       for (i = 0; i < n1; i++)
+         {
+         DPR(A[i],b,&c1,&c0);
+	 c = c0 + cp;
+         cp = c >> ZETA;
+         C[i] = c & BETA1;
+         cp = cp + c1;
+         }
+d32 12
+a43 16
+       for (j = 1; j < n2; j++)
+         {
+         b = B[j];
+         k = j;
+         cp = 0;
+         for (i = 0; i < n1; i++)
+           {
+           DPR(A[i],b,&c1,&c0);
+	   c = C[k] + c0 + cp;
+           cp = c >> ZETA;
+           C[k] = c & BETA1;
+           cp = cp + c1;
+           k++;
+           }
+	 C[k] = cp;
+         }
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+			     IPRODA(A,m,B,n,C)
+d7 3
+a9 4
+  m,n  : positive beta-integers, m >= n.
+  A    : array of length m containing a non-negative integer A'.
+  B    : array of length n containing a non-negative integer B'.
+  C    : an array of length m + n.
+d11 1
+a11 1
+Effect : C' = A' * B' is produced in C.
+d15 6
+a20 6
+void IPRODA(A,m,B,n,C)
+       Word *A;
+       BDigit m;
+       Word *B;
+       Word n;
+       Word *C;
+d22 2
+a23 2
+       BDigit a,b,c0,c1,cp,i,j,k;
+       Word c;
+d25 30
+a54 18
+Step1: /*  Set product to zero. */
+       for (k = 0; k < m + n; k++)
+	  C[k] = 0;
+
+Step2: /* Use classical algorithm. */
+       for (j = 0; j < n; j++) {
+	  b = B[j];
+	  if (b != 0) {
+	     cp = 0;
+	     for (i = 0; i <= m - 1; i++) {
+		k = i + j;
+		a = A[i];
+		DPR(a,b,&c1,&c0);
+		c = C[k] + c0 + cp;
+		cp = c >> ZETA;
+		C[k] = c & BETA1;
+		cp = cp + c1; }
+	     C[j+m] = cp; } }
+@

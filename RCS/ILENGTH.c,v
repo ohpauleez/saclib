@@ -1,0 +1,38 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.09.21.11.50.34;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Integer length. <macro>
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+<macro>                       n <- ILENGTH(A)
+
+Integer length.
+
+Input
+  A : in Z.
+
+Output
+  n : the word length of A.
+
+#define ILENGTH(A)     (((A) < BETA) ? 1 : LENGTH(A))
+===========================================================================*/
+@

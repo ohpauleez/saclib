@@ -1,0 +1,72 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.05.17.12.52.36;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.12.41.41;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Modular integer quotient.
+@
+
+
+1.2
+log
+@Previously B was not required to be a unit.
+@
+text
+@/*==========================================================================
+                      C <- MIQ(M,A,B)
+
+Modular integer quotient.  
+
+Inputs
+  M    : a positive integer.  
+  A,B  : elements of Z_M,  B a unit of Z_M.
+
+Outputs
+  C    : A/B.
+==========================================================================*/
+#include "saclib.h"
+
+Word MIQ(M,A,B)
+       Word M,A,B;
+{
+       Word C;
+
+Step1: /* Compute. */
+       C = MIPROD(M,A,MIINV(M,B));
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d8 1
+a8 1
+  A,B  : elements of Z_M.
+d12 1
+a12 1
+======================================================================*/
+@

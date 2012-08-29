@@ -1,0 +1,113 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.17.00.09;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.59.40;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial integer quotient.
+@
+
+
+1.2
+log
+@Calls to IQ have been replaced by calls to IEQ.
+@
+text
+@/*===========================================================================
+			      C <- IPIQ(r,A,b)
+
+Integral polynomial integer quotient.
+
+Inputs
+  A : in Z[x_1,...,x_r].
+  r : a BETA-digit, r >= 1, the number of variables.
+  b : a non-zero integer which divides A.
+ 
+Outputs
+  C : in Z[x_1,...,x_r], C = A / b.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPIQ(r,A,b)
+       Word r,A,b;
+{
+       Word Ap,C,a,c,e,rp;
+
+Step1: /* A = 0. */
+       if (A == 0) {
+	  C = 0;
+	  goto Return; }
+
+Step2: /* A /= 0. */
+       Ap = A;
+       rp = r - 1;
+       C = NIL;
+       do {
+	  ADV2(Ap,&e,&a,&Ap);
+	  if (rp == 0)
+	     c = IEQ(a,b);
+	  else
+	     c = IPIQ(rp,a,b);
+	  C = COMP2(c,e,C); }
+       while (Ap != NIL);
+       C = INV(C);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- IPIQ(r,A,b)
+d7 1
+a7 1
+  A : in Z[X1,...,Xr].
+d12 2
+a13 2
+  C : in Z[X1,...,Xr], C = A / b.
+======================================================================*/
+a19 1
+       /* hide a,rp; */
+d21 4
+a24 6
+Step1: /* A=0. */
+       if (A == 0)
+         {
+         C = 0;
+         goto Return;
+         }
+d30 8
+a37 10
+       do
+         {
+         ADV2(Ap,&e,&a,&Ap);
+         if (rp == 0)
+           c = IQ(a,b);
+         else
+           c = IPIQ(rp,a,b);
+         C = COMP2(c,e,C);
+         }
+       while (!(Ap == NIL));
+@

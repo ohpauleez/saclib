@@ -1,0 +1,70 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.05.17.15.20.42;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.15.19.30;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer remainder.
+@
+
+
+1.2
+log
+@The specification was previously unclear.
+@
+text
+@/*==========================================================================
+                      C <- IREM(A,B)
+
+Integer remainder.  
+
+Inputs
+  A, B : in Z. B non-zero.
+
+Outputs
+  C    : in Z.  Z = A - B * Q, where Q is the integral part of A / B.
+==========================================================================*/
+#include "saclib.h"
+
+Word IREM(A,B)
+       Word A,B;
+{
+       Word C,Q;
+       /* hide algorithm */
+
+Step1: /* Compute. */
+       IQR(A,B,&Q,&C);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d10 2
+a11 2
+  C    : the remainder of A and B.
+======================================================================*/
+@

@@ -1,0 +1,106 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	94.08.21.12.10.43;	author George;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	93.05.17.12.49.45;	author George;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.12.36.37;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@GAMMA-digit remainder.
+@
+
+
+1.3
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*==========================================================================
+                      r <- REM(a,b)
+
+Remainder.
+
+Inputs
+  a,b :  C integers, b /= 0.
+
+Outputs
+  r   :  a - q * b where q is the integral part of a / b.
+==========================================================================*/
+#include "saclib.h"
+
+Word REM(a,b)
+       Word a,b;
+{
+       Word q,r;
+
+Step1: /* Use QREM */
+       QREM(a,b,&q,&r);
+
+Return: /* Prepare for return */
+       return(r);
+}    
+@
+
+
+1.2
+log
+@This correction ensures that the remainder produced is
+that which corresponds to the integral part of the exact
+quotient in the absence of an ANSI C standard to guarantee
+this for negative operands.
+@
+text
+@d4 1
+a4 1
+GAMMA-digit remainder.
+d7 1
+a7 1
+  a,b : GAMMA-digits, b /= 0.
+d10 1
+a10 2
+  r   : a GAMMA-digit, r = a - q * b where q is the integral
+        part of a / b.
+a17 1
+       /* hide algorithm */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+<macro>               r <- REM(a,b)
+d7 1
+a7 1
+  a,b : GAMMA-digits.
+d10 4
+a13 3
+  r   : a GAMMA-digit, the remainder of a/b.
+======================================================================*/
+#include "sactypes.h"
+d18 9
+a26 2
+  return(a%b);
+}
+@

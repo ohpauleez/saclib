@@ -1,0 +1,79 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2001.12.17.18.34.52;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	98.11.16.14.41.20;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Modular array polynomial monic.
+@
+
+
+1.2
+log
+@Fixed the header.
+@
+text
+@/*===========================================================================
+			B <- MAPMON(p,A)
+
+Modular array polynomial monic.
+
+Input
+   A : a modular array polynomial.
+
+Output
+   B : the monic associate of A.
+========================================================================*/
+#include "saclib.h"
+
+Word *MAPMON(p,A)
+	BDigit p,*A;
+{
+	BDigit ap,b,*B,i,n;
+
+Step1: /* Get array for B. */
+        n = MAPDEG(A);
+        B = MAPGET(n);
+
+Step2: /* Compute the inverse of the leading coefficient. */
+	ap = MDINV(p,MAPLDCF(A));
+	b = MDPROD(p,ap,A[0]);
+
+Step3: /* Store the degree and leading coefficients of B. */
+	B[-1] = n;
+	B[n] = 1;
+
+Step4: /* Compute the coefficients of B. */
+	for (i = 0; i <= n-1; i++)
+	   B[i] = MDPROD(p,ap,A[i]);
+	B[n] = 1;
+
+Return: /* Return B. */
+	return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+			B = MAPMON(p,A)
+@

@@ -1,0 +1,49 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.01.09.16.02.06;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Create table of modular inverses.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+				  CTMI(A)
+
+Create table of modular inverses.
+
+Input:
+   A:  Array of length 128.
+
+Effect:  A[i] is set to the inverse of 2*i + 1 modulo 2^8.
+===========================================================================*/
+#include "saclib.h"
+
+void CTMI(A)
+       Word *A;
+{
+       Word i;
+
+Step1: /* Use MDINV. */
+       for (i = 0; i < 128; i++)
+	  A[i] = MDINV(256,2*i + 1);
+
+Return: /* Return. */
+       return;
+}
+@

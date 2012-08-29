@@ -1,0 +1,65 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.09.13.12.49.56;	author Chris;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	95.07.30.14.50.22;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number difference.
+@
+
+
+1.2
+log
+@ Replaced <-- with <- so sdesc would work right.
+@
+text
+@/*=====================================================================
+                      T <- LBRNDIF(R,S)
+
+Logarithmic binary rational number difference.
+
+Inputs
+   R, S : logarithmic binary rational numbers.
+
+Outputs
+   T    : R - S, a logarithmic binary rational integer.
+======================================================================*/
+#include "saclib.h"
+
+Word LBRNDIF(R,S)
+       Word R,S;
+{
+       Word T;
+
+Step1: /* Do it. */
+       T = LBRNSUM(R,LBRNNEG(S));
+
+Return: /* Return T. */
+       return(T);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      T <-- LBRNDIF(R,S)
+@

@@ -1,0 +1,84 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2001.12.19.18.09.41;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	2001.12.19.18.08.19;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Modular digit exponentiation.
+@
+
+
+1.2
+log
+@Style changes.
+@
+text
+@/*======================================================================
+                      b <- MDEXP(m,a,n)
+
+Modular digit exponentiation.  
+
+Inputs
+   m : a BETA-integer, m >= 2.
+   a : an element of Z/(m). 
+   n : a non-negative BETA-integer. 
+
+
+Output
+   b : a^n.
+======================================================================*/
+#include "saclib.h"
+
+Word MDEXP(m,a,n)
+        BDigit m,a,n;
+{
+        BDigit b,c;
+
+Step1: /* n <= 1. */
+        if (n == 0) {
+           b = 1;
+           goto Return; }
+	if (n == 1) {
+	   b = a;
+	  goto Return; }
+
+Step2: /* a = 0. */
+	if (a == 0) {
+	   b = 0;
+	   goto Return; }
+
+Step3: /* Otherwise. */
+        b = 1;
+	c = a;
+	while (n != 0) {
+	   if (n & 1 == 1)
+	      b = MDPROD(m,b,c);
+	   c = MDPROD(m,c,c);
+	   n = n >> 1; }
+
+Return: /* Return b. */
+        return(b);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

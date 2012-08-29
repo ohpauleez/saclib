@@ -1,0 +1,410 @@
+head	1.6;
+access;
+symbols;
+locks
+	saclib:1.6; strict;
+comment	@ * @;
+
+
+1.6
+date	99.07.15.18.39.18;	author Werner;	state embe;
+branches;
+next	1.5;
+
+1.5
+date	95.07.20.12.23.50;	author George;	state algo;
+branches;
+next	1.4;
+
+1.4
+date	95.07.19.13.11.14;	author Mark;	state algo;
+branches;
+next	1.3;
+
+1.3
+date	95.07.14.12.02.37;	author Mark;	state embe;
+branches;
+next	1.2;
+
+1.2
+date	94.01.09.18.07.07;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.18.06.29;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Begin SACLIB.
+@
+
+
+1.6
+log
+@Removed the declaration "extern char *malloc()".
+@
+text
+@/*===========================================================================
+			 BEGINSACLIB(p)
+
+Begin SACLIB.
+
+Inputs
+  p : a C pointer, the address of the first element on the system stack.
+
+Side effects
+  Various data structures are initialized.
+===========================================================================*/
+#include "saclib.h"
+
+void BEGINSACLIB(p)
+       Word *p; 
+{
+       Word L,i,m,n,t;
+
+Step1: /* Remember the startup time. */
+       TAU0 = CLOCK();
+
+Step2: /* Allocate memory for the SPACE and GCASPACE arrays. */
+       NU = NU + (NU % 2);
+       SPACE = (Word *)malloc((unsigned) (sizeof(Word) * (NU + 1)));
+       if (SPACE == ((Word *)0))
+	  FAIL("BEGINSACLIB Step2a","Not enough memory to allocate SPACE.");
+       GCASPACE = (GCArray *)malloc((unsigned) (sizeof(GCArray) * (NUp + 1)));
+       if (GCASPACE == ((GCArray *)0))
+	  FAIL("BEGINSACLIB Step2b","Not enough memory to allocate GCASPACE.");
+
+Step3: /* Set up for fast access to the SPACE and GCASPACE arrays. */
+       SPACEB  = SPACE - BETA;
+       SPACEB1 = SPACE - BETA1;
+       BETAp = BETA + NU + 1;
+       BETApp = BETAp + NUp + 1;
+       GCASPACEBp = &(GCASPACE[-BETAp]);
+      
+Step4: /* Create available cell list and available GCA list. */
+       AVAIL = NIL;
+       for (L = BETA+NU-1; L > BETA; L -= 2) {
+	  SFIRST(L,0);
+	  SRED(L,AVAIL);
+	  AVAIL = L; }
+       GCAAVAIL = NIL;
+       for (L = BETAp+NUp; L > BETAp; L--) {
+	  GCASPACEBp[L].next = GCAAVAIL;
+	  GCASPACEBp[L].flag = GC_NO_CHECK;
+	  GCASPACEBp[L].len = 0;
+	  GCASPACEBp[L].array = (Word *)0;
+	  GCAAVAIL = L; }
+
+Step5: /* Store the beginning of stack. */
+       BACSTACK = (char *)p;
+
+Step6: /* Declare global variables. */
+       GCGLOBAL(&UZ210);
+       GCGLOBAL(&SPRIME);
+       GCGLOBAL(&MPRIME);
+       GCGLOBAL(&LPRIME);
+       GCGLOBAL(&GCAPTR1);
+
+Step7: /* Compute ZETA, ETA, THETA, DELTA, EPSIL and TABP2 elements. */
+       i = 1;
+       t = 1;
+       while (t < BETA) {
+	  TABP2[i] = t;
+	  i = i + 1;
+	  t = t + t; }
+       ZETA = i - 1;
+       ETA = 0;
+       t = BETA;
+       do {
+	  t = t / 10;
+	  ETA = ETA + 1; }
+       while (!(t < 10));
+       THETA = 1;
+       for (i = 1; i <= ETA; i++)
+	  THETA = 10 * THETA;
+       DELTA = TABP2[ZETA / 2 + 1];
+       EPSIL = BETA / DELTA;
+
+Step8: /* Initialize the table of inverses modulo BETA = 2^29. */
+       CTMI(TMI);
+
+Step9: /* Compute RMULT, RINC and RTERM. */
+       L = CONC(LIST10(3,1,4,1,5,9,2,6,5,3),
+                LIST10(5,8,9,7,9,3,2,3,8,4));
+       m = 0;
+       while (m < BETA / 10) {
+	  ADV(L,&t,&L);
+	  m = 10 * m + t; }
+       m = m / 8;
+       RMULT = 8 * m + 5;
+       L = CONC(LIST10(2,1,1,3,2,4,8,6,5,4),
+                LIST10(0,5,1,8,7,1,0,0,0,0));
+       m = 0;
+       for (i = 1; i <= ETA; i++) {
+	  ADV(L,&t,&L);
+	  m = 10 * m + t; }
+       DQR(m,0,THETA,&RINC,&t);
+       if (EVEN(RINC) == 1)
+	  RINC = RINC + 1;
+       L = CONC(LIST10(5,7,7,2,1,5,6,6,4,9),
+                LIST10(0,1,5,3,2,8,6,0,6,0));
+       m = 0;
+       for (i = 1; i <= ETA; i++) {
+	  ADV(L,&t,&L);
+	  m = 10 * m + t; }
+       RTERM = m;
+
+Step10: /* Compute small prime list. */
+       SPRIME = DPGEN(1,NSPRIME);
+
+Step11: /* Compute units of Z sub 210. */
+       UZ210 = NIL;
+       for (i = 209; i >= 1; i-=2) 
+	  if (DGCD(210,i) == 1)
+	     UZ210 = COMP(i,UZ210);
+
+Step12: /* Compute medium prime list. */
+       if (NMPRIME >= 2 * (EPSIL / ZETA))
+	  FAIL("BEGINSACLIB","NMPRIME is too large",NMPRIME);
+       n = RNCEIL(RNRED(ZETA,2));
+       n = 7 * ((NMPRIME * n) / 10);
+       MPRIME = INV(DPGEN(EPSIL - n,n/2));
+       /* n is an approximation to ln EPSIL, so that MPRIME will
+	  contain approximately NMPRIME primes.
+	  MPRIME contains successively smaller primes beginning with
+	  the largest prime that is ceiling(ZETA/2) bits long. */
+
+Step13: /* Compute large prime list. */
+       if (NLPRIME >= BETA / ZETA)
+	  FAIL("BEGINSACLIB","NLPRIME is too big",NLPRIME);
+       n = 7 * ((NLPRIME * ZETA) / 10);
+       LPRIME = DPGEN(BETA - n,n/2);
+       /* n is an approximation to ln BETA, so that LPRIME will
+	  contain approximately NLPRIME primes. */
+
+Step14: /* Allocate GCAPTR1. */
+       GCAPTR1 = GCAMALLOC(NPTR1,GC_NO_CHECK);
+
+Step15: /* Remember the current time. */
+       TAU1 = CLOCK();
+
+Return: /* Prepare for return. */
+       return;
+}
+@
+
+
+1.5
+log
+@There is another problem with Step13 (previously
+Step12) of BEGINSACLIB.  The computation of n in the
+first line may produce an overflow if NLPRIME is too
+large, which is the sort of event that line 2 seeks to
+avoid.  A suitable fix is the following:
+
+     if (NLPRIME >= BETA / ZETA)
+        FAIL("BEGINSACLIB","NLPRIME is too large",NLPRIME);
+     n = 7 * ((NLPRIME * ZETA) / 10);
+     LPRIME = DPGEN(BETA - n,n/2);
+
+The first line here insures that NLPRIME is less than
+BETA / ZETA, hence less than 10 BETA / (7 ZETA).  Also
+NLPRIME * ZETA is then less than BETA.
+
+Regarding MPRIME, I estimate that for BETA = 2^29, there
+will be about 1600 primes in MPRIME, a reasonable number.
+But for a 64-bit word-length computer, with BETA =
+2^61, there would be about 10^8 medium primes, perhaps a
+few too many!
+
+In the new BEGINSACLIB I did not find the comment about
+Step13 that was promised.  I would also suggest that
+Mark's description of the list MPRIME produced by Step12
+be included as a comment.
+
+George
+@
+text
+@a17 1
+       extern char *malloc();
+@
+
+
+1.4
+log
+@Added initialization of the medium prime list MPRIME.
+@
+text
+@d17 1
+a17 1
+       Word L,i,m,n,t,delta;
+d122 9
+a130 5
+       if (DELTA != EPSIL)
+	  delta = DELTA;
+       else
+	  delta = DELTA / 2;
+       MPRIME = INV(DPGEN(delta,(EPSIL-delta)/2));
+d133 1
+a133 2
+       n = (NLPRIME * ZETA * 7) / 10;
+       if (BETA - 2 * n <= 0)
+d135 4
+a138 1
+       LPRIME = DPGEN(BETA - 2 * n,n);
+@
+
+
+1.3
+log
+@Changed PRIME to LPRIME, and SMPRM to SPRIME.
+@
+text
+@d17 1
+a17 1
+       Word L,i,m,n,t;
+d59 1
+d121 8
+a128 1
+Step12: /* Compute large prime list. */
+d134 1
+a134 1
+Step13: /* Allocate GCAPTR1. */
+d137 1
+a137 1
+Step14: /* Remember the current time. */
+@
+
+
+1.2
+log
+@Added initialization of TMI, the table of inverses modulo BETA = 2^29.
+@
+text
+@d2 1
+a2 1
+			       BEGINSACLIB(p)
+a56 1
+       GCGLOBAL(&SMPRM);
+d58 2
+a59 1
+       GCGLOBAL(&PRIME);
+d112 1
+a112 1
+       SMPRM = DPGEN(1,NSMPRM);
+d120 2
+a121 2
+Step12: /* Compute big prime list. */
+       n = (NPRIME * ZETA * 7) / 10;
+d123 2
+a124 2
+	  FAIL("BEGINSACLIB","NPRIME is too big",NPRIME);
+       PRIME = DPGEN(BETA - 2 * n,n);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      BEGINSACLIB(p)
+d11 1
+a11 1
+======================================================================*/
+a17 1
+       /* hide i,m,n,t; */
+d27 1
+a27 1
+         FAIL("BEGINSACLIB Step2a","Not enough memory to allocate SPACE.");
+d30 1
+a30 1
+         FAIL("BEGINSACLIB Step2b","Not enough memory to allocate GCASPACE.");
+d42 3
+a44 4
+         SFIRST(L,0);
+         SRED(L,AVAIL);
+         AVAIL = L;
+       }
+d47 5
+a51 6
+	 GCASPACEBp[L].next = GCAAVAIL;
+         GCASPACEBp[L].flag = GC_NO_CHECK;
+         GCASPACEBp[L].len = 0;
+         GCASPACEBp[L].array = (Word *)0;
+	 GCAAVAIL = L;
+       }
+d65 4
+a68 6
+       while (t < BETA)
+         {
+         TABP2[i] = t;
+         i = i + 1;
+         t = t + t;
+         }
+d72 3
+a74 5
+       do
+         {
+         t = t / 10;
+         ETA = ETA + 1;
+         }
+d78 1
+a78 1
+         THETA = 10 * THETA;
+d82 4
+a85 1
+Step8: /* Compute RMULT, RINC and RTERM. */
+d89 3
+a91 5
+       while (m < BETA / 10)
+         {
+         ADV(L,&t,&L);
+         m = 10 * m + t;
+         }
+d97 3
+a99 5
+       for (i = 1; i <= ETA; i++) 
+         {
+         ADV(L,&t,&L);
+         m = 10 * m + t;
+         }
+d102 1
+a102 1
+         RINC = RINC + 1;
+d106 3
+a108 5
+       for (i = 1; i <= ETA; i++) 
+         {
+         ADV(L,&t,&L);
+         m = 10 * m + t;
+         }
+d111 1
+a111 1
+Step9: /* Compute small prime list. */
+d114 1
+a114 1
+Step10: /* Compute units of Z sub 210. */
+d117 2
+a118 2
+         if (DGCD(210,i) == 1)
+           UZ210 = COMP(i,UZ210);
+d120 1
+a120 1
+Step11: /* Compute big prime list. */
+d123 1
+a123 1
+         FAIL("BEGINSACLIB","NPRIME is too big",NPRIME);
+d126 1
+a126 1
+Step12: /* Allocate GCAPTR1. */
+d129 1
+a129 1
+Step13: /* Remember the current time. */
+@

@@ -1,0 +1,74 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.09.18.10.32.54;	author Werner;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.09.18.10.27.10;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Test for non-empty list.
+@
+
+
+1.2
+log
+@Modified to return t == 1 on input a == BETA.  Changed short description
+to "Is list.".
+@
+text
+@/*===========================================================================
+<macro>               t <- ISLIST(a)
+
+Is list.
+
+Inputs
+  a  : a Word.
+
+Outputs
+  t  :  a BETA-digit.
+        t = 1 if a is a list (possibly NIL),
+        t = 0 otherwise.
+===========================================================================*/
+#ifndef NO_SACLIB_MACROS
+#define NO_SACLIB_MACROS
+#endif
+#include "saclib.h"
+
+Word ISLIST(a)
+       Word a;
+{
+  return((BETA < a && a < BETAp && (a & 1)) || a == BETA);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d4 1
+a4 1
+Test for non-empty list.
+d13 1
+a13 1
+======================================================================*/
+d22 1
+a22 1
+ return(BETA <= a && a < BETAp && (a & 1));
+@

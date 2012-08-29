@@ -1,0 +1,49 @@
+head	1.1;
+access;
+symbols;
+locks
+	collins:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2005.01.31.14.58.13;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Set second element.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+ 	              	  SSECOND(L,a)
+
+Set second element.
+
+Inputs
+   L  : a list of length two or more.
+   a  : object.
+
+Effect
+   The list L is modified by changing its second element to a.
+======================================================================*/
+#include "saclib.h"
+
+void SSECOND(L,a)
+       Word L,a;
+{
+
+Step1: /* Use SFIRST and RED, */
+	SFIRST(RED(L),a);
+
+Return: /* Return. */
+	return;
+}
+@

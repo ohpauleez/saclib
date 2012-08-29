@@ -1,0 +1,72 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.06.05;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.05.28;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Exponential function.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*======================================================================
+                      c <- EXPF(a,b)
+
+Exponential function.  
+
+Inputs
+  a, b : C integers, b non-negative.
+
+Outputs
+  c : a^b, with 0^0=1.
+======================================================================*/
+#include "saclib.h"
+
+Word EXPF(a,b)
+       Word a,b;
+{
+       Word c,i;
+
+Step1: /* Compute. */
+       c = 1;
+       for (i = 1; i <= b;  i++)
+	  c = a * c;
+
+Return: /* Prepare for return. */
+       return(c);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+  a, b : gamma-integers, b is non-negative.
+a17 1
+       /* hide algorithm */
+d22 1
+a22 1
+         c = a * c;
+@

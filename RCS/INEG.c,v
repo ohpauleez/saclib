@@ -1,0 +1,116 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.04.04.22.57.26;	author George/Nam;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.04.04.22.38.51;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer negation.
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@/*===========================================================================
+				B <- INEG(A)
+
+Integer negation.  
+
+Inputs
+  A : in Z.
+
+Outputs
+  B : -A.
+===========================================================================*/
+#include "saclib.h"
+
+Word INEG(A)
+       Word A;
+{
+       Word Ap,B,Bp,Bpp,b;
+
+Step1: /* A single-precision. */
+       if (A < BETA) {
+	  B = -A;
+	  goto Return; }
+
+Step2: /* A multiple-precision. */
+       Ap = A;
+       if (AVAIL == NIL)
+	  GC();
+       B = AVAIL;
+       Bpp = B;
+       do {
+	  Bp = Bpp;
+	  b = - FIRST(Ap);
+	  Ap = RED(Ap);
+	  SFIRST(Bp,b);
+	  Bpp = RED(Bp);
+	  if (Bpp == NIL) {
+	     AVAIL = NIL;
+	     GC();
+	     Bpp = AVAIL; 
+	     SRED(Bp,Bpp); } }
+       while (Ap != NIL);
+       AVAIL = Bpp;
+       SRED(Bp,NIL);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      B <- INEG(A)
+d11 1
+a11 1
+======================================================================*/
+d17 1
+a17 2
+       Word Ap,B,a,b;
+       /* hide Ap,a,b; */
+d20 3
+a22 5
+       if (A < BETA)
+         {
+         B = -A;
+         goto Return;
+         }
+a24 1
+       B = NIL;
+d26 19
+a44 9
+       do
+         {
+         ADV(Ap,&a,&Ap);
+         b = -a;
+         B = COMP(b,B);
+         }
+       while (!(Ap == NIL));
+       B = INV(B);
+       
+@

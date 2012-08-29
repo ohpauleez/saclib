@@ -1,0 +1,99 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.07.13.13.55.28;	author Mark;	state del;
+branches;
+next	1.2;
+
+1.2
+date	93.11.07.16.42.28;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.11.32.26;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Get list.
+@
+
+
+1.3
+log
+@This function has been removed from the library.
+@
+text
+@[ removed from library ]
+/*===========================================================================
+			      L <- GETLIST(n)
+
+Get list.
+
+Inputs
+  n : a positive BETA-digit.
+
+Output
+  L : A list of n zeros obtained from AVAIL.
+===========================================================================*/
+#include "saclib.h"
+
+Word GETLIST(n)
+       Word n;
+{
+       Word i,L,Lp;
+
+Step1: /* Get an initial segment of AVAIL. */
+       L = AVAIL;
+       Lp = L;
+       for (i = 1; i < n; i++) {
+	  if (Lp == NIL)
+	     goto Step2;
+	  Lp = RED(Lp); }
+       if (Lp == NIL)
+	  goto Step2;
+       AVAIL = RED(Lp);
+       SRED(Lp,NIL);
+       goto Return;
+
+Step2: /* Collect garbage and retry. */
+       GC();
+       goto Step1;
+
+Return: /* Prepare for return. */
+       return(L);
+}
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d1 1
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d15 1
+a15 1
+       BDigit n;
+d17 1
+a17 2
+       BDigit i;
+       Word L,Lp;
+@

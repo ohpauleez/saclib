@@ -1,0 +1,47 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.07.02.23.19.57;	author saclib;	state new;
+branches;
+next	;
+
+
+desc
+@Algebraic number field generator.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			       a <- AFGEN()
+
+Algebraic number field generator.
+
+Output
+  a : in Q(alpha).  If alpha is any irrational algebraic number, a is
+      the representation of alpha as an element of the algebraic number
+      field Q(alpha).
+===========================================================================*/
+#include "saclib.h"
+
+Word AFGEN()
+{
+       Word a;
+
+Step1: /* Construct. */
+       a = LIST2(RNINT(1),PMON(1,1));
+
+Return: /* Prepare for return. */
+       return(a);
+}
+@

@@ -1,0 +1,105 @@
+head	1.4;
+access;
+symbols;
+locks
+	saclib:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	2001.05.11.16.54.25;	author saclib;	state init;
+branches;
+next	1.3;
+
+1.3
+date	2001.05.11.16.53.20;	author George;	state del;
+branches;
+next	1.2;
+
+1.2
+date	2001.05.11.16.49.21;	author George;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	2001.05.11.16.46.33;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Array Gaussian integer multiplication by a power of 2.
+@
+
+
+1.4
+log
+@Array Gaussian integer multiplication by a unit.
+@
+text
+@/*=======================================================================
+                            AGIMU(A,k,B)
+
+Array Gaussian integer multiplication by a unit.
+
+Inputs
+   A : a non-zero array Gaussian integer.
+   k : a BETA digit, 0 <= k <= 3.
+   B : an array large enough for i^k * A.
+
+Effect
+   i^k * A is placed in B.
+========================================================================*/
+#include "saclib.h"
+
+void AGIMU(A,k,B)
+	BDigit **A,k,**B;
+{
+	BDigit *B1,*B2,*B3;
+
+Step1: /* Copy, then fix signs and pointers. */
+	AGICOPY(A,B);
+	B1 = B[0];
+	B2 = B[1];
+	if (k == 2) {
+           B1[0] = - B1[0];
+           B2[0] = - B2[0]; }
+	else if (k != 0) {
+	   B3 = B1;
+	   B1 = B2;
+	   B2 = B3;
+	   if (k == 1)
+	      B1[0] = - B1[0];
+	   else
+	      B2[0] = - B2[0]; }
+	B[0] = B1;
+	B[1] = B2;
+
+Return: /* Return. */
+	return;
+}
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

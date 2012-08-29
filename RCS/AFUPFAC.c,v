@@ -1,0 +1,133 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.09.05.12.54.45;	author Mark;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	95.09.05.12.49.19;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic number field univariate polynomial factorization.
+@
+
+
+1.2
+log
+@Uses faster lifting and early factor detection, etc.
+@
+text
+@/*===========================================================================
+		       F <- AFUPFAC(M,B)
+
+Algebraic number field univariate polynomial factorization.
+
+Inputs
+  M : in Z[t], the minimal polynomial of an algebraic number alpha.
+  B : in Q(alpha)[x].  B is squarefree and deg(B) >= 1.
+
+Outputs
+  F : a list (F_1,...,F_r) of the monic factors of F.
+===========================================================================*/
+#include "saclib.h"
+
+Word AFUPFAC(M,B)
+
+       Word M,B;
+{
+       Word F,Fs,Fs1,Fb1,F1,G,Bt,Sp,t;
+
+Step1: /* deg(B) = 1. */
+       if (PDEG(B) == 1) {
+	  F = LIST1(AFPMON(1,M,B));
+	  goto Return; }
+
+Step2: /* Compute factors of squarefree norm. */
+       AFUPSFN(M,B,&t,&Bt,&Fs);
+
+Step3: /* Check if irreducible. */
+       if (LENGTH(Fs) == 1) {
+	  F = LIST1(AFPMON(1,M,B));
+	  goto Return; }
+
+Step4: /* Sort by degrees. */
+       LPBSD(Fs);
+
+Step5: /* Obtain factors of B over Q(alpha)[x]. */
+       F = NIL;
+       G = Bt;  
+       Sp = PBIN(PMON(1,0),1,PMON(t,1),0);
+       Sp = RPFIP(2,Sp);  
+       Sp = AFPCR(1,Sp);
+       while (RED(Fs) != NIL) {
+	  ADV(Fs,&Fs1,&Fs); 
+	  Fs1 = AFPFIP(1,Fs1);
+	  AFUPGC(M,G,Fs1,&F1,&G,&Fb1);
+	  if (t != 0)
+	     F1 = AFPCMV(1,M,F1,Sp);
+	  F = COMP(F1,F); }
+       F1 = AFPMON(1,M,G);
+       if (t != 0)
+	  F1 = AFPCMV(1,M,F1,Sp);
+       F = COMP(F1,F);
+
+Return: /* Prepare for return. */
+       return(F);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                   F <- AFUPFAC(M,B)
+d7 2
+a8 3
+  M : An element of Z[x].  M is the integral minimal polynomial of an
+      algebraic number alpha.
+  B  : An element of Q(alpha)[x].  F is squarefree.
+d11 2
+a12 2
+  F  : A list (F_1,...,F_t) of monic factors of F.
+======================================================================*/
+d21 6
+a26 1
+Step1: /* Compute factors of squarefree norm. */
+d29 1
+a29 1
+Step2: /* Check if irreducible. */
+d31 5
+a35 3
+         F = LIST1(AFPMON(1,M,B));
+         goto Return;
+       }
+d37 3
+a39 2
+Step3: /* Obtain factors of B over Q(alpha)[x]. */
+       F = NIL;  G = Bt;  
+d43 11
+a53 8
+       while (Fs != NIL) {
+         ADV(Fs,&Fs1,&Fs); 
+	 Fs1 = AFPFIP(1,Fs1);
+         AFUPGC(M,G,Fs1,&F1,&G,&Fb1);
+         if (t != 0)
+           F1 = AFPCMV(1,M,F1,Sp);
+         F = COMP(F1,F);
+       }
+@

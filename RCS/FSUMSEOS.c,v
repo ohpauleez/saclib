@@ -1,0 +1,300 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	2000.07.20.19.36.33;	author George;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	2000.06.15.19.19.41;	author Chris/George;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	2000.04.14.15.04.50;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	2000.01.08.19.29.02;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	2000.01.02.16.15.42;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Floating-point sum, same exponents, opposite signs.
+@
+
+
+1.5
+log
+@In Step3, in the line
+
+	for (i =  p + 2; i >= 4 + h; i--) {
+
+changed the "4" to "3".  Also changed two occurrences of "&&"
+to "&" and changed one occurence of "||" to "|".  Although
+these were incorrect, they did not contribute to the bug.
+@
+text
+@/*======================================================================
+                        FSUMSEOS(A,B,d,C)
+
+Floating-point sum, same exponents, opposite signs.
+
+Inputs
+   A, B : two nonzero floating-point numbers having the same precisions,
+          the same exponents and opposite signs.
+   d :    a sign (rounding direction).
+   C :    an array large enough for the sum.
+
+Output
+   C :    a floating-point number approximating the sum of A and B,
+          rounded according to IEEE standards.
+======================================================================*/
+#include "saclib.h"
+
+void FSUMSEOS(A,B,d,C)
+        Word *A,*B;
+        BDigit d;
+	Word *C;
+{
+	BDigit c,cp,e,h,i,j,k,n,np,p,r,s,w;
+
+Step1: /* Compute the sign, exponent and left shift amount. */
+	p = A[2];
+	e = A[0];
+	h = 0;
+	j = p + 2;
+	w = A[j] - B[j];
+	if (p > 1) {
+	   j = j - 1;
+	   h = h + 1;
+	   e = e - ZETA;
+	   while (w == 0 && j >= 3) {
+	      w = A[j] - B[j];
+	      e = e - ZETA;
+	      h = h + 1;
+	      j = j - 1; }
+	   j = j + 1;
+	   h = h - 1;
+	   e = e + ZETA; }
+	if (w == 0) {
+	   C[0] = 0;
+	   C[1] = 0;
+	   C[2] = p; 
+	   goto Return; }
+	if (w > 0)
+	   s = 1;
+	else {
+	   s = -1;
+	   w = - w; }
+	np = 0;
+        while (w < BETA2) {
+           np = np + 1;
+           w = w << 1; }
+	n = ZETA - np;
+	e = e - np;
+
+Step2: /* Add and tentatively normalize. */
+	for (k = 3; k < 3 + h; k++)
+	   C[k] = 0;
+	cp = 0;
+	r = 0;
+	if (s > 0) {
+	   for (k = 3; k <= j; k++) {
+	      c = A[k] - B[k] - cp;
+	      if (c < 0) {
+	         c = c + BETA;
+	         cp = 1; }
+	      else
+	         cp = 0;
+	      C[k + h] = ((c << np) & BETA1) | r;
+	      r = c >> n; } }
+	else {
+	   for (k = 3; k <= j; k++) {
+              c = B[k] - A[k] - cp;
+              if (c < 0) {
+                 c = c + BETA;
+                 cp = 1; }
+              else
+                 cp = 0;
+              C[k + h] = ((c << np) & BETA1) | r;
+              r = c >> n; } }
+ 	
+Step3: /* Renormalize if needed. */
+	if (C[p + 2] >= BETA2)
+	   goto Step4;
+	k = p + 2;
+	h = 0;
+	while (C[k] == 0) {
+	   e = e - ZETA;
+	   h = h + 1;
+	   k = k - 1; }
+	w = C[k];
+	np = 0;
+	while (w < BETA2) {
+	   np = np + 1;
+	   w = w << 1;
+	   e = e - 1; }
+	n = ZETA - np;
+	cp = (C[p + 2 - h] << np) & BETA1;
+	for (i =  p + 2; i >= 3 + h; i--) {
+	   r = C[i - h- 1];
+	   C[i] = cp | (r >> n);
+	   cp = (r << np) & BETA1; }
+	C[i] = cp;
+	for (i = 2 + h; i >= 3; i--)
+	   C[i] = 0;
+	
+Step4: /* Store exponent, sign and precision. */
+	C[0] = e;
+	if (s > 0)
+	   C[1] = A[1];
+	else
+	   C[1] = B[1];
+	C[2] = p;
+
+Return: /* Return. */
+	return;
+}
+@
+
+
+1.4
+log
+@In Step3, changed the line "w = C[k + 1]" to "w = C[k]".
+@
+text
+@d102 2
+a103 2
+	cp = (C[p + 2 - h] << np) && BETA1;
+	for (i =  p + 2; i >= 4 + h; i--) {
+d105 2
+a106 2
+	   C[i] = cp || (r >> n);
+	   cp = (r << np) && BETA1; }
+@
+
+
+1.3
+log
+@Conversion to one-pass method.
+@
+text
+@d95 1
+a95 1
+	w = C[k + 1];
+@
+
+
+1.2
+log
+@Eliminated a multiplication.
+@
+text
+@d23 1
+a23 1
+	BDigit c,cp,e,h,i,j,k,n,np,p,s,w;
+d25 1
+a25 1
+Step1: /* Decide which mantissa is larger. */
+a26 35
+	for (k = p + 2; k >= 3; k--) {
+	   s = A[k] - B[k];
+	   if (s > 0)
+	      goto Step3;
+	   if (s < 0)
+	      goto Step4; }
+
+Step2: /* C = 0. */
+	C[0] = 0;
+	C[1] = 0;
+	C[2] = A[2];
+	goto Return;
+
+Step3: /* Compute mantissa of A minus mantissa of B. */
+	c = 0;
+        for (k = 3; k <= p + 2; k++) {
+           C[k] = A[k] - B[k] + c;
+           if (C[k] < 0) {
+              C[k] = C[k] + BETA;
+	      c = -1; }
+	   else
+	      c = 0; }
+	goto Step5;
+
+Step4: /* Compute mantissa of B minus mantissa of A. */
+        c = 0;
+        for (k = 3; k <= p + 2; k++) {
+           C[k] = B[k] - A[k] + c;
+           if (C[k] < 0) {
+              C[k] = C[k] + BETA;
+              c = -1; }
+           else
+              c = 0; }
+
+Step5: /* Compute shift amount. */
+d28 1
+d30 2
+a31 1
+	while (C[j] == 0)
+d33 21
+a53 3
+	w = C[j];
+	n = ZETA - 1;
+        w = w << 1;
+d55 1
+a55 1
+           n = n - 1;
+d57 2
+d60 3
+a62 1
+Step6: /* Shift to normalize. */
+d64 44
+a107 7
+	np = ZETA - n;
+	h = p + 2 - j;
+	cp = C[j] << np;
+	for (i = j; i > 3; i--) {
+	   C[i+h] = cp | (C[i-1] >> n);
+	   cp = (C[i-1] << np) & BETA1; }
+	C[3 + h] = cp;
+d110 3
+a112 6
+
+Step7: /* Store exponent, sign and precision. */
+	C[0] = e - np;
+        while (h > 0) {
+           h = h - 1;
+           C[0] = C[0] - ZETA; }
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d16 1
+a16 1
+#include "floats.h"
+d19 1
+a19 1
+        Word *A,*B,*C;
+d21 1
+d86 4
+a89 1
+	C[0] = e - h * ZETA - np;
+@

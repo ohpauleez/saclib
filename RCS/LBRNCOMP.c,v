@@ -1,0 +1,110 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.09.13.12.50.22;	author Chris;	state typo;
+branches;
+next	1.2;
+
+1.2
+date	95.08.30.11.23.59;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	95.07.30.14.48.54;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number comparison.
+@
+
+
+1.3
+log
+@ Replaced <-- with <- so sdesc would work right.
+@
+text
+@/*=====================================================================
+                      u <- LBRNCOMP(A,B)
+
+Logarithmic binary rational number comparison.
+
+Inputs
+   A, B : logarithmic binary rational numbers.
+
+Outputs
+   u    : sign(A - B), an integer.
+======================================================================*/
+#include "saclib.h"
+
+Word LBRNCOMP(A,B)
+       Word A,B;
+{
+       Word a,b,e,f,s,t,u;
+
+Step1: /* A = 0 or B = 0. */
+       if (A == 0) {
+	  u = -LBRNSIGN(B);
+	  goto Return; }
+       if (B == 0) {
+	  u = LBRNSIGN(A);
+	  goto Return; }
+
+Step2: /* Disassemble A and B. */
+       FIRST2(A,&a,&e);
+       FIRST2(B,&b,&f);
+
+Step3: /* A and B have opposite signs. */
+       s = ISIGNF(a);
+       t = ISIGNF(b);
+       if (s != t) {
+	  u = s;
+	  goto Return; }
+
+Step4: /* A and B have the same sign. */
+       if (e < f)
+	  u = ICOMP(IMP2(a,f - e),b);
+       else if (e > f)
+	  u = ICOMP(a,IMP2(b,e - f));
+       else
+	  u = ICOMP(a,b);
+
+Return: /* Return u. */
+       return(u);
+}
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d2 1
+a2 1
+                      u <-- LBRNCOMP(A,B)
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d14 1
+a14 1
+BDigit LBRNCOMP(A,B)
+d17 1
+a17 2
+       BDigit e,f,s,t,u;
+       Word a,b;
+@

@@ -1,0 +1,96 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.17.07.06;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.17.06.33;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Rational number reduction to lowest terms.
+@
+
+
+1.2
+log
+@Calls to IQ have been replaced by calls to IEQ.
+@
+text
+@/*===========================================================================
+			      R <- RNRED(A,B)
+
+Rational number reduction to lowest terms.  
+
+Inputs
+  A,B : integers, B non-zero.  
+
+Outputs
+  R   : the rational number A/B in canonical form.
+===========================================================================*/
+#include "saclib.h"
+
+Word RNRED(A,B)
+       Word A,B;
+{
+       Word Ab,Bb,C,R;
+
+Step1: /* Compute. */
+       if (A == 0) {
+	  R = 0;
+	  goto Return; }
+       C = IGCD(A,B);
+       Ab = IEQ(A,C);
+       Bb = IEQ(B,C);
+       if (ISIGNF(B) < 0) {
+	  Ab = INEG(Ab);
+	  Bb = INEG(Bb); }
+       R = LIST2(Ab,Bb);
+
+Return: /* Prepare for return. */
+       return(R);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      R <- RNRED(A,B)
+d11 1
+a11 1
+======================================================================*/
+a17 1
+       /* hide R; */
+d20 3
+a22 5
+       if (A == 0)
+         {
+         R = 0;
+         goto Return;
+         }
+d24 5
+a28 7
+       Ab = IQ(A,C);
+       Bb = IQ(B,C);
+       if (ISIGNF(B) < 0)
+         {
+         Ab = INEG(Ab);
+         Bb = INEG(Bb);
+         }
+@

@@ -1,0 +1,58 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	99.03.28.18.55.56;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial discriminant, Bezout method.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			      B <- IPDSCRBEZ(r,A)
+
+Integral polynomial discriminant, Bezout method.
+
+Inputs
+  r : a BETA-digit, r > 0.
+  A : in Z[x_1,...,x_r], of degree greater than or equal to two in its
+      main variable.
+
+Outputs
+  B : in Z[x_1,...,x_{r-1}], the discriminant of A.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPDSCRBEZ(r,A)
+       Word r,A;
+{
+       Word Ap,B,a,n,rp;
+
+Step1: /* Compute. */
+       Ap = IPDMV(r,A);
+       B = IPRESBEZ(r,A,Ap);
+       a = PLDCF(A);
+       rp = r - 1;
+       B = IPEQ(rp,B,a);
+       n = PDEG(A);
+       if (REM(n,4) >= 2)
+	  B = IPNEG(rp,B);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@

@@ -1,0 +1,77 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.15.05.41;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.14.32;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex negation.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      v <- SFCNEG(u)
+a2 32
+Single-precision floating-point complex negation.  
+
+Inputs
+  u : a single-precision floating-point complex number.  
+
+Outputs
+  v : -u.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCNEG(u)
+       Word u;
+{
+       Word u1,u2,v,v1,v2;
+       /* hide u1,u2,v; */
+
+Step1: /* u=0. */
+       if (u == 0)
+         {
+         v = 0;
+         goto Return;
+         }
+
+Step2: /* u /= 0. */
+       FIRST2(u,&u1,&u2);
+       v1 = SFRNEG(u1);
+       v2 = SFRNEG(u2);
+       v = LIST2(v1,v2);
+
+Return: /* Prepare for return. */
+       return(v);
+}
+@

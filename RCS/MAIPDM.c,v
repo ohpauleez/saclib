@@ -1,0 +1,228 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	98.05.18.22.45.30;	author George;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	95.07.14.11.47.31;	author Mark;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	95.07.14.11.46.05;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Matrix of integral polynomials determinant, modular algorithm.
+@
+
+
+1.3
+log
+@This new version has been made faster by changing the
+method used to compute a coefficient bound for the determinant.
+@
+text
+@/*======================================================================
+                        D <- MAIPDM(r,M)
+
+Matrix of integral polynomials determinant, modular algorithm.
+
+Inputs
+   r : a non-negative BETA-digit.
+   M : a square matrix over Z[x_1,...,x_r], represented as a list
+       of rows.
+
+Output
+   D : the determinant of M, an element of Z[x_1,...,x_r],
+======================================================================*/
+#include "saclib.h"
+
+Word MAIPDM(r,M)
+        Word r,M;
+{
+        Word b,b1,b11,bp,D,Ds,M1,M11,Mp,Ms,n,P,Q,p,pp;
+
+Step1: /* Matrix of order 1. */
+        if (RED(M) == NIL) {
+           D = FIRST(FIRST(M));
+           goto Return; }
+
+Step2: /* Compute a coefficient bound. */
+        n = LENGTH(M);
+        Mp = M;
+        b = 1;
+        do {
+           ADV(Mp,&M1,&Mp);
+           b1 = 0;
+           do {
+              ADV(M1,&M11,&M1);
+              if (M11 != 0) {
+                 b11 = IPSUMN(r,M11);
+                 b1 = ISUM(b1,b11); } }
+           while (M1 != NIL);
+           if (b1 == 0) {
+              D = 0;
+              goto Return; }
+           b = IPROD(b,b1); }
+        while (Mp != NIL);
+        b = ILOG2(b);
+
+Step3: /* Apply chinese remainder theorem. */
+        P = LPRIME;
+        Q = 1;
+        bp = 0;
+        D = 0;
+        do {
+           if (P == NIL)
+              FAIL("MAIPDM","Prime list exhausted",r,M,b,bp);
+           ADV(P,&p,&P);
+           Ms = MAIPHM(r,p,M);
+           Ds = MMPDMA(r,p,Ms);
+           pp = MDINV(p,MDHOM(p,Q));
+           D = IPCRA(Q,p,pp,r,D,Ds);
+           Q = IDPR(Q,p);
+           bp = bp + DLOG2(p); }
+        while (bp < b);
+
+Return: /* Prepare for return. */
+       return(D);
+}
+@
+
+
+1.2
+log
+@Changed PRIME to LPRIME.
+@
+text
+@d2 1
+a2 1
+			D <- MAIPDM(r,M)
+d7 3
+a9 3
+  r : a BETA-digit, r >= 0.
+  M : a square matrix over Z[x_1,...,x_r]. M is represented as a list
+      of rows.
+d11 2
+a12 2
+Outputs
+  D : in Z[x_1,...,x_r], the determinant of M.
+d17 1
+a17 1
+       Word r,M;
+d19 1
+a19 2
+       Word D,Ds,M1,M11,Mp,Ms,N,N1,N11,P,Q,X,b,bp,k,n,p,pp;
+       /* hide M1,M11,Mp,P,X,b,bp,k,n,p,pp; */
+d22 3
+a24 3
+       if (RED(M) == NIL) {
+         D = FIRST(FIRST(M));
+         goto Return; }
+d26 19
+a44 18
+Step2: /* Compute norm bound. */
+       Mp = M;
+       N = NIL;
+       do {
+	  ADV(Mp,&M1,&Mp);
+	  N1 = NIL;
+	  do {
+	     ADV(M1,&M11,&M1);
+	     N11 = IPSUMN(r,M11);
+	     N11 = ILOG2(N11);
+	     N1 = COMP(N11,N1); }
+	  while (M1 != NIL);
+	  N = COMP(N1,N); }
+       while (Mp != NIL);
+       ASSPR(N,&X,&b);
+       n = LENGTH(M);
+       k = DLOG2(n);
+       b = n * k + b;
+d47 15
+a61 15
+       P = LPRIME;
+       Q = 1;
+       bp = 0;
+       D = 0;
+       do {
+	  if (P == NIL)
+	     FAIL("MAIPDM","Prime list exhausted",r,M,b,bp);
+	  ADV(P,&p,&P);
+	  Ms = MAIPHM(r,p,M);
+	  Ds = MMPDMA(r,p,Ms);
+	  pp = MDINV(p,MDHOM(p,Q));
+	  D = IPCRA(Q,p,pp,r,D,Ds);
+	  Q = IDPR(Q,p);
+	  bp = bp + DLOG2(p); }
+       while (bp < b);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      D <- MAIPDM(r,M)
+d8 1
+a8 1
+  M : a square matrix over Z[X1,...,Xr]. M is represented as a list
+d12 1
+a12 1
+  D : in Z[X1,...,Xr], the determinant of M.
+d23 1
+a23 2
+       if (RED(M) == NIL)
+         {
+d25 1
+a25 2
+         goto Return;
+         }
+d30 10
+a39 14
+       do
+         {
+         ADV(Mp,&M1,&Mp);
+         N1 = NIL;
+         do
+           {
+           ADV(M1,&M11,&M1);
+           N11 = IPSUMN(r,M11);
+           N11 = ILOG2(N11);
+           N1 = COMP(N11,N1);
+           }
+         while (M1 != NIL);
+         N = COMP(N1,N);
+         }
+d47 1
+a47 1
+       P = PRIME;
+d51 10
+a60 12
+       do
+         {
+         if (P == NIL)
+           FAIL("MAIPDM","Prime list exhausted",r,M,b,bp);
+         ADV(P,&p,&P);
+         Ms = MAIPHM(r,p,M);
+         Ds = MMPDMA(r,p,Ms);
+         pp = MDINV(p,MDHOM(p,Q));
+         D = IPCRA(Q,p,pp,r,D,Ds);
+         Q = IDPR(Q,p);
+         bp = bp + DLOG2(p);
+         }
+@

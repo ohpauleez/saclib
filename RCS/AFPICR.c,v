@@ -1,0 +1,132 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.06.29.14.57.13;	author saclib;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	94.06.29.14.56.43;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic number field polynomial inverse convert representation.
+@
+
+
+1.2
+log
+@Made some cosmetic changes.
+@
+text
+@/*===========================================================================
+			      B <- AFPICR(r,A)
+
+Algebraic number field polynomial inverse convert representation.
+
+Inputs
+  r : a non-negative BETA-integer.
+  A : an element of Q(alpha)[x_1,...,x_r], where the coefficients of A are
+      represented as (a_i,Ai), where a_i is an element of Q and Ai is an
+      element of Z[x].
+
+Outputs
+  B : an element of Q(alpha)[x_1,...,x_r] represented as an element
+      of Q[x,x_1,...,x_r].
+===========================================================================*/
+#include "saclib.h"
+
+Word AFPICR(r,A)
+
+       Word r,A;
+{
+       Word B;
+       Word Ap,a,b,e,rp;
+
+Step1: /* A = 0. */
+       if (A == 0) {
+	  B = 0;
+	  goto Return; }
+
+Step2: /* r = 0. */
+       if (r == 0) {
+	  B = AFICR(A);  
+	  goto Return; }
+
+Step3: /* r > 0. */
+       rp = r - 1;
+       Ap = A;
+       B = NIL;
+       while (Ap != NIL) {
+	  ADV2(Ap,&e,&a,&Ap);
+	  b = AFPICR(rp,a);
+	  B = COMP2(b,e,B); }
+       B = INV(B);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                   B <- AFPICR(r,A)
+d8 1
+a8 1
+  A : an element of Q(alpha)[X1,...,Xr], where the coefficients of A are
+d10 1
+a10 1
+      element of Z[X].
+d13 3
+a15 3
+  B : an element of Q(alpha)[X1,...,Xr] represented as an element of
+      Q[X,X1,...,Xr].
+======================================================================*/
+d25 9
+a33 13
+Step1: /* A=0. */
+       if (A == 0)
+         {
+         B = 0;
+         goto Return;
+         }
+
+Step2: /* r = 0? */
+       if (r == 0) 
+         {
+         B = AFICR(A);  
+         goto Return;
+         }
+d35 1
+a35 1
+Step3:
+d39 4
+a42 9
+       while (Ap != NIL)
+         {
+         ADV2(Ap,&e,&a,&Ap);
+         if (rp == 0)
+           b = AFICR(a);
+         else
+           b = AFPICR(rp,a);
+         B = COMP2(b,e,B);
+         }
+d45 1
+a45 1
+Return:
+@

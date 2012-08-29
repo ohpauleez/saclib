@@ -1,0 +1,124 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.27.36;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.18.44;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial real root calculation, high precision.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			     L <- IPRCH(A,I,k)
+
+Integral polynomial real root calculation, high precision.
+
+Inputs
+  A : in Z[x], deg(A) > 0.
+  I : either the null list () or a standard interval or an interval
+      whose positive and non-positive parts are standard.
+  k : a BETA-digit.
+
+Outputs
+  L : a list ((e_1,I_1),...,(e_r,I_r)) where the e_j are BETA-digits,
+      1 <= e_1 <= ... <= e_r, 
+      and the I_j are binary rational isolating intervals, I_j=(a_j,b_j), 
+      for the r distinct real roots of A if I = (), or 
+      for the r distinct real roots of A in I if I /= ().
+      ej is the multiplicity of the root alpha_j in I_j and |b_j-a_j| <= 2^k.
+      I_j is a left-open and right-closed interval if a_j < b_j, 
+      a one-point interval if a_j=b_j.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPRCH(A,I,k)
+       Word A,I,k;
+{
+       Word A1,Ab,J,L,L1,L2,P,e;
+
+Step1: /* Squarefree factorization. */
+       Ab = IPABS(1,A);
+       L1 = IPSFSD(1,Ab);
+
+Step2: /* Compute roots of factors. */
+       L = NIL;
+       do {
+	  ADV(L1,&P,&L1);
+	  FIRST2(P,&e,&A1);
+	  L2 = IPRCHS(A1,I,k);
+	  while (L2 != NIL) {
+	     ADV(L2,&J,&L2);
+	     P = LIST2(e,J);
+	     L = COMP(P,L); } }
+       while (L1 != NIL);
+       L = INV(L);
+
+Return: /* Prepare for return. */
+       return(L);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      L <- IPRCH(A,I,k)
+d7 1
+a7 1
+  A : in Z[X], deg(A) > 0.
+d10 1
+a10 1
+  k : a GAMMA-integer.
+d13 3
+a15 3
+  L : a list ((e1,I1),...,(er,Ir)) where the ej are BETA-digits,
+      1 <= e1 <= ... <= er, 
+      and the Ij are binary rational isolating intervals, Ij=(aj,bj), 
+d18 4
+a21 4
+      ej is the multiplicity of the root alpha_j in Ij and |bj-aj| <= 2^k.
+      Ij is a left-open and right-closed interval if aj < bj, 
+      a one-point interval if aj=bj.
+======================================================================*/
+a27 1
+       /* hide A1,e; */
+d35 9
+a43 13
+       do
+         {
+         ADV(L1,&P,&L1);
+         FIRST2(P,&e,&A1);
+         L2 = IPRCHS(A1,I,k);
+         while (L2 != NIL)
+           {
+           ADV(L2,&J,&L2);
+           P = LIST2(e,J);
+           L = COMP(P,L);
+           }
+         }
+       while (!(L1 == NIL));
+@

@@ -1,0 +1,90 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.05.11.12.40.04;	author Mark;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	94.05.11.12.38.03;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic number field negative.
+@
+
+
+1.2
+log
+@Input was labelled Output and vice versa.
+@
+text
+@/*===========================================================================
+			       b <- AFNEG(a)
+
+Algebraic number field negation.
+
+Input
+ a : in Q(alpha).
+
+Output
+ b : in Q(alpha), b = -a.
+===========================================================================*/
+#include "saclib.h"
+
+Word AFNEG(a)
+       Word a;
+{
+       Word A,b,r;
+
+Step1: /* Change sign. */
+       if (a == 0) {
+	  b = 0;
+	  goto Return; }
+       FIRST2(a,&r,&A);
+       b = LIST2(RNNEG(r),A);
+
+Return: /* Prepare for return. */
+       return(b);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      b <- AFNEG(a)
+d4 1
+a4 1
+Algebraic number field negative.
+d6 1
+a6 1
+Outputs
+d9 1
+a9 1
+Input:
+d11 1
+a11 1
+======================================================================*/
+d19 4
+a22 6
+Step1:
+       if (a == 0)
+         {
+         b = 0;
+         goto Return;
+         }
+@

@@ -1,0 +1,108 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.02.23.20.06.32;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.02.23.20.02.38;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Digit logarithm, base 2.
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@/*===========================================================================
+			       n <- DLOG2(a)
+
+Digit logarithm, base 2.
+
+Inputs
+  a  : a BETA-digit.
+
+Outputs
+  n  : a BETA-digit. If a = 0 then n = 0.  Otherwise
+       n = floor(log2(|a|)) + 1, the bit-length of a.
+===========================================================================*/
+#include "saclib.h"
+
+Word DLOG2(a)
+       Word a;
+{
+       Word ab,n;
+
+Step1: /* a = 0. */
+       if (a == 0) {
+	  n = 0;
+	  goto Return; }
+
+Step2: /* Use PDLOG2. */
+       ab = absm(a);
+       n = PDLOG2(ab);
+
+Return: /* Prepare for return. */
+       return(n);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      n <- DLOG2(a)
+d7 1
+a7 1
+  a  : BETA-digit.
+d10 3
+a12 3
+  n  : BETA-digit. If a=0 then n=0.
+       Otherwise n=floor(log2(abs(a)))+1.
+======================================================================*/
+d18 1
+a18 2
+       Word ab,i,j,n;
+       /* hide algorithm */
+d20 8
+a27 21
+Step1: /* a <= 0. */
+       if (a == 0)
+         {
+         n = 0;
+         goto Return;
+         }
+       ab = ABS(a);
+
+Step2: /* Binary search. */
+       i = 1;
+       j = ZETA + 1;
+       do
+         {
+         n = (i + j) / 2;
+         if (ab >= TABP2[n])
+           i = n;
+         else
+           j = n;
+         }
+       while (!(j - i == 1));
+       n = i;
+@

@@ -1,0 +1,71 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	97.05.15.19.25.38;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	97.05.13.19.53.18;	author Chris;	state new;
+branches;
+next	;
+
+
+desc
+@Last element of list.
+@
+
+
+1.2
+log
+@Faster method.
+@
+text
+@/*======================================================================
+                      l <- LAST(L)
+
+Last element of list.
+
+Inputs
+  L  : a non-empty list.
+  
+Outputs
+  l  : the last element of L.
+======================================================================*/
+#include "saclib.h"
+
+Word LAST(L)
+      Word L;
+{
+      Word a;
+Step1: /* Extract the element in the last cell of L. */
+      a = FIRST(LASTCELL(L));
+
+Return: /* Return a. */
+      return(a);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d17 3
+a19 1
+      Word l;
+d21 3
+a23 5
+Step1: /* Compute. */
+      for(ADV(L,&l,&L); L != NIL; ADV(L,&l,&L));
+
+Return: /* Prepare to return. */
+      retur
+@

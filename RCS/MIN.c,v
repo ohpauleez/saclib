@@ -1,0 +1,76 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.28.51;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.21.34;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Minimum.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*======================================================================
+                      c <- MIN(a,b)
+
+Minimum.  
+
+Inputs
+  a, b : C integers.  
+
+Outputs
+  c    : the minimum of a and b.
+======================================================================*/
+#include "saclib.h"
+
+Word MIN(a,b)
+       Word a,b;
+{
+       Word c;
+
+Step1: /* Compute. */
+       if (a <= b)
+	  c = a;
+       else
+	  c = b;
+
+Return: /* Prepare for return. */
+       return(c);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+  a, b : gamma-integers.  
+a17 1
+       /* hide algorithm */
+d21 1
+a21 1
+         c = a;
+d23 1
+a23 1
+         c = b;
+@

@@ -1,0 +1,128 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.16.36.20;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.35.48;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer truncation.
+@
+
+
+1.2
+log
+@The algorithm was improved.
+@
+text
+@/*===========================================================================
+			      B <- ITRUNC(A,n)
+
+Integer truncation.  
+
+Inputs
+  A : in Z.
+  n : a BETA-integer.
+
+Outputs          
+  B : integral part of A/2^n.
+===========================================================================*/
+#include "saclib.h"
+
+Word ITRUNC(A,n)
+       Word A,n;
+{
+       Word B;
+
+Step1: /* A=0 or n=0. */
+       B = A;
+       if (A == 0 || n == 0)
+	  goto Return;
+
+Step2: /* n > 0. */
+       if (n > 0) {
+	  B = IDP2(A,n);
+	  goto Return; }
+
+Step3: /* n < 0. */
+       B = IMP2(A,- n);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      B <- ITRUNC(A,n)
+d11 2
+a12 2
+  B : integer(A/2^n).
+======================================================================*/
+d18 1
+a18 2
+       Word B,a,i,m,q,r;
+       /* hide a,i,m,q,r; */
+d23 1
+a23 1
+         goto Return;
+d25 7
+a31 38
+Step2: /* Let abs(n) = q*ZETA + r, a = 2^r. */
+       m = ABS(n);
+       q = m / ZETA;
+       r = m - q * ZETA;
+       a = TABP2[r + 1];
+
+Step3: /* n > 0. */
+       if (n > 0)
+         {
+         i = 0;
+         if (B < BETA)
+           B = LIST1(B);
+         while (B != NIL && i != q)
+           {
+           B = RED(B);
+           i = i + 1;
+           }
+         if (B == NIL)
+           {
+           B = 0;
+           goto Return;
+           }
+         if (RED(B) == NIL)
+           B = FIRST(B);
+         if (r != 0)
+           IDQR(B,a,&B,&r);
+         goto Return;
+         }
+
+Step4: /* n < 0. */
+       if (r != 0)
+         B = IDPR(B,a);
+       if (q == 0)
+         goto Return;
+       if (B < BETA)
+         B = LIST1(B);
+       for (i = 1; i <= q; i++)
+         B = COMP(0,B);
+@

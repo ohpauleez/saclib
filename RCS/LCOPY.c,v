@@ -1,0 +1,55 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.07.02.23.23.44;	author saclib;	state new;
+branches;
+next	;
+
+
+desc
+@List copy.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			      Lp <- LCOPY(L)
+
+List copy.
+
+Input
+  L : a list of objects.
+  
+Output
+  Lp : a list of objects.  Lp is a copy of L.  The objects are not copied.
+===========================================================================*/
+#include "saclib.h"
+
+Word LCOPY(L)
+       Word L;
+{
+       Word L_i,Lp,Ls;
+
+Step1: /* Copy. */
+       Lp = NIL;
+       Ls = L;
+       while (Ls != NIL) {
+	  ADV(Ls,&L_i,&Ls);
+	  Lp = COMP(L_i,Lp); }
+       Lp = INV(Lp);
+       goto Return;
+
+Return: /* Prepare for return. */
+       return(Lp);
+}
+@

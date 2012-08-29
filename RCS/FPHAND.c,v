@@ -1,0 +1,79 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.05.20.20.34.20;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	98.04.23.20.27.07;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Floating-point handler.
+@
+
+
+1.2
+log
+@Eliminated the writing of a message whenever FPFLAG is set to 1.
+@
+text
+@/*======================================================================
+                      FPHAND(i,sip,uap)
+
+Floating-point handler.
+
+Inputs
+  i,sip,uap: Look at the man pages for "sigaction".
+  
+Side Effects
+  This function is the exception handler for floating point exceptions.
+  It sets the global flag FPFLAG to 1 to indicate error.  Also, it
+  turns off *all* floating-point traps, so no floating-point operation
+  causes a trap.  This function is system dependent:  for SunOS 5.6.
+======================================================================*/
+#include "saclib.h"
+#include <ieeefp.h>
+#include <sys/ucontext.h>
+
+void FPHAND(i,sip,uap)
+       int i;
+       siginfo_t* sip;
+       void* uap;
+{
+       struct ucontext *p;
+
+Step1: /* Set floating-point state register mask for 
+enabling traps. (bits 23 - 27 on this architecture) */
+       p = (struct ucontext*)uap; 
+       p->uc_mcontext.fpregs.fpu_fsr &= 
+	 (~(
+	    (FP_X_INV | FP_X_OFL | FP_X_UFL | 
+	     FP_X_DZ | FP_X_IMP) << 23)
+	  ); 
+
+Step2: /* Set error flag. */
+       FPFLAG = 1;
+
+Return: /* Prepare to return. */
+       return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

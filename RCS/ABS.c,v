@@ -1,0 +1,83 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.11.56.29;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.11.55.37;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Absolute value.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+				b <- ABS(a)
+
+Absolute value.  
+
+Inputs
+  a : a C integer.
+
+Outputs
+  b : the absolute value of a.
+===========================================================================*/
+#include "saclib.h"
+
+Word ABS(a)
+       Word a;
+{
+       Word b;
+
+Step1: /* Get the absolute value. */
+       if (a >= 0)
+	  b = a;
+       else
+	  b = -a;
+
+Return: /* Prepare for return. */
+       return(b);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      b <- ABS(a)
+d7 1
+a7 1
+  a : a gamma-integer.
+d11 1
+a11 1
+======================================================================*/
+a17 1
+       /* hide algorithm */
+d21 1
+a21 1
+         b = a;
+d23 1
+a23 1
+         b = -a;
+@

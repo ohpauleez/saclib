@@ -1,0 +1,140 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	96.04.29.08.15.01;	author Werner;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	95.08.07.20.52.20;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Integral univariate polynomial binary rational evaluation of sign.
+@
+
+
+1.2
+log
+@Evaluation is now done using arrays.
+@
+text
+@/*======================================================================
+                       s <- IUPBRES(A,a)
+
+Integral univariate polynomial binary rational evaluation of sign.
+
+Inputs
+   A : in Z[x].
+   a : a logarithmic binary rational number. 
+
+Outputs
+   s : a BETA-digit, s = sign(A(a)).
+======================================================================*/
+#include "saclib.h"
+
+BDigit IUPBRES(A,a)
+       Word A,a;
+
+{
+        BDigit d,e,f,k,M,M2,m,n,o,p,s,t;
+        Word Bh[LARGE],*Bp,*C,Ch[SMALL],c;
+
+Step1: /* Let a = c / 2^k with k non-negative. */
+       if (a == 0) {
+          c = 0;
+          k = 0; }
+       else {
+          FIRST2(a,&c,&k);
+          if (k < 0) {
+             c = IMP2(c,-k);
+             k = 0; } }
+
+Step2: /* Copy c into array. */
+        IFLTA(c,Ch,SMALL,&C,&m,&t,&o);
+
+Step3: /* Upper bound for length of result. */
+        n = PDEG(A);
+        d = ILOGB(IPSUMN(1,A));
+        e = (k + 1) / ZETA + 1;
+        f = maxm(e,m);
+        M = n * f + d + 1;
+
+Step4: /* Get an array of twice the length. */
+        M2 = 2 * M;
+        if (M2 > LARGE)
+          Bp = GETARRAY(M2);
+        else
+          Bp = Bh;
+
+Step5: /* Accumulate result in array. */
+        IUPBREA(A,C,m,t,k,Bp,M,&p,&s);
+
+Step6: /* Free up memory. */
+       if (M2 > LARGE)
+          FREEARRAY(Bp);
+       if (m > SMALL)
+          FREEARRAY(C);
+
+Return:	/* Return s. */
+	return(s);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+		       s <- IUPBRES(A,a)
+d11 1
+a11 1
+   s : in Z, s = sign(A(a)).
+d15 1
+a15 1
+Word IUPBRES(A,a)
+d17 1
+d19 2
+a20 6
+       Word c,d,k,s;
+
+Step1: /* A = 0. */
+       if (A == 0) {
+	  s = 0;
+	  goto Return; }
+d22 1
+a22 1
+Step2: /* Let a = c / 2^k. */
+d24 33
+a56 15
+	  c = 0;
+	  k = 0; }
+       else
+	  FIRST2(a,&c,&k);
+
+Step3: /* If k <= 0 apply IUPEVAL, otherwise IUPBEI. */
+       if (k <= 0) {
+	  if (k < 0)
+	     c = IMP2(c,-k);
+	  d = IUPEVAL(A,c); }
+       else
+	  d = IUPBEI(A,c,k);
+
+Step4: /* Compute sign of value. */
+       s = ISIGNF(d);
+d58 2
+a59 2
+Return: /* Return s. */
+       return(s);
+@

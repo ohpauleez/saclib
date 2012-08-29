@@ -1,0 +1,54 @@
+head	1.1;
+access;
+symbols;
+locks
+	collins:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2005.01.31.14.10.27;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Labeled list write.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      LLWRITE(L,s)
+
+Labeled list write.
+
+Inputs
+   L : a list.
+   s : a label for L.
+
+Effect
+   The label is writen, followed by an equal sign, followed by the 
+   list L, followed by an end of line character.
+======================================================================*/
+#include "saclib.h"
+
+void LLWRITE(L,s)
+       Word L;
+       char *s;
+{
+
+Step1: /* Write the parts. */
+       SWRITE(s);
+       SWRITE(" = ");
+       LWRITE(L);
+       SWRITE("\n");
+
+Return: /* Return. */
+       return;
+}
+@

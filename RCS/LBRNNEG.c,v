@@ -1,0 +1,88 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.09.13.12.49.30;	author Chris;	state typo;
+branches;
+next	1.2;
+
+1.2
+date	95.08.30.11.24.11;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	95.07.30.14.51.03;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number negative.
+@
+
+
+1.3
+log
+@ Replaced <-- with <- so sdesc would work right.
+@
+text
+@/*=====================================================================
+                       S <- LBRNNEG(R)
+
+Logarithmic binary rational number negative.
+
+Input
+   R : a logarithmic binary rational number.
+
+Output
+   S : -R, a logarithmic binary rational number.
+=====================================================================*/
+#include "saclib.h"
+
+Word LBRNNEG(R)
+       Word R;
+{
+       Word a,e,S;
+
+Step1: /* Do it. */
+       if (R == 0)
+	  S = 0;
+       else {
+	  FIRST2(R,&a,&e);
+	  S = LIST2(INEG(a),e); }
+
+Return: /* Return S. */
+	return(S);
+}
+
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d2 1
+a2 1
+                       S <-- LBRNNEG(R)
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d17 1
+a17 2
+       BDigit e;
+       Word a,S;
+@

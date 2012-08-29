@@ -1,0 +1,68 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.14.53.05;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.12.54;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex, imaginary part.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 27
+/*======================================================================
+                      v <- SFCIP(u)
+
+Single-precision floating-point complex, imaginary part.  
+
+Inputs
+  u : a single-precision floating-point complex number.  
+
+Outputs
+  v : im(u), a single-precision floating-point real number.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCIP(u)
+       Word u;
+{
+       Word v;
+
+Step1: /* Compute. */
+       if (u == 0)
+         v = 0;
+       else
+         v = SECOND(u);
+
+Return: /* Prepare for return. */
+       return(v);
+}
+@

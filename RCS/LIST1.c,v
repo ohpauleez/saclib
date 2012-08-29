@@ -1,0 +1,86 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.02.24.12.42.46;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.02.24.12.36.15;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@List, 1 element.
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@/*======================================================================
+                      L <- LIST1(a)
+
+List, 1 element.
+
+Inputs
+  a  : an object.
+
+Outputs
+  L  : the list (a).
+======================================================================*/
+#include "saclib.h"
+
+Word LIST1(a)
+	Word a;
+{
+	Word L;
+
+Step1: /* Store a. */
+	L = AVAIL;
+	if (L == NIL) {
+           GC();
+           goto Step1; }
+        SFIRST(L,a);
+
+Step2: /* Set AVAIL to reductum of L. */
+	AVAIL = RED(L);
+
+Step3: /* Set reductum of L to NIL. */
+	SRED(L,NIL);
+
+Return: /* Prepare for return. */
+       return(L);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+  a  : object.
+d15 1
+a15 1
+       Word a;
+d17 1
+a17 2
+       Word L;
+       /* hide algorithm */
+d19 12
+a30 2
+Step1: /* Compute. */
+       L = COMP(a,NIL);
+@

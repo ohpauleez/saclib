@@ -1,0 +1,81 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.15.14.41;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.15.46;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex quotient.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFCQ(u,v)
+a2 36
+Single-precision floating-point complex quotient.  
+
+Inputs
+  u,v : single-precision floating-point complex numbers, v /= 0.  
+
+Outputs
+  w   : a single-precision floating-point complex approximation to u/v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCQ(u,v)
+       Word u,v;
+{
+       Word d,vb,w,w1,w2,z,z1,z2;
+       /* hide w,z1,z2; */
+
+Step1: /* Compute. */
+       vb = SFCCON(v);
+       z = SFCPR(u,vb);
+       if (z == 0)
+         {
+         w = 0;
+         goto Return;
+         }
+       d = SFCMSQ(v);
+       FIRST2(z,&z1,&z2);
+       w1 = SFRQ(z1,d);
+       w2 = SFRQ(z2,d);
+       if (w1 == 0 && w2 == 0)
+         w = 0;
+       else
+         w = LIST2(w1,w2);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

@@ -1,0 +1,71 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.05.17.15.18.22;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.15.17.03;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer-digit remainder.
+@
+
+
+1.2
+log
+@The specification was previously unclear.
+@
+text
+@/*==========================================================================
+                      r <- IDREM(A,b)
+
+Integer-digit remainder.
+
+Inputs
+  A  : in Z.
+  b  : non-zero BETA-digit.
+
+Outputs
+  r  : in Z.  r = A - b * Q, where Q is the integral part of A / b.
+==========================================================================*/
+#include "saclib.h"
+
+Word IDREM(A,b)
+       Word A,b;
+{
+       Word Q,r;
+       /* hide algorithm */
+
+Step1: /* Compute. */
+       IDQR(A,b,&Q,&r);
+
+Return: /* Prepare for return. */
+       return(r);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d11 2
+a12 2
+  r  : the remainder of A divided by b.
+======================================================================*/
+@

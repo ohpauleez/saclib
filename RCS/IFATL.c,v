@@ -1,0 +1,256 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	95.08.30.11.20.03;	author Mark;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	95.07.17.14.57.47;	author George;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	93.12.13.20.24.32;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	93.11.07.16.44.19;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.11.32.50;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Integer from array to list.
+@
+
+
+1.5
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@/*===========================================================================
+		       B <- IFATL(A,m,s)
+
+Integer from array to list.
+
+Inputs
+  m  : a positive beta integer.
+  A  : An array of length m containing an integer A'.
+  s  : +1 or -1.
+
+Output
+  B : The integer s * A' in list representation.
+===========================================================================*/
+#include "saclib.h"
+
+Word IFATL(A,m,s)
+       Word *A,m,s;
+{
+       Word k,n;
+       Word B,Bp;
+
+Step1: /* Skip leading zeros. Determine length of A'*/
+       for (n = m - 1; n >= 0; n--)
+	  if (A[n] != 0)
+	     goto Step3;
+
+Step2: /* A' = 0. */
+       B = 0;
+       goto Return;
+       
+Step3: /* A' BETA-digit. */
+       if (n == 0) {
+	  if (s < 0)
+	     B = -A[0];
+	  else
+	     B = A[0];
+	  goto Return; }
+
+Step4: /* Copy digits to initial segment of AVAIL. */
+       if (AVAIL == NIL)
+	  GC();
+       B = AVAIL;
+       if (s < 0) {
+	  for (k = 0; k <= n; k++) {
+	     if (AVAIL == NIL) {
+	        GC();
+	        SRED(Bp,AVAIL); }
+	     SFIRST(AVAIL,-A[k]);
+	     Bp = AVAIL;
+	     AVAIL = RED(AVAIL); } }
+       else {
+	  for (k = 0; k <= n; k++) {
+	     if (AVAIL == NIL) {
+                GC();
+	        SRED(Bp,AVAIL); }
+             SFIRST(AVAIL,A[k]);
+	     Bp = AVAIL;
+             AVAIL = RED(AVAIL); } }
+       SRED(Bp,NIL);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.4
+log
+@The algorithm would have gone into an infinite loop
+if the length of AVAIL were less than n.
+@
+text
+@d17 1
+a17 2
+       Word *A;
+       BDigit m,s;
+d19 1
+a19 1
+       BDigit k,n;
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d2 1
+a2 1
+			     B <- IFATL(A,m,s)
+d25 2
+a26 2
+         if (A[n] != 0)
+           goto Step3;
+d33 6
+a38 8
+       if (n == 0)
+         {
+         if (s < 0)
+           B = -A[0];
+         else
+           B = A[0];
+         goto Return;
+         }
+d42 1
+a42 1
+         goto Step6;
+d44 16
+a59 26
+       Bp = B;
+       if (s < 0)
+         {
+         for (k = 0; k < n; k++)
+           {
+           SFIRST(Bp,-A[k]);
+           Bp = RED(Bp);
+           if (Bp == NIL)
+             goto Step6;
+           }
+         SFIRST(Bp,-A[n]);
+         }
+       else
+         {
+         for (k = 0; k < n; k++)
+           {
+           SFIRST(Bp,A[k]);
+           Bp = RED(Bp);
+           if (Bp == NIL)
+             goto Step6;
+           }
+         SFIRST(Bp,A[n]);
+         }
+
+Step5: /* Take segment out of AVAIL. */
+       AVAIL = RED(Bp);
+a60 5
+       goto Return;
+
+Step6: /* Collect garbage and retry. */
+       GC();
+       goto Step4;
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d2 1
+a2 1
+			     A <- IFATL(Ah,m,s)
+d7 3
+a9 4
+  m : a positive BETA-digit.
+  Ah: An array of length m containing an integer A'
+      with at least two BETA-digits.
+  s : +1 or -1, an integer.
+d12 1
+a12 1
+  A : The integer s * Ah in list representation.
+d16 3
+a18 2
+Word IFATL(Ah,m,s)
+       Word *Ah,m,s;
+d20 2
+a21 1
+       Word a,i,A,Lp;
+d23 8
+a30 4
+Step1: /* Skip leading zeros. */
+       i = m - 1;
+       while (Ah[i] == 0)
+	  i = i - 1;
+d32 15
+a46 2
+Step2: /* Put digits in list. */
+       A = NIL;
+d48 10
+a57 4
+	  while (i >= 0) {
+	     a = -Ah[i];
+	     A = COMP(a,A);
+	     i = i - 1; }
+d59 19
+a77 4
+	  while (i >= 0) {
+	     a = Ah[i];
+	     A = COMP(a,A);
+	     i = i - 1; }
+d80 1
+a80 1
+       return(A);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d18 1
+a18 2
+       Word *Ah;
+       BDigit m,s;
+d20 1
+a20 2
+       BDigit a,i;
+       Word A,Lp;
+@

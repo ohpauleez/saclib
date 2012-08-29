@@ -1,0 +1,218 @@
+head	1.4;
+access;
+symbols;
+locks
+	saclib:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	94.04.04.22.34.42;	author Mark;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	94.02.14.22.45.56;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	94.01.17.17.20.59;	author Mark;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.06.56;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Integral polynomial exact quotient.
+@
+
+
+1.4
+log
+@Fixed a bug.  The algorithm produced the wrong output for the input:
+r = 2;
+A = v^3 + v^2 - a v - v + a + 1;
+B = v + 1.
+@
+text
+@/*===========================================================================
+                              C <- IPEQ(r,A,B)
+
+Integral polynomial exact quotient.
+
+Inputs
+   r   : a beta-digit, r >= 0, the number of variables.
+   A,B : in Z[x_1,...,x_r], B a non-zero divisor of A.
+
+Output
+   C   : in Z[x_1,...,x_r], C = A / B.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPEQ(r,A,B)
+       Word r,A,B;
+{
+       Word a,Ab,Ap,b,bh,bp,Bb,Bp,Bh,c,C,e,f,g,h,k,m,n,rp;
+
+Step1: /* A = 0. */
+       if (A == 0) {
+	  C = 0;
+	  goto Return; }
+
+Step2: /* r = 0. */
+       if (r == 0) {
+	  C = IEQ(A,B);
+	  goto Return; }
+
+Step3: /* Set m = deg(A), n = deg(B), k = deg(C). */
+       m = PDEG(A);
+       n = PDEG(B);
+       k = m - n;
+
+Step4: /* Set b = ldcf(B), B_ = red(B), r' = r - 1. */
+       b = PLDCF(B);
+       Bb = PRED(B);
+       rp = r - 1;
+
+Step5: /* Set A_ to A(x) - (A(x) mod x^n) and initialize C. */
+       Ap = A;
+       Ab = NIL;
+       while (Ap != NIL && PDEG(Ap) >= n) {
+	  ADV2(Ap,&e,&a,&Ap);
+	  Ab = COMP2(a,e,Ab); }
+       Ab = INV(Ab);
+       C = NIL;
+
+Step6: /* Compute next term, c x^g, of C. */
+       PADV(Ab,&e,&a,&Ab);
+       if (rp == 0)
+	  c = IEQ(a,b);
+       else
+	  c = IPEQ(rp,a,b);
+       g = e - n;
+       C = COMP2(c,g,C);
+
+Step7: /* B_ = 0? */
+       if (Bb == 0)
+	  if (Ab == 0)
+	     goto Step10;
+	  else
+	     goto Step6;
+
+Step8: /* Compute B^ = (c x^g B_) mod x^n. */
+       Bp = Bb;
+       Bh = NIL;
+       h = n - g;
+       while (Bp != NIL && FIRST(Bp) >= h) {
+	  ADV2(Bp,&f,&bp,&Bp);
+	  bh = IPPROD(rp,bp,c);
+	  Bh = COMP2(bh,f + g,Bh); }
+       Bh = INV(Bh);
+       if (Bh == NIL)
+	  Bh = 0;
+
+Step9: /* Set A_ = A_ - B^ and, if A_ /= 0, go back to Step5. */
+       Ab = IPDIF(r,Ab,Bh);
+       if (Ab != 0)
+	  goto Step6;
+        
+Step10: /* Invert list for C */
+       C = INV(C);
+
+Return: /* Prepare for return. */
+        return(C);
+}
+@
+
+
+1.3
+log
+@The case A = 0 wasn't previously handled.
+@
+text
+@d50 1
+a50 1
+       ADV2(Ab,&e,&a,&Ab);
+d58 1
+a58 5
+Step7: /* Test for end. */
+       if (Ab == NIL)
+	  goto Step11;
+
+Step8: /* B_ = 0? */
+d60 4
+a63 1
+	  goto Step6;
+d65 1
+a65 1
+Step9: /* Compute B^ = (c x^g B_) mod x^n. */
+d77 1
+a77 1
+Step10: /* Set A_ = A_ - B^ and, if A_ /= 0, go back to Step5. */
+d82 1
+a82 1
+Step11: /* Invert list for C */
+@
+
+
+1.2
+log
+@The comment for Step4 was corrected.
+@
+text
+@d20 6
+a25 1
+Step1: /* r = 0. */
+d30 1
+a30 1
+Step2: /* Set m = deg(A), n = deg(B), k = deg(C). */
+d35 1
+a35 1
+Step3: /* Set b = ldcf(B), B_ = red(B), r' = r - 1. */
+d40 1
+a40 1
+Step4: /* Set A_ to A(x) - (A(x) mod x^n) and initialize C. */
+d49 1
+a49 1
+Step5: /* Compute next term, c x^g, of C. */
+d58 1
+a58 1
+Step6: /* Test for end. */
+d60 1
+a60 1
+	  goto Step10;
+d62 1
+a62 1
+Step7: /* B_ = 0? */
+d64 1
+a64 1
+	  goto Step5;
+d66 1
+a66 1
+Step8: /* Compute B^ = (c x^g B_) mod x^n. */
+d78 1
+a78 1
+Step9: /* Set A_ = A_ - B^ and, if A_ /= 0, go back to Step5. */
+d81 1
+a81 1
+	  goto Step5;
+d83 1
+a83 1
+Step10: /* Invert list for C */
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d35 1
+a35 1
+Step4: /* Set A_ to A(x) mod x^n and initialize C. */
+@

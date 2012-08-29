@@ -1,0 +1,115 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.28.15;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.20.52;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral univariate polynomial binary homothetic transformation.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			     B <- IUPBHT(A,k)
+
+Integral univariate polynomial binary homothetic transformation.
+
+Inputs
+  A : in Z[X], A non-zero.
+  k : a BETA-digit.
+
+Outputs
+  B : in Z[X], B(X) = 2^(-h) * A(2^k*X),
+      where h is uniquely determined so that B is an
+      integral polynomial not divisible by 2.
+===========================================================================*/
+#include "saclib.h"
+
+Word IUPBHT(A,k)
+       Word A,k;
+{
+       Word Ap,B,a,b,e,h,m,n;
+
+Step1: /* Compute h. */
+       Ap = A;
+       h = BETA;
+       do {
+	  ADV2(Ap,&e,&a,&Ap);
+	  m = IORD2(a);
+	  n = k * e + m;
+	  if (n < h)
+	     h = n; }
+       while (Ap != NIL);
+
+Step2: /* Compute B. */
+       Ap = A;
+       B = NIL;
+       do {
+	  ADV2(Ap,&e,&a,&Ap);
+	  b = ITRUNC(a,h - k * e);
+	  B = COMP2(b,e,B); }
+       while (Ap != NIL);
+       B = INV(B);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      B <- IUPBHT(A,k)
+d8 1
+a8 1
+  k : a GAMMA-integer.
+d14 1
+a14 1
+======================================================================*/
+a20 1
+       /* hide Ap,a,e,h,m,n; */
+d25 7
+a31 9
+       do
+         {
+         ADV2(Ap,&e,&a,&Ap);
+         m = IORD2(a);
+         n = k * e + m;
+         if (n < h)
+           h = n;
+         }
+       while (!(Ap == NIL));
+d36 5
+a40 7
+       do
+         {
+         ADV2(Ap,&e,&a,&Ap);
+         b = ITRUNC(a,h - k * e);
+         B = COMP2(b,e,B);
+         }
+       while (!(Ap == NIL));
+@

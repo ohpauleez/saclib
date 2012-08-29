@@ -1,0 +1,86 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.17.02.23;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.17.01.37;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial quotient.
+@
+
+
+1.2
+log
+@Calls to IQ have been replaced by calls to IEQ.
+@
+text
+@/*===========================================================================
+			      C <- IPQ(r,A,B)
+
+Integral polynomial quotient.
+
+Inputs  
+  r   : a BETA-digit, r >= 0, the number of variables.
+  A,B : in Z[x_1,...,x_r].
+        B is a non-zero divisor of A.
+
+Outputs
+  C   : in Z[x_1,...,x_r], C = A / B.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPQ(r,A,B)
+       Word r,A,B;
+{
+       Word C,R;
+
+Step1: /* Compute. */
+       if (r == 0)
+	  C = IEQ(A,B);
+       else
+	  C = IPEQ(r,A,B);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- IPQ(r,A,B)
+d8 1
+a8 1
+  A,B : in Z[X1,...,Xr].
+d12 2
+a13 2
+  C   : in Z[X1,...,Xr], C = A / B.
+======================================================================*/
+a19 1
+       /* hide algorithm */
+d23 1
+a23 1
+         C = IQ(A,B);
+d25 1
+a25 1
+         IPQR(r,A,B,&C,&R);
+@

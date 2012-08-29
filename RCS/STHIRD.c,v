@@ -1,0 +1,49 @@
+head	1.1;
+access;
+symbols;
+locks
+	collins:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2005.01.31.14.59.20;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Set third element.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+ 	              	  STHIRD(L,a)
+
+Set third element.
+
+Inputs
+   L  : a list of length three or more.
+   a  : object.
+
+Effect
+   The list L is modified by changing its third element to a.
+======================================================================*/
+#include "saclib.h"
+
+void STHIRD(L,a)
+       Word L,a;
+{
+
+Step1: /* Use SFIRST and RED2, */
+	SFIRST(RED2(L),a);
+
+Return: /* Return. */
+	return;
+}
+@

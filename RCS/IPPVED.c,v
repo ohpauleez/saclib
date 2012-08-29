@@ -1,0 +1,97 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.07.17.14.51.21;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	93.06.14.17.58.15;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Integral polynomial powers-of-variables exact divisors.
+@
+
+
+1.2
+log
+@I recommend a slight change in the title line of IPPVED.
+Instead of "powers of variable exact divisors" it would
+be better (more quickly understood) to read
+"powers-of-variables" exact divisors.  (This recommendation
+based on recent reading of The New York Public Library
+Writer's Guide to Style and Usage.)
+
+George
+@
+text
+@/*===========================================================================
+                         E <- IPPVED(r,A)
+
+Integral polynomial powers-of-variables exact divisors.
+
+Inputs
+  r : a BETA-digit, the number of variables, r >= 1.
+  A : in Z[x_1,...,x_r], A non-zero.
+
+Outputs
+  E : the list (e_r,e_{r-1}...,e_1) of BETA-digits, such that
+      x_i^e_i divides A but x_i^(e_i+1) does not.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPPVED(r,A)
+       Word r,A;
+{
+       Word Ed,Ap,rp,E,Es,Ep,a,d;
+
+Step1: /* r = 1. */
+       Ap = A;
+       if (r == 1) {
+	 do {
+	   d = PDEG(Ap);
+	   Ap = PRED(Ap); }
+	 while (Ap != 0);
+	 E = LIST1(d);
+	 goto Return; }
+
+Step2: /* Initialize. */
+       rp = r-1;
+       d = PDEG(Ap);
+       a = PLDCF(Ap);
+       Es = IPPVED(rp,a);
+       Ap = PRED(Ap);
+
+Step3: /* Loop. */
+       while (Ap != 0) {
+	 d = PDEG(Ap);
+	 a = PLDCF(Ap);
+	 Ep = IPPVED(rp,a);
+	 Es = VMIN(Es,Ep);
+	 Ap = PRED(Ap); }
+       E = COMP(d,Es);
+
+Return: /* Prepare for return. */
+       return(E);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 1
+a4 1
+Integral polynomial powers of variable exact divisors.
+@

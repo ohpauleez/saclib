@@ -1,0 +1,86 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.16.38.43;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.17.10;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex sum.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFCSUM(u,v)
+a2 41
+Single-precision floating-point complex sum.  
+
+Inputs
+  u,v : single-precision floating-point complex numbers. 
+
+Outputs
+  w   : a single-precision floating-point complex approximation to u+v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCSUM(u,v)
+       Word u,v;
+{
+       Word u1,u2,v1,v2,w,w1,w2;
+       /* hide u1,u2,v1,v2,w; */
+
+Step1: /* u or v zero. */
+       if (u == 0)
+         {
+         w = v;
+         goto Return;
+         }
+       if (v == 0)
+         {
+         w = u;
+         goto Return;
+         }
+
+Step2: /* General case. */
+       FIRST2(u,&u1,&u2);
+       FIRST2(v,&v1,&v2);
+       w1 = SFRSUM(u1,v1);
+       w2 = SFRSUM(u2,v2);
+       if (w1 == 0 && w2 == 0)
+         w = 0;
+       else
+         w = LIST2(w1,w2);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

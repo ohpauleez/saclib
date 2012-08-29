@@ -1,0 +1,131 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	94.08.21.12.08.47;	author George;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	93.11.24.11.28.56;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.11.24.11.26.34;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Modular digit inverse.
+@
+
+
+1.3
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*===========================================================================
+			      b <- MDINV(m,a)
+
+Modular digit inverse.  
+
+Inputs
+  m : a positive BETA-digit, m > 1.
+  a : a unit of Z_m, a BETA-digit.
+
+Output
+  b : a^{-1}, the inverse of a in Z_m, a BETA-digit.
+===========================================================================*/
+#include "saclib.h"
+
+Word MDINV(m,a)
+       Word m,a;
+{
+       Word a1,a2,a3,b,q,v1,v2,v3;
+
+Step1: /* Compute. */
+       a1 = m;
+       a2 = a;
+       v1 = 0;
+       v2 = 1;
+       while (a2 != 1) {
+	  q = a1 / a2;
+	  a3 = a1 - q * a2;
+	  v3 = v1 - q * v2;
+	  a1 = a2;
+	  a2 = a3;
+	  v1 = v2;
+	  v2 = v3; }
+       if (v2 >= 0)
+	  b = v2;
+       else
+	  b = v2 + m;
+
+Return: /* Prepare for return. */
+       return(b);
+}
+@
+
+
+1.2
+log
+@The specifications were generalized to allow gamma-integer inputs.
+@
+text
+@d7 2
+a8 2
+  m : a positive gamma-integer.
+  a : a unit of Z_m, a positive gamma-integer.
+d11 1
+a11 1
+  b : a^{-1}, the inverse of a in Z_m, a positive gamma-integer.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      b <- MDINV(m,a)
+d7 2
+a8 2
+  m : a positive BETA-integer.  
+  a : a unit of Z_m.  
+d10 3
+a12 3
+Outputs
+  b : a^{-1}.
+======================================================================*/
+a18 1
+       /* hide algorithm */
+d25 8
+a32 10
+       while (a2 != 1)
+         {
+         q = a1 / a2;
+         a3 = a1 - q * a2;
+         v3 = v1 - q * v2;
+         a1 = a2;
+         a2 = a3;
+         v1 = v2;
+         v2 = v3;
+         }
+d34 1
+a34 1
+         b = v2;
+d36 1
+a36 1
+         b = v2 + m;
+@

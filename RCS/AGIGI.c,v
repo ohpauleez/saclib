@@ -1,0 +1,56 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2001.12.10.18.11.47;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Array Gaussian integer to Gaussian integer.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*========================================================================
+                           B <- AGIGI(A)
+
+Array Gaussian integer to Gaussian integer.
+
+Input
+   A : a Guassian integer in array representation.
+
+Output
+   B : A in list representation.
+
+========================================================================*/
+#include "saclib.h"
+#include "ai.h"
+
+Word AGIGI(A)
+	BDigit **A;
+{
+	Word B1,B2,B;
+
+Step1: /* Apply AII twice. */
+	B1 = AII(A[0]);
+	B2 = AII(A[1]);
+	if (B1 == 0 && B2 == 0)
+	   B = 0;
+	else
+	   B = LIST2(B1,B2);
+
+Return: /* Return B. */
+	return(B);
+}
+@

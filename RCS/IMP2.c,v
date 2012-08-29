@@ -1,0 +1,255 @@
+head	1.4;
+access;
+symbols;
+locks
+	saclib:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	95.08.30.11.20.27;	author Mark;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	94.01.16.20.42.57;	author Werner;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	94.01.16.11.52.56;	author Werner;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.16.11.48.24;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer multiplication by power of 2.
+@
+
+
+1.4
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@/*===========================================================================
+			       B <- IMP2(A,h)
+
+Integer multiplication by power of 2.
+
+Inputs
+  A : in Z.
+  h : a non-negative BETA-integer.
+
+Outputs
+  B : A * (2^h).
+===========================================================================*/
+#include "saclib.h"
+
+Word IMP2(A,h)
+       Word A,h;
+{
+       Word a,a0,a1,b,bp,D,d,i,k,kp,M,n,q,s;
+       Word Ap,B,*Bp,*Bpp,Bh[FIXED];
+
+Step1: /* A = 0 or h = 0. */
+       if (A == 0 || h == 0) {
+	  B = A;
+	  goto Return; }
+
+Step2: /* h = q * ZETA + k. */
+       if (h < ZETA) {
+	  q = 0;
+	  k = h; }
+       else {
+	  q = h / ZETA;
+	  k = h - q * ZETA; }
+
+Step3: /* Mask. */
+       kp = ZETA - k;
+       M = ~(~0 << kp);
+
+Step4: /* A non-zero BETA-digit. Shift by k bits. */
+       if (A < BETA) {
+	  if (A > 0) {
+	     b = (A & M) << k;  /* shifted kp low order bits. */
+	     bp = A >> kp; }    /* k high order bits. */
+	  else {
+	     a = -A;
+	     b = -((a & M) << k);
+	     bp = -(a >> kp); }
+	  if (bp == 0)
+	     B = b;
+	  else
+	     B = COMP(b,COMP(bp,NIL));
+	  goto Step14; }
+
+Step5: /* Initialize. */
+       Bp = Bh;
+       D = FIXED - 1;
+
+Step6: /*  A double precision. Shift by k bits. */
+       if (RED2(A) == NIL) {
+	  FIRST2(A,&a0,&a1);
+	  if (a1 < 0) {
+	     a0 = -a0;
+	     a1 = -a1;
+	     s = -1; }
+	  else
+	     s = 1;
+	  Bp[0] = (a0 & M) << k;
+	  bp = a0 >> kp;
+	  Bp[1] = ((a1 & M) << k) ^ bp;
+	  bp = a1 >> kp;
+	  if (bp == 0)
+	     n = 2;
+	  else {
+	     Bp[2] = bp;
+	     n = 3; }
+	  goto Step12; }
+
+Step7: /* Trailing zeros. Determine sign. */
+       Ap = A;
+       a = FIRST(Ap);
+       while (a == 0) {
+	  q = q + 1;
+	  Ap = RED(Ap);
+	  a = FIRST(Ap); }
+       if (a < 0)
+	  s = -1;
+       else
+	  s = 1;
+
+Step8: /* Initialize for shifting. */
+       n = 0;
+       bp = 0;
+
+Step9: /* Shift remaining digits by k bits. */
+       if (s == -1)
+	  do {
+	     ADV(Ap,&a,&Ap);
+	     a = -a;
+	     b = a & M;
+	     Bp[n] = (b << k) ^ bp;
+	     bp = a >> kp;
+	     n = n + 1; }
+          while (Ap != NIL && n < D);
+       else
+	  do {
+	     ADV(Ap,&a,&Ap);
+	     b = a & M;
+	     Bp[n] = (b << k) ^ bp;
+	     bp = a >> kp;
+	     n = n + 1; }
+          while (Ap != NIL && n < D);
+
+Step10: /* Allocate sufficiently large array. Resume shifting. */
+       if (Ap != NIL) {
+	  D = n + LENGTH(Ap) + 1;
+	  Bpp = GETARRAY(D);
+	  for (i = 0; i < n; i++)
+	     Bpp[i] = Bp[i];
+	  Bp = Bpp;
+	  goto Step9; }
+
+Step11: /* Last carry. */
+       if (bp != 0) {
+	  Bp[n] = bp;
+	  n = n + 1; }
+
+Step12: /* Store result in list. */
+       B = IFATL(Bp,n,s);
+
+Step13: /* Free up memory. */
+       if (D >= FIXED)
+	  FREEARRAY(Bp);
+
+Step14: /* Append q BETA-zeros. */
+       if (q != 0)
+	  IMPB(B,q,&B,&d);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.3
+log
+@Initialization of D was moved from Step8 to Step5.
+@
+text
+@d16 1
+a16 2
+       Word A;
+       BDigit h;
+d18 1
+a18 1
+       BDigit a,a0,a1,b,bp,D,d,i,k,kp,M,n,q,s;
+@
+
+
+1.2
+log
+@More efficient algorithm.
+@
+text
+@d56 1
+a91 1
+       D = FIXED - 1;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      B <- IMP2(A,h)
+d4 1
+a4 1
+Integer multiplication by power of 2.  
+d8 1
+a8 1
+  h : a non-negative BETA-integer.  
+d12 1
+a12 1
+======================================================================*/
+d16 2
+a17 1
+       Word A,h;
+d19 2
+a20 2
+       Word B,i,q,r;
+       /* hide i,q,r; */
+d22 113
+a134 11
+Step1: /* A=0 or h=0. */
+       if (A == 0 || h == 0)
+         {
+         B = A;
+         goto Return;
+         }
+
+Step2: /* General case. */
+       q = h / ZETA;
+       r = h - q * ZETA;
+       B = IDPR(A,TABP2[r + 1]);
+d136 1
+a136 6
+         {
+         if (B < BETA)
+           B = LIST1(B);
+         for (i = 1; i <= q; i++)
+           B = COMP(0,B);
+         }
+@

@@ -1,0 +1,109 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	96.11.11.19.29.34;	author Chris;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	96.11.06.18.05.07;	author Chris;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	94.09.18.12.34.41;	author Mark;	state init;
+branches;
+next	;
+
+
+desc
+@Integer leading word.
+@
+
+
+1.3
+log
+@The spec was changed to 0 <= u - v < ZETA.  Also, the previous revision
+was changed slightly so that the code explicitly states that B[n-2] is
+only referenced if n > 1.
+@
+text
+@/*===========================================================================
+			   ILWORD(A,m,B,n; a,b)
+
+Integer leading word.
+
+Inputs
+  A, B: in Z, in array representation, A, B > 0.  If u and v are the
+        bit-lengths of A and B, respectively, then u >= ZETA and
+        0 <= u - v < ZETA.
+  m, n: BETA digits, the word lengths of A and B, respectively.
+
+Output
+  a : a BETA digit, the leading ZETA bits of A.
+  b : a BETA digit, the leading (ZETA - u + v) bits of B.
+===========================================================================*/
+#include "saclib.h"
+
+void ILWORD(A,m,B,n, a_,b_)
+       Word *A,m,*B,n, *a_,*b_;
+{
+       Word a,b,d,e;
+
+Step1: /* Get leading word of A. */
+       a = A[m-1];
+       d = PDLOG2(a);
+       e = ZETA - d;
+       if (e > 0)
+	  a = (a << e) | (A[m-2] >> d);
+
+Step2: /* Get leading word of B. */
+       b = B[n-1];
+       if (m == n) {
+	 if (n > 1)
+	   b = (b << e) | (B[n-2] >> d); }
+       else
+	 b = b >> d;
+       
+Return: /* Prepare for return. */
+       *a_ = a;
+       *b_ = b;
+       return;
+}
+@
+
+
+1.2
+log
+@Step 2 was accessing B[n-2] in cases where B had length 1.  Specifically,
+if A had length 1.
+@
+text
+@d9 1
+a9 1
+        u - v < ZETA.
+d33 1
+a33 1
+	 if (e > 0)
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d32 3
+a34 2
+       if (m == n)
+	  b = (b << e) | (B[n-2] >> d);
+d36 1
+a36 1
+	  b = b >> d;
+@

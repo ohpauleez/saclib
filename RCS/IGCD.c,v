@@ -1,0 +1,161 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.09.18.12.29.55;	author Mark;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.09.18.12.29.26;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer greatest common divisor.
+@
+
+
+1.2
+log
+@Now uses double-digit partial cosequence computation.
+@
+text
+@/*===========================================================================
+                               C <- IGCD(A,B)
+
+Integer greatest common divisor.
+
+Inputs
+  A,B : in Z.
+
+Outputs
+  C : gcd(A,B).
+===========================================================================*/
+#include "saclib.h"
+
+Word IGCD(A,B)
+       Word A,B;
+{
+       Word *A1,*A2,*T,C,a,a0,a1,b,b0,b1,d,g1,g2,m1,m2,t,u1,u2,v1,v2;
+
+Step1: /* Single-precision input. */
+       if (A < BETA && B < BETA) {
+	  a = absm(A);
+	  b = absm(B);
+	  if (a > b)
+	     C = DGCD(a,b);
+	  else
+	     C = DGCD(b,a);
+	  goto Return; }
+
+Step2: /* Initialize and convert to array representation. */
+       m1 = ILENGTH(A) + 2;
+       m2 = ILENGTH(B) + 2;
+       A1 = GETARRAY(m1);
+       A2 = GETARRAY(m2);
+       IFLTA(A,A1,m1,&A1,&m1,&d,&d);
+       IFLTA(B,A2,m2,&A2,&m2,&d,&d);
+
+Step3: /* Swap if necessary. */
+       if (IACOMPA(A1,m1,A2,m2) < 0) {
+	  T = A1;
+	  t = m1;
+	  A1 = A2;
+	  m1 = m2;
+	  A2 = T;
+	  m2 = t; }
+
+Step4: /* Compute remainders. */
+       while (ISIGNA(A2,m2) != 0) {
+	  if (m1 == 1) {
+	     C = DGCD(A1[0],A2[0]);
+	     A1[0] = C;
+	     goto Step5; }
+	  g1 = ILOG2A(A1,m1);
+	  g2 = ILOG2A(A2,m2);
+	  v1 = 0;
+	  if (g1 - g2 < ZETA)
+	     if (g1 >= 2 * ZETA) {
+		ILWORDS(A1,m1,A2,m2,&a1,&a0,&b1,&b0);
+		DDPCC(a1,a0,b1,b0,&u1,&u2,&v1,&v2); }
+	     else if (g1 - g2 < ZETA / 2) {
+		ILWORD(A1,m1,A2,m2,&a1,&b1);
+		DPCC(a1,b1,&u1,&u2,&v1,&v2); }
+	  if (v1 != 0)
+	     IDLCOMB(A1,m1,A2,m2,u1,v1,u2,v2,1,1,&m1,&m2);
+	  else {
+	     IEAS(A1,m1,A2,m2,&m1);
+	     T = A1;
+	     t = m1;
+	     A1 = A2;
+	     m1 = m2;
+	     A2 = T;
+	     m2 = t; } }
+	  
+Step5: /* Convert gcd to list representation and free arrays. */
+       C = IFATL(A1,m1,1);
+       FREEARRAY(A1);
+       FREEARRAY(A2);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 1
+a4 1
+Integer greatest common divisor.  
+d8 1
+a8 1
+  
+d17 28
+a44 1
+       Word A1,A2,A3,A4,C,a,b,h,m1,m2,u1,u2,v1,v2;
+d46 31
+a76 32
+Step1: /* Compute absolute values and compare. */
+       A1 = IABSF(A);
+       A2 = IABSF(B);
+       if (ICOMP(A1,A2) < 0) {
+          A3 = A1;
+          A1 = A2;
+          A2 = A3; }
+
+Step2: /* Compute remainders. */
+       while (A2 != 0) {
+          if (A1 < BETA) {
+             C = DGCD(A1,A2);
+             goto Return; }
+          m1 = ILOG2(A1);
+          m2 = ILOG2(A2);
+          if (m1 - m2 >= ZETA / 2) {
+             A4 = IREM(A1,A2);
+             A3 = A2; }
+          else {
+             h = m1 - ZETA;
+             a = ITRUNC(A1,h);
+             b = ITRUNC(A2,h);
+             DPCC(a,b,&u1,&u2,&v1,&v2);
+             if (v1 == 0) {
+                A4 = IREM(A1,A2);
+                A3 = A2; }
+             else {
+                A3 = ILCOMB(A1,A2,u1,v1);
+                A4 = ILCOMB(A1,A2,u2,v2); } }
+          A1 = A3;
+          A2 = A4; }
+       C = A1;
+@

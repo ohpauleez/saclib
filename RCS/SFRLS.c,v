@@ -1,0 +1,291 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.17.04.20;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.21.25;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point real number lower sum.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFRLS(u,v)
+a2 246
+Single-precision floating-point real number lower sum.  
+
+Inputs
+  u,v : single-precision floating-point real numbers.  
+
+Outputs
+  w   : the largest single-precision floating-point real number 
+        such that w <= u+v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFRLS(u,v)
+       Word u,v;
+{
+       Word a,a1,a2,ap1,ap2,b,d,e,e1,e2,ep1,ep2,p,q,r,rp,w;
+       /* hide algorithm */
+
+Step1: /* u or v zero. */
+       if (u == 0)
+         {
+         w = v;
+         goto Return;
+         }
+       if (v == 0)
+         {
+         w = u;
+         goto Return;
+         }
+
+Step2: /* Obtain fractions and exponents. */
+       FIRST2(u,&e1,&a1);
+       FIRST2(v,&e2,&a2);
+
+Step3: /* Interchange. */
+       if (e1 >= e2)
+         {
+         ap1 = a1;
+         ep1 = e1;
+         ap2 = a2;
+         ep2 = e2;
+         }
+       else
+         {
+         ap1 = a2;
+         ep1 = e2;
+         ap2 = a1;
+         ep2 = e1;
+         }
+       d = ep1 - ep2;
+       b = TABP2[ZETA];
+
+Step4: /* Dl >= ZETA. */
+       if (d < ZETA)
+         goto Step5;
+       a = ap1;
+       e = ep1;
+       if (ap2 > 0)
+         {
+         if (d == ZETA && a == -b)
+           {
+           a = BETA + 1;
+           e = e - 1;
+           }
+         goto Step8;
+         }
+       if (a == -BETA + 1)
+         {
+         a = -b;
+         e = e + 1;
+         goto Step7;
+         }
+       if (a == b)
+         {
+         e = e - 1;
+         if (d == ZETA && ap2 != -b)
+           a = BETA - 2;
+         else
+           a = BETA - 1;
+         goto Step8;
+         }
+       a = a - 1;
+       goto Step8;
+
+Step5: /* Dl <= 1. */
+       if (d > 1)
+         goto Step6;
+       a = ap1 + ap1 + ap2;
+       if (d == 0)
+         a = a + ap2;
+       if (a == 0)
+         {
+         e = 0;
+         goto Step8;
+         }
+       e = ep1 - 1;
+       if (a > 0)
+         {
+         if (a >= BETA + BETA)
+           {
+           a = a / 4;
+           e = e + 2;
+           goto Step7;
+           }
+         if (a >= BETA)
+           {
+           a = a / 2;
+           e = e + 1;
+           goto Step8;
+           }
+         while (a < b)
+           {
+           a = a + a;
+           e = e - 1;
+           }
+         goto Step7;
+         }
+       if (a <= -BETA - BETA)
+         {
+         q = a / 4;
+         r = a - 4 * q;
+         a = q;
+         e = e + 2;
+         if (r < 0)
+           a = a - 1;
+         goto Step7;
+         }
+       if (a <= -BETA)
+         {
+         q = a / 2;
+         r = a - q - q;
+         a = q;
+         e = e + 1;
+         if (r == 0)
+           goto Step8;
+         a = a - 1;
+         if (a != -BETA)
+           goto Step8;
+         a = -b;
+         e = e + 1;
+         goto Step7;
+         }
+       while (a > -b)
+         {
+         a = a + a;
+         e = e - 1;
+         }
+       goto Step7;
+
+Step6: /* 1 < dl < ZETA. */
+       p = TABP2[d];
+       q = ap2 / p;
+       r = ap2 - p * q;
+       a = ap1 + ap1 + q;
+       e = ep1 - 1;
+       if (a > 0)
+         {
+         if (a >= BETA + BETA)
+           {
+           a = a / 4;
+           e = e + 2;
+           goto Step7;
+           }
+         if (a >= BETA)
+           {
+           q = a / 2;
+           rp = a - q - q;
+           a = q;
+           e = e + 1;
+           }
+         else
+           rp = 0;
+         if (rp > 0 || r >= 0)
+           goto Step8;
+         if (a == b)
+           {
+           a = BETA - 1;
+           e = e - 1;
+           goto Step7;
+           }
+         a = a - 1;
+         goto Step8;
+         }
+       if (a <= -BETA - BETA)
+         {
+         q = a / 4;
+         rp = a - 4 * q;
+         a = q;
+         e = e + 2;
+         if (rp == 0 && r >= 0)
+           goto Step7;
+         a = a - 1;
+         if (a != -BETA)
+           goto Step7;
+         a = -b;
+         e = e + 1;
+         goto Step7;
+         }
+       if (a <= -BETA)
+         {
+         q = a / 2;
+         rp = a - q - q;
+         a = q;
+         e = e + 1;
+         if (rp == 0 && r >= 0)
+           goto Step8;
+         a = a - 1;
+         if (a != -BETA)
+           goto Step8;
+         a = -b;
+         e = e + 1;
+         }
+
+Step7: /* Overflow or underflow. */
+       if (e <= -BETA)
+         {
+         if (a > 0)
+           {
+           a = 0;
+           e = 0;
+           }
+         else
+           {
+           a = -b;
+           e = -BETA + 1;
+           }
+         goto Step8;
+         }
+       if (e < BETA)
+         goto Step8;
+       if (a > 0)
+         {
+         a = BETA - 1;
+         e = BETA - 1;
+         }
+       else
+         FAIL("SFRLS","Overflow",u,v,a,e);
+
+Step8: /* Assemble output. */
+       if (a == 0)
+         w = 0;
+       else
+         w = LIST2(e,a);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

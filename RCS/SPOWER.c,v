@@ -1,0 +1,59 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	94.07.02.23.29.16;	author saclib;	state new;
+branches;
+next	;
+
+
+desc
+@Sign power.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*===========================================================================
+			     t <- SPOWER(s,a)
+
+Sign power.
+
+Input
+  s : a sign.
+  a : a non-negative BETA-digit.
+
+Ouput
+  t : t = s^a.
+===========================================================================*/
+#include "saclib.h"
+
+Word SPOWER(s,a)
+       Word s,a;
+{
+       Word c;
+
+Step1: /* Compute. */
+       if (a == 0)
+	  c = 1;
+       else
+	  if (s == 0)
+	     c = 0;
+	  else
+	     if (ODD(a) && s == -1)
+		c = -1;
+	     else
+		c = 1;
+
+Return: /* Prepare for return. */
+       return(c);
+}
+@

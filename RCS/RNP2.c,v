@@ -1,0 +1,78 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.30.04;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.22.55;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Rational number power of 2.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*======================================================================
+                      r <- RNP2(k)
+
+Rational number power of 2.  
+
+Inputs
+  k : a BETA-digit.  
+
+Outputs
+  r : 2^k, a rational number.
+======================================================================*/
+#include "saclib.h"
+
+Word RNP2(k)
+       Word k;
+{
+       Word a,h,r;
+
+Step1: /* Compute. */
+       h = ABS(k);
+       a = IMP2(1,h);
+       if (k >= 0)
+	  r = LIST2(a,1);
+       else
+	  r = LIST2(1,a);
+
+Return: /* Prepare for return. */
+       return(r);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+  k : a gamma-integer.  
+a17 1
+       /* hide h,r; */
+d23 1
+a23 1
+         r = LIST2(a,1);
+d25 1
+a25 1
+         r = LIST2(1,a);
+@

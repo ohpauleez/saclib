@@ -1,0 +1,54 @@
+head	1.1;
+access;
+symbols;
+locks
+	collins:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2005.01.31.14.11.45;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number to software interval.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                           LBRNSI(R,p,I)
+
+Logarithmic binary rational number to software interval.
+
+Inputs
+   R : a logarithmic binary rational number.
+   p : a BETA-digit, the desired precision.
+   I : (pointer to) an array of size at least 2 p + 6.
+
+Effect
+   The smallest p-precision software interval containing R is placed
+   in I.
+======================================================================*/
+#include "saclib.h"
+
+void LBRNSI(R,p,I)
+       Word R;
+       BDigit p;
+       Word *I;
+{
+
+Step1: /* Apply LBRNF for each endpoint. */
+	LBRNF(R,p,-1,I);
+	LBRNF(R,p,+1,I + p + 3);
+
+Return: /* Return. */
+        return;
+}
+@

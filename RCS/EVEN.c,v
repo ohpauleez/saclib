@@ -1,0 +1,85 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.00.19;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.11.59.47;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@EVEN.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*======================================================================
+<macro>               t <- EVEN(a)
+
+EVEN.  
+
+Inputs
+  a : a C integer.  
+
+Outputs
+  t  : t = 1 if a is even and 
+       t = 0 otherwise.
+======================================================================*/
+#ifndef NO_SACLIB_MACROS
+#define NO_SACLIB_MACROS
+#endif
+#include "saclib.h"
+
+Word EVEN(a)
+       Word a;
+{
+       Word t;
+
+Step1: /* Compute. */
+       t = REM(a,2);
+       if (t < 0)
+	  t = 0;
+       else
+	  t = 1 - t;
+
+Return: /* Prepare for return. */
+       return(t);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      t <- EVEN(a)
+d7 1
+a7 1
+  a : a gamma-integer.  
+d13 3
+a21 1
+       /* hide algorithm */
+d26 1
+a26 1
+         t = 0;
+d28 1
+a28 1
+         t = 1 - t;
+@

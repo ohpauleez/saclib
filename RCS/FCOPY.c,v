@@ -1,0 +1,53 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2000.01.02.16.00.39;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Floating point copy.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      FCOPY(A,B)
+
+Floating point copy.
+
+Inputs
+   A : a floating-point number.
+   B : an array as large as A.
+
+Effect
+   The floating-point number A is copied into B.
+======================================================================*/
+#include "floats.h"
+
+void FCOPY(A,B)
+	Word *A,*B;
+{
+
+	BDigit i,p;
+
+Step1: /* Copy A. */
+	p = A[2];
+	for (i = 0; i <= p + 2; i++)
+	   B[i] = A[i];
+
+Return: /* Return. */
+	return;
+}
+@

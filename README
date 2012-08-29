@@ -1,0 +1,84 @@
+                     SACLIB DISTRIBUTION INFORMATION
+                     ===============================
+
+
+
+0. Copyright Information
+========================
+
+SACLIB is (C) 1993 by Kurt Goedel Institute.
+
+For details refer to the file "COPYRIGHT", which is located in the same
+directory as this "README" file.
+
+There are no real restrictions upon non-commercial use of SACLIB, but please
+do not forget that we request you to send e-mail to
+
+		"saclib@risc.uni-linz.ac.at"
+
+after having installed SACLIB on your system.
+
+
+
+1. What is available
+====================
+
+
+The SACLIB package consists of two .tar files:
+
+  saclib.tar : contains all the files needed for installing SACLIB.
+
+    isac.tar : contains all the files needed for for installing ISAC, a
+               simple interactive shell for SACLIB.
+                   ISAC requires an installed SACLIB, but SACLIB can be used
+               independently of ISAC.
+
+
+
+2. Un-taring
+============
+
+
+"saclib.tar" contains about 650 files in a directory tree whose top node is
+called 'saclib'. If you un-tar "saclib.tar", this directory will be created in
+your current directory.
+	The same goes for "isac.tar", but here there are about 25 files in the
+"isac.tar" file and the top level directory is called 'isac'.
+
+On a generic UNIX system, the command to untar a file with the extension
+".tar.Z" is as follows:
+
+	> zcat saclib.tar.Z | tar -xvf -
+
+Note that the option "v" in "tar -xvf" causes tar to list all files. As
+this might slow the operation down, you might not want to use this option.
+
+
+
+3. Installing
+=============
+
+
+The "README" files in 'saclib' and 'isac' contain detailed installation
+information.
+
+
+
+4. Maintenance
+==============
+
+
+For further information contact
+
+    saclib@risc.uni-linz.ac.at
+
+via Internet e-mail or
+
+    SACLIB Maintenance
+
+    Research Institute for Symbolic Computation
+    Johannes Kepler University
+    4020 Linz
+    Austria
+
+via mail.

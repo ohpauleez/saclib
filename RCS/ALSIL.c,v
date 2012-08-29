@@ -1,0 +1,87 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	97.04.29.16.44.06;	author Werner;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	95.08.25.12.40.06;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Attach labels to standard isolation list.
+@
+
+
+1.2
+log
+@`The specification listed I as second argument instead of L.
+@
+text
+@/*=====================================================================
+			M <- ALSIL(A,L)
+
+Attach labels to standard isolation list.
+
+Inputs
+  A : an integral polynomial all of whose real roots are
+      simple.
+  L : a standard isolation list for all of the real roots
+      of A.
+
+Outputs
+  M : a labeled standard isolation list for all of the real
+      roots of A.
+=====================================================================*/
+#include "saclib.h"
+
+Word ALSIL(A,L)
+       Word A,L;
+{
+       Word a,I,Lp,n,M,t,T;
+
+Step1: /* Determine trend of first interval. */
+       n = PDEG(A);
+       a = PLDCF(A);
+       if (EVEN(n))
+	  t = -1;
+       else 
+	  t = +1;
+       if (ISIGNF(a) < 0)
+	  t = -t;
+
+Step2: /* Label each interval. */
+       M = NIL;
+       Lp = L;
+       while (Lp != NIL) {
+	  I = FIRST(Lp);
+	  Lp = RED(Lp);
+	  T = LIST3(I,A,t);
+	  t = -t;
+	  M = COMP(T,M); }
+       M = INV(M);
+
+Return: /* Return M. */
+       return(M);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d9 1
+a9 1
+  I : a standard isolation list for all of the real roots
+@

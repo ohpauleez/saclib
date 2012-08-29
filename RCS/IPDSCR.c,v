@@ -1,0 +1,90 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.16.15.54;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.15.19;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial discriminant.
+@
+
+
+1.2
+log
+@Calls to IPQ have been replaced by calls to IPEQ.
+@
+text
+@/*===========================================================================
+			      B <- IPDSCR(r,A)
+
+Integral polynomial discriminant.
+
+Inputs
+  r : a BETA-digit, r > 0.
+  A : in Z[x_1,...,x_r], of degree greater than or equal to two in its
+      main variable.
+
+Outputs
+  B : in Z[x_1,...,x_{r-1}], the discriminant of A.
+===========================================================================*/
+#include "saclib.h"
+
+Word IPDSCR(r,A)
+       Word r,A;
+{
+       Word Ap,B,a,n,rp;
+
+Step1: /* Compute. */
+       Ap = IPDMV(r,A);
+       B = IPRES(r,A,Ap);
+       a = PLDCF(A);
+       rp = r - 1;
+       B = IPEQ(rp,B,a);
+       n = PDEG(A);
+       if (REM(n,4) >= 2)
+	  B = IPNEG(rp,B);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      B <- IPDSCR(r,A)
+d8 1
+a8 1
+  A : in Z[X1,...,Xr], of degree greater than or equal to two in its
+d12 2
+a13 2
+  B : in Z[X1,...,X_{r-1}], the discriminant of A.
+======================================================================*/
+a19 1
+       /* hide a,n,rp; */
+d26 1
+a26 1
+       B = IPQ(rp,B,a);
+d29 1
+a29 1
+         B = IPNEG(rp,B);
+@

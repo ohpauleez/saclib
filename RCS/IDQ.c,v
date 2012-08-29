@@ -1,0 +1,71 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.05.17.15.16.05;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.05.17.15.01.51;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer-digit quotient.
+@
+
+
+1.2
+log
+@The specification was previously unclear.
+@
+text
+@/*==========================================================================
+                      C <- IDQ(A,b)
+
+Integer-digit quotient.
+
+Inputs
+  A  : in Z.
+  b  : non-zero BETA-digit.
+
+Outputs
+  C :  in Z, the integral part of A / b.
+==========================================================================*/
+#include "saclib.h"
+
+Word IDQ(A,b)
+       Word A,b;
+{
+       Word C,r;
+       /* hide algorithm */
+
+Step1: /* Compute. */
+       IDQR(A,b,&C,&r);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d11 2
+a12 2
+  C :  the quotient part of A / b.
+======================================================================*/
+@

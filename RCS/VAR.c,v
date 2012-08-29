@@ -1,0 +1,101 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	97.06.03.20.16.53;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	94.04.26.19.00.37;	author Jeremy;	state new;
+branches;
+next	;
+
+
+desc
+@Variations.
+@
+
+
+1.2
+log
+@For the sake of efficiency, ADV's (which is not a macro) have been
+replaced with FIRST's and RED's (which are).
+@
+text
+@/*===========================================================================
+                                v <- VAR(L)
+
+Variations.
+
+Inputs
+  L : a list (s_1,...,s_t) of signs, where s_i is -1, 0, or 1.
+
+Outputs
+  v : in Z.  v is equal to the number of variations in L.
+===========================================================================*/
+#include "saclib.h"
+
+Word VAR(L)
+       Word L;
+{
+       Word v,Lp,s_1,s_2;
+
+Step1: /* Skip leading zeros. */
+       Lp = L;
+       v = 0;
+       s_1 = 0;
+       while (Lp != NIL && s_1 == 0) {
+          s_1 = FIRST(Lp);
+          Lp = RED(Lp); }
+
+Step2: /* Count variations. */
+       while (Lp != NIL) {
+          s_2 = FIRST(Lp);
+          Lp = RED(Lp);
+          if (s_2 == -s_1) {
+             v = v + 1;
+             s_1 = s_2; } }
+
+Return: /* Return v. */
+       return(v);
+}
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+				v <- VAR(L)
+d19 1
+a19 1
+Step1: /* Initialize. */
+d22 4
+a25 5
+       if (L == NIL)
+	  goto Return;
+       do {
+	  ADV(Lp,&s_1,&Lp); }
+       while (s_1 == 0 && Lp != NIL);
+d29 5
+a33 5
+	  ADV(Lp,&s_2,&Lp);
+	  if (s_2 != 0) {
+	     if (s_1 != s_2)
+		v = v + 1;
+	     s_1 = s_2; } }
+d35 1
+a35 1
+Return: /* Prepare for return. */
+d38 1
+@

@@ -1,0 +1,100 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.17.15.36;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.22.52;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point real product.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFRPR(u,v)
+a2 55
+Single-precision floating-point real product.  
+
+Inputs
+  u,v : single-precision floating-point real numbers.  
+
+Outputs
+  w   : a single-precision floating-point real approximation to u*v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFRPR(u,v)
+       Word u,v;
+{
+       Word B,a,b,c,d,e,f,g,w;
+       /* hide algorithm */
+
+Step1: /* u or v zero. */
+       if (u == 0 || v == 0)
+         {
+         w = 0;
+         goto Return;
+         }
+
+Step2: /* Multiply. */
+       FIRST2(u,&e,&a);
+       FIRST2(v,&f,&b);
+       DPR(a,b,&c,&d);
+       g = e + f + ZETA;
+
+Step3: /* Normalize. */
+       B = TABP2[ZETA];
+       if (ABS(c) < B)
+         {
+         c = c + c;
+         if (d >= B)
+           c = c + 1;
+         else
+           if (d <= -B)
+             c = c - 1;
+         g = g - 1;
+         }
+
+Step4: /* Test for overflow. */
+       if (g >= BETA)
+         FAIL("SFRPR","Overflow",u,v,g);
+
+Step5: /* Form list. */
+       if (g <= -BETA)
+         w = 0;
+       else
+         w = LIST2(g,c);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

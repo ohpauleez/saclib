@@ -1,0 +1,51 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	98.04.17.16.18.20;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational interval width.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      w <- LBRIW(I)
+
+Logarithmic binary rational interval width.
+
+Input
+   I : a logarithmic binary rational interval.
+
+Output
+   w : the width of I, a logarithmic binary rational number.
+======================================================================*/
+#include "saclib.h"
+
+Word LBRIW(I)
+	Word I;
+{
+	Word a,b,w;
+
+
+Step1: /* Compute difference of endpoints. */
+	FIRST2(I,&a,&b);
+	w = LBRNDIF(b,a);
+
+Return: /* Return w. */
+	return(w);
+}
+@

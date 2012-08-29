@@ -1,0 +1,73 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	99.02.05.17.25.41;	author George;	state typo;
+branches;
+next	1.1;
+
+1.1
+date	99.02.03.16.36.13;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Discrete logarithm negative.
+@
+
+
+1.2
+log
+@Corrected a typo in the header.
+@
+text
+@/*=======================================================================
+                         b <- DLNEG(a)
+
+Discrete logarithm negative.
+
+Inputs
+   a : an element of a field, represented as a discrete logarithm.
+
+Output
+   b : -a, represented as a discrete logarithm.
+=======================================================================*/
+#include "saclib.h"
+
+BDigit DLNEG(a)
+	BDigit a;
+{
+	BDigit b,q2;
+
+Step1: /* Three cases. */
+	if (a == 0)
+	   b = 0;
+	else if (FFSIZE & 1 == 1)
+	   b = a;
+	else {
+	   q2 = FFSIZE >> 1;
+	   b = a + q2;
+	   if (b > FFSIZE)
+	      b = b - FFSIZE; }
+
+Return: /* Return b. */
+	return(b);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                         b = DLNEG(a)
+@

@@ -1,0 +1,54 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2000.01.02.20.50.13;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Software interval sum.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      SISUM(I,J,K)
+
+Software interval sum.
+
+Inputs
+   I, J : software intervals of the same precision, p.
+   K : an array of size (at least) p + 3.
+
+Effect
+   The smallest p-precision software interval containing I + J
+   is computed and stored in K.
+======================================================================*/
+#include "floats.h"
+
+void SISUM(I,J,K)
+	BDigit *I,*J,*K;
+{
+	BDigit p,q;
+
+Step1: /* Add corresponding endpoints. */
+	p = I[2];
+	q = p + 3;
+        FSUM(I,J,-1,K);
+        FSUM(I + q,J + q,+1,K + q);
+
+Return: /* Return. */
+	return;
+}
+@

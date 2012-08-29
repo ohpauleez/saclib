@@ -1,0 +1,336 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	95.08.30.11.20.15;	author Mark;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	94.01.16.11.52.29;	author Werner;	state algo;
+branches;
+next	1.3;
+
+1.3
+date	93.12.13.20.30.29;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	93.11.07.16.45.10;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.11.07.11.33.23;	author Werner;	state new;
+branches;
+next	;
+
+
+desc
+@Integer from list to array.
+@
+
+
+1.5
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@/*===========================================================================
+			  IFLTA(A,B,b; Bp,n,s,o)
+
+Integer from list to array.
+
+Input
+  A : integer.
+  B : array of b words.
+  b : positive BETA-digit.
+
+Output
+  Bp : (pointer to an) array representation of |A|.
+       If n <= b  B is used for Bp; otherwise a new array is allocated.
+  n  : the BETA-length of A, i.e. n = floor(log_BETA(|A|)) + 1 (if A /= 0);
+       n = 0 if A = 0.
+  s  : s = sign(A),
+  o  : the BETA-order of A, i.e. the largest integer k such that BETA^k
+       divides A (if A /= 0); o = 0 if A = 0.
+===========================================================================*/
+#include "saclib.h"
+
+void IFLTA(A,B,b,Bp_,n_,s_,o_)
+       Word A,*B,b,**Bp_,*n_,*s_,*o_;
+{
+       Word a,bp,i,n,o,s;
+       Word Ap,*Bp,*Bpp;
+
+Step1: /* Initialize Bp. */
+       Bp = B;
+
+Step2: /* A = 0. */
+       if (A == 0) {
+	  n = 0;
+	  Bp[0] = 0;
+	  s = 0;
+	  o = 0;
+	  goto Return; }
+
+Step3: /* A non-zero BETA-digit. */
+       if (A < BETA) {
+	  n = 1;
+	  if (A < 0) {
+	     Bp[0] = -A;
+	     s = -1; }
+	  else {
+	     Bp[0] = A;
+	     s = 1; }
+	  o = 0;
+	  goto Return; }
+
+Step4: /* Initialize for copying. */
+       s = 0;
+       n = 0;
+       bp = b;
+       Ap = A;
+
+Step5: /* Copy trailing zeros, determine sign and BETA-order. */
+       do {
+	  a = FIRST(Ap);
+	  if (a < 0) {
+	     s = -1;
+	     a = -a; }
+	  else if (a > 0)
+	     s = 1;
+	  Bp[n] = a;
+	  n = n + 1;
+	  Ap = RED(Ap); }
+       while (s == 0 && n < bp);
+       o = n - 1;
+
+Step6: /* Copy remaining digits. */
+       if (s == 1)
+	  while (Ap != NIL && n < bp) {
+	     a = FIRST(Ap);
+	     Bp[n] = a;
+	     n = n + 1;
+	     Ap = RED(Ap); }
+       else
+	  while (Ap != NIL && n < bp) {
+	     a = -FIRST(Ap);
+	     Bp[n] = a;
+	     n = n + 1;
+	     Ap = RED(Ap); }
+
+Step7: /* Allocate sufficiently large array. Resume copying. */
+       if (Ap != NIL) {
+	  bp = n + LENGTH(Ap);
+	  Bpp = GETARRAY(bp);
+	  for (i = 0; i < n; i++)
+	     Bpp[i] = Bp[i];
+	  Bp = Bpp;
+	  if (s == 0)
+	     goto Step5;
+	  else
+	     goto Step6; }
+
+Return: /* Prepare for return. */
+        *Bp_ = Bp;
+        *n_ = n;
+        *o_ = o;
+        *s_ = s;
+        return;
+}
+@
+
+
+1.4
+log
+@More efficient implementation.
+@
+text
+@d23 1
+a23 4
+       Word A,*B;
+       BDigit b;
+       Word **Bp_;
+       BDigit *n_,*s_,*o_;
+d25 1
+a25 1
+       BDigit a,bp,i,n,o,s;
+@
+
+
+1.3
+log
+@*** empty log message ***
+@
+text
+@d29 1
+a29 1
+       Word Ap,*Bp;
+d31 1
+a31 1
+Step1: /* Initialize. */
+a32 1
+       bp = b;
+d35 6
+a40 8
+       if (A == 0)
+         {
+         n = 0;
+         Bp[0] = 0;
+         s = 0;
+         o = 0;
+         goto Return;
+         }
+d43 10
+a52 16
+       if (A < BETA)
+         {
+         n = 1;
+         if (A < 0)
+           {
+           Bp[0] = -A;
+           s = -1;
+	   }
+         else
+           {
+           Bp[0] = A;
+           s = 1;
+	   }
+         o = 0;
+         goto Return;
+         }
+d54 1
+a54 1
+Step4: /* Copy trailing zeros, determine sign and BETA-order. */
+d57 1
+d59 12
+a70 14
+       do
+         {
+         a = FIRST(Ap);
+         if (a < 0)
+	   {
+           s = -1;
+	   a = -a;
+           }
+         else if (a > 0)
+           s = 1;
+	 Bp[n] = a;
+	 n = n + 1;
+	 Ap = RED(Ap);
+         }
+d74 1
+a74 1
+Step5: /* Copy remaining digits. */
+d76 5
+a80 7
+         while (Ap != NIL && n < bp)
+	   {
+           a = FIRST(Ap);
+	   Bp[n] = a;
+	   n = n + 1;
+	   Ap = RED(Ap);
+           }
+d82 17
+a98 15
+         while (Ap != NIL && n < bp)
+	   {
+           a = -FIRST(Ap);
+	   Bp[n] = a;
+	   n = n + 1;
+	   Ap = RED(Ap);
+           }
+
+Step6: /* Allocate sufficiently large array. Start over. */
+       if (Ap != NIL)
+         {
+         bp = LENGTH(A);
+         Bp = GETARRAY(bp);
+         goto Step4;
+         }
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d2 1
+a2 1
+			      IFLTA(A;Ah,m,s)
+d4 1
+a4 1
+Integer from list to array.
+d7 3
+a9 1
+  A : an integer consisting of at least 2 BETA-digits.
+d12 7
+a18 6
+  Ah : a pointer to (a pointer to) an array of m words containing the
+       absolute value of the integer A (with possibly one leading zero).
+       The array is not subject to garbage collection.
+  m  : The least even integer greater than or equal to the length of A
+       in beta-digits.
+  s  : The sign of A.
+d22 5
+a26 2
+void IFLTA(A,Ah_,m_,s_)
+       Word A,**Ah_,*m_,*s_;
+d28 2
+a29 1
+       Word a,i,m,n,s,Ap,*Ah;
+d31 78
+a108 6
+Step1: /*  Compute m. */
+       n = LENGTH(A);
+       m = n + ODD(n);
+
+Step2: /* Get an array Ah of m words. */
+       Ah = GETARRAY(m);
+a109 13
+Step3: /* Copy the digits of |A| into Ah. */
+       Ap = A;
+       for (i = 0; i < n; i++) {
+          a = FIRST(Ap);
+	  if (a < 0)
+	     Ah[i] = -a;
+	  else
+	     Ah[i] = a;
+	  Ap = RED(Ap); }
+       if (n < m)
+	  Ah[n] = 0;
+       s = SIGN(a);
+       
+d111 5
+a115 4
+	*Ah_ = Ah;
+	*m_ = m;
+	*s_ = s;
+	return;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d20 1
+a20 2
+       Word A,**Ah_;
+       BDigit *m_,*s_;
+d22 1
+a22 2
+       BDigit a,i,m,n,s;
+       Word Ap,*Ah;
+@

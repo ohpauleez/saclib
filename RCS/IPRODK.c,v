@@ -1,0 +1,125 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.12.13.19.47.45;	author Werner;	state del;
+branches;
+next	1.1;
+
+1.1
+date	93.12.13.19.46.32;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer product, karatsuba algorithm.
+@
+
+
+1.2
+log
+@This function has been removed from the library.
+@
+text
+@[ removed from library ]
+/*======================================================================
+                      C <- IPRODK(A,B)
+
+Integer product, karatsuba algorithm.
+
+Inputs
+  A, B : in Z.
+
+Outputs
+  C   : A * B.
+======================================================================*/
+#include "saclib.h"
+
+Word IPRODK(A,B)
+       Word A,B;
+{
+       Word A0,A1,Ap,As,B0,B1,Bp,Bs,C,C0,C1,C2,Ch,Cs,L,k,m,n,t;
+       /* hide k,m,n,t; */
+
+Step1: /* A or B single-precision. */
+       if (A < BETA || B < BETA)
+         {
+         C = IPROD(A,B);
+         goto Return;
+         }
+
+Step2: /* Compute lengths, m and n, m >= n. */
+       m = LENGTH(A);
+       n = LENGTH(B);
+       if (m >= n)
+         {
+         Ap = A;
+         Bp = B;
+         }
+       else
+         {
+         Ap = B;
+         Bp = A;
+         t = m;
+         m = n;
+         n = t;
+         }
+
+Step3: /* Use classical algorithm if n is small. */
+       if (n < 16)
+         {
+         C = IPROD(Ap,Bp);
+         goto Return;
+         }
+
+Step4: /* m >= 2*n. */
+       if (m >= 2 * n)
+         {
+         L = NIL;
+         do
+           {
+           ISEG(Ap,n,&Ap,&A0);
+           C0 = IPRODK(A0,Bp);
+           L = COMP(C0,L);
+           }
+         while (!(Ap == 0));
+         L = INV(L);
+         C = ISSUM(n,L);
+         goto Return;
+         }
+
+Step5: /* n <= m < 2*n. */
+       k = m / 2;
+       if (m > k + k)
+         k = k + 1;
+       ISEG(Ap,k,&A1,&A0);
+       ISEG(Bp,k,&B1,&B0);
+       As = ISUM(A1,A0);
+       Bs = ISUM(B1,B0);
+       C2 = IPRODK(A1,B1);
+       C0 = IPRODK(A0,B0);
+       Cs = IPRODK(As,Bs);
+       Ch = ISUM(C0,C2);
+       C1 = IDIF(Cs,Ch);
+       L = LIST3(C0,C1,C2);
+       C = ISSUM(k,L);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+@

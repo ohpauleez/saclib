@@ -1,0 +1,68 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.27.21.02.50;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.12.19;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex from real.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 27
+/*======================================================================
+                      v <- SFCFR(u)
+
+Single-precision floating-point complex from real.  
+
+Inputs
+  u : a single-precision floating-point real number. 
+
+Outputs
+  v : the single-precision floating-point complex representation of u.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCFR(u)
+       Word u;
+{
+       Word v;
+
+Step1: /* Compute. */
+       if (u == 0)
+         v = 0;
+       else
+         v = LIST2(u,0);
+
+Return: /* Prepare for return. */
+       return(v);
+}
+@

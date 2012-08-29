@@ -1,0 +1,219 @@
+head	1.4;
+access;
+symbols;
+locks
+	saclib:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	99.07.26.17.23.14;	author Werner;	state embe;
+branches;
+next	1.3;
+
+1.3
+date	95.08.30.11.19.44;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	94.02.23.20.09.08;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.02.23.20.08.39;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer-digit quotient and remainder.
+@
+
+
+1.4
+log
+@Changed "SIZE" to "IDQR_SIZE" to enable compilation of several
+programs in one file.
+@
+text
+@/*=================================================================
+                      IDQR(A,b; Q,r)
+
+Integer-digit quotient and remainder.
+
+Inputs
+  A  : in Z.
+  b  : a non-zero BETA-digit.
+
+Outputs
+  Q  : the integral part of A / b
+  r  : a BETA-digit, r = A - b * Q.
+=================================================================*/
+#include "saclib.h"
+#define IDQR_SIZE 100
+
+void IDQR(A,b, Q_,r_)
+       Word A,b, *Q_,*r_;
+{
+       Word A2,*Ah,Ap[IDQR_SIZE],Q,i,k,kp,m,o,q,r,s;
+       Word a0,a1,bp,q0,q1;
+
+Step1: /* A single-precision. */
+	if (A < BETA) {
+           Q = A / b;
+           r = A - b * Q;
+           goto Return; }
+
+Step2: /* |b| = 1. */
+	r = 0;
+	if (b == 1) {
+	   Q = A;
+	   goto Return; }
+	if (b == -1) {
+	   Q = INEG(A);
+	   goto Return; }
+
+Step3: /* Length of A equal to 2. */
+	A2 = RED2(A);
+	if (A2 == NIL) {
+	   FIRST2(A,&a0,&a1);
+	   DQR(0,a1,b,&q1,&r);
+	   DQR(r,a0,b,&q0,&r); 
+	   if (q1 == 0)
+	      Q = q0;
+	   else
+	      Q = LIST2(q0,q1);
+	   goto Return; }
+
+Step4: /* Put dividend in array. */
+	IFLTA(A,Ap,IDQR_SIZE,&Ah,&m,&s,&o);
+	bp = absm(b);
+	if (bp >= (01 << 15))
+	   goto Step6;
+
+Step5: /* |b| < 2^15. */
+	for (i = m - 1; i >= 0; i--) {
+	   PHDQR(r,Ah[i],bp,&q,&r);
+	   Ah[i] = q; }
+	goto Step7;
+
+Step6: /* |b| >= 2^15. */
+	k = PDLOG2(bp);
+	kp = ZETA - k;
+	bp = bp << kp;
+	a1 = Ah[m - 1];
+	r = a1 >> k;
+	for (i = m - 1; i > 0; i--) {
+	   a0 = ((Ah[i] << kp) & BETA1) | (Ah[i - 1] >> k);
+	   PNDQR(r,a0,bp,&q,&r);
+	   Ah[i] = q; }
+	a0 = (Ah[0] << kp) & BETA1;
+	PNDQR(r,a0,bp,&q,&r);
+	Ah[0] = q;
+	r = r >> kp;
+
+Step7: /*  Adjust signs and put quotient in a list. */
+	if (s < 0)
+	   r = - r;
+	if (b < 0)
+	   s = - s;
+	Q = IFATL(Ah,m,s);
+
+Step8: /* Free dynamic array*/
+	if (m > IDQR_SIZE) 
+	   FREEARRAY(Ah);
+  
+Return: /* Prepare for return. */
+	*Q_ = Q;
+	*r_ = r;
+	return;
+}
+@
+
+
+1.3
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@d15 1
+a15 1
+#define SIZE 100
+d20 1
+a20 1
+       Word A2,*Ah,Ap[SIZE],Q,i,k,kp,m,o,q,r,s;
+d51 1
+a51 1
+	IFLTA(A,Ap,SIZE,&Ah,&m,&s,&o);
+d85 1
+a85 1
+	if (m > SIZE) 
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@d21 1
+a21 1
+       BDigit a0,a1,bp,q0,q1;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d8 1
+a8 1
+  b  : non-zero BETA-digit.
+d11 1
+a11 1
+  Q  : the integral part of A/b
+d13 1
+a13 1
+======================================================================*/
+d15 1
+d20 2
+a21 2
+       Word Ap,Q,a0,q,r;
+       /* hide a0,q,r; */
+d24 64
+a87 22
+       if (A < BETA)
+         {
+         Q = A / b;
+         r = A - b * Q;
+         goto Return;
+         }
+
+Step2: /* A multiple-precision. */
+       Ap = CINV(A);
+       Q = NIL;
+       r = 0;
+       do
+         {
+         ADV(Ap,&a0,&Ap);
+         DQR(r,a0,b,&q,&r);
+         if (q != 0 || Q != NIL)
+           Q = COMP(q,Q);
+         }
+       while (!(Ap == NIL));
+       if (RED(Q) == NIL)
+         Q = FIRST(Q);
+
+d89 3
+a91 3
+       *Q_ = Q;
+       *r_ = r;
+       return;
+@

@@ -1,0 +1,75 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	99.07.15.15.25.44;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	95.08.11.09.20.54;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Get matrix.
+@
+
+
+1.2
+log
+@Removed the line "#include <stdlib.h> since this include is now
+in saclib.h.
+@
+text
+@/*===========================================================================
+		      A <- GETMATRIX(m,n)
+
+Get matrix.
+
+Input
+  m : a positive integer.
+  n : a positive integer.
+
+Output
+  A : a pointer to a two-dimensional array of m*n Words,
+      i.e., A points to an m-dimensional array of n-dimensional arrays.
+      The array is not subject to garbage collection.
+===========================================================================*/
+#include <stdio.h>
+#include "saclib.h"
+
+Word **GETMATRIX(m,n)
+       Word m,n;
+{
+       Word **p,i;
+
+Step1: /* Allocate memory for array. */
+       p = (Word **)malloc(m*sizeof(Word *));
+       if (p == NULL)
+	  FAIL("GETMATRIX","Out of memory.");
+       for (i = 0; i < m; i++) {
+	  p[i] = GETARRAY(n);
+	  if (p[i] == NULL) 
+	     FAIL("GETMATRIX","Out of memory."); }
+
+Return: /* Prepare for return. */
+       return(p);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a15 1
+#include <stdlib.h>
+@

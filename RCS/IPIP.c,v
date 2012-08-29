@@ -1,0 +1,128 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	93.06.14.17.28.27;	author Mark;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	93.06.14.17.20.05;	author Mark;	state init;
+branches;
+next	;
+
+
+desc
+@Integral polynomial integer product.
+@
+
+
+1.2
+log
+@Cosmetic changes.
+@
+text
+@/*==========================================================================
+                           C <- IPIP(r,a,B)
+
+Integral polynomial integer product.  
+
+Inputs
+  r : a BETA-digit, r >= 0, the number of variables;
+  a : in Z;
+  B : in Z[X1,...,Xr].
+
+Outputs
+  C : in Z[X1,...,Xr], C = a * B.
+==========================================================================*/
+#include "saclib.h"
+
+Word IPIP(r,a,B)
+       Word r,a,B;
+{
+       Word C,Bp,rp,e,b,c;
+
+Step1: /* C=0. */
+       if (a == 0 || B == 0) { 
+	 C = 0;  
+	 goto Return; }
+
+Step2: /* r = 0 */
+       if (r == 0) { 
+	 C = IPROD(a,B); 
+	 goto Return; }
+
+Step3: /* General case. */  
+       Bp = B;  
+       C = NIL;  
+       rp = r - 1;  
+       do { 
+	 ADV2(Bp,&e,&b,&Bp);  
+	 if (rp == 0) c = IPROD(a,b);
+	 else         c = IPIP(rp,a,b);  
+	 C = COMP2(c,e,C); }
+       while (Bp != NIL);
+       C = INV(C);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- IPIP(r,a,B)
+d4 1
+a4 1
+Integral polynomial integer product.
+d7 2
+a8 2
+  r : a BETA-digit, r >= 0, the number of variables.
+  a : in Z.
+d13 1
+a13 1
+======================================================================*/
+d19 1
+a19 2
+       Word Bp,C,b,c,e,rp;
+       /* hide b,rp; */
+d21 20
+a40 25
+Step1: /* r=0 or C=0. */
+       if (r == 0) {
+	 C = IPROD(a,B);
+	 goto Return;
+       }
+       if (a == 0 || B == 0)
+         {
+         C = 0;
+         goto Return;
+         }
+
+Step2: /* General case. */
+       Bp = B;
+       C = NIL;
+       rp = r - 1;
+       do
+         {
+         ADV2(Bp,&e,&b,&Bp);
+         if (rp == 0)
+           c = IPROD(a,b);
+         else
+           c = IPIP(rp,a,b);
+         C = COMP2(c,e,C);
+         }
+       while (!(Bp == NIL));
+@

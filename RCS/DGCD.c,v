@@ -1,0 +1,250 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	94.09.19.23.51.11;	author Mark;	state bug;
+branches;
+next	1.4;
+
+1.4
+date	94.08.22.13.54.11;	author Mark;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	94.08.21.11.54.13;	author George;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	94.07.15.20.53.12;	author Mark;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.07.15.20.52.18;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Digit greatest common divisor.
+@
+
+
+1.5
+log
+@Moved the statement c = a2; to Step5.
+@
+text
+@/*=========================================================================
+                            c <- DGCD(a,b)
+
+Digit greatest common divisor.
+
+Inputs
+   a, b : BETA-digits, a >= b >= 0.
+
+Outputs
+   c : a BETA-digit, c = gcd(a,b).
+
+Method
+   The Euclidean algorithm with divisions performed by shifting and
+   subtraction.
+===========================================================================*/
+#include "saclib.h"
+
+Word DGCD(a,b)
+       Word a,b;
+{
+       Word a1,a2,a3,b2,c,d;
+
+Step1: /* b = 0. */
+       if (b == 0) {
+	  c = a;
+	  goto Return; }
+
+Step2: /* Initialize. */
+       a1 = a;
+       a2 = b;
+
+Step3: /* Quotient is less than 8. */
+       a3 = a1 - a2;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+       a3 = d;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+       a3 = d;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+       a3 = d;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+       a3 = d;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+       a3 = d;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+       a3 = d;
+       d = a3 - a2;
+       if (d < 0)
+	  goto Step5;
+
+Step4: /* Quotient is 8 or more; divide by shifting and subtraction. */
+       b2 = a2 << 1;
+       while (b2 <= a3)
+	  b2 = b2 << 1;
+       b2 = b2 >> 1;
+       while (b2 >= a2) {
+	  if (b2 < a3)
+	     a3 = a3 - b2;
+	  b2 = b2 >> 1; }
+
+Step5: /* Check for completion. */
+       if (a3 == 0) {
+	  c = a2;
+	  goto Return; }
+
+Step6: /* Update and go back to Step3. */
+       a1 = a2;
+       a2 = a3;
+       goto Step3;
+
+Return: /* Prepare for return. */
+       return(c);
+}
+@
+
+
+1.4
+log
+@The return statement wasn't returning 'c'.
+@
+text
+@d73 3
+a75 2
+       if (a3 == 0)
+	  goto Return;
+a82 1
+       c = a2;
+@
+
+
+1.3
+log
+@A shift-and-subtract Euclidean algorithm is now used.
+@
+text
+@d83 1
+a83 1
+       return;
+@
+
+
+1.2
+log
+@The function now uses the binary algorithm.
+@
+text
+@d1 2
+a2 2
+/*===========================================================================
+			      c <- DGCD(a,b)
+d7 1
+a7 1
+  a, b : BETA-digits, a >= b >= 0.
+d10 1
+a10 1
+  c : a BETA-digit, c = gcd(a,b).
+d13 2
+a14 1
+  The binary gcd algorithm is used.
+d21 1
+a21 1
+       Word a1,a2,a3,c,e;
+d28 1
+a28 1
+Step2: /* Compute highest power e of 2 dividing the gcd. */
+a30 26
+       e = 0;
+       while (((a1 & 1) == 0) && ((a2 & 1) == 0)) {
+	  a1 >>= 1;
+	  a2 >>= 1;
+	  e++; }
+
+Step3: /* Compute gcd of a/2^e and b/2^e. */
+       while ((a1 & 1) == 0)
+	  a1 >>= 1;
+       while ((a2 & 1) == 0)
+	  a2 >>= 1;
+       if (a1 < a2) {
+	  a3 = a1;
+	  a1 = a2;
+	  a2 = a3; }
+       while (a2 != 0) {
+	  a3 = a1 - a2;
+	  if (a3 == 0)
+	     goto Step4;
+	  while ((a3 & 1) == 0)
+	     a3 >>= 1;
+	  if (a3 < a2) {
+	     a1 = a2;
+	     a2 = a3; }
+	  else
+	     a1 = a3; }
+d32 48
+a79 2
+Step4: /* Multiply by 2^e. */
+       c = a1 << e;
+d82 2
+a83 1
+       return(c);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      c <- DGCD(a,b)
+d7 1
+a7 1
+  a, b  : BETA-digits, a >= b >= 0.
+d10 5
+a14 2
+  c  :  BETA-digits, c = gcd(a,b).
+======================================================================*/
+d20 6
+a25 2
+       Word a1,a2,a3,c;
+       /* hide algorithm */
+d27 1
+a27 1
+Step1: /* Compute. */
+d30 29
+a58 7
+       while (a2 != 0)
+         {
+         a3 = REM(a1,a2);
+         a1 = a2;
+         a2 = a3;
+         }
+       c = a1;
+@

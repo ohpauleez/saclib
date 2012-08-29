@@ -1,0 +1,108 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.08.21.12.29.13;	author George;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.08.21.12.21.56;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Modular polynomial exponentiation.
+@
+
+
+1.2
+log
+@GAMMA integer was replaced by C integer.
+@
+text
+@/*======================================================================
+                      B <- MPEXP(r,m,A,n)
+
+Modular polynomial exponentiation.
+
+Inputs
+  A : in Z/(m)[x_1,...,x_r].
+  r : a BETA-digit, r >= 0, the number of variables.
+  m : a BETA-digit, m > 1.
+  n : a non-negative BETA-digit.
+
+Outputs
+  B : in Z/(m)[x_1,...,x_r], B = A^n.
+======================================================================*/
+#include "saclib.h"
+
+Word MPEXP(r,m,A,n)
+       Word r,m,A,n;
+{
+       Word B,i;
+
+Step1: /* n = 0. */
+       if (n == 0) {
+	  B = PINV(0,1,r);
+	  goto Return; }
+
+Step2: /* A = 0. */
+       if (A == 0) {
+	  B = 0;
+	  goto Return; }
+
+Step3: /* General case. */
+       B = A;
+       for (i = 1; i <= n - 1; i++)
+	  B = MPPROD(r,m,B,A);
+
+Return: /* Prepare for return. */
+       return(B);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d7 1
+a7 1
+  A : in Z/(m)[X1,...,Xr].
+d9 2
+a10 2
+  m : a BETA-digit.
+  n : a non-negative GAMMA-integer.
+d13 1
+a13 1
+  B : in Z/(m)[X1,...,Xr], B = A^n.
+a20 1
+       /* hide i; */
+d22 4
+a25 6
+Step1: /* n=0. */
+       if (n == 0)
+         {
+         B = PINV(0,1,r);
+         goto Return;
+         }
+d27 4
+a30 6
+Step2: /* A=0. */
+       if (A == 0)
+         {
+         B = 0;
+         goto Return;
+         }
+d35 1
+a35 1
+         B = MPPROD(r,m,B,A);
+@

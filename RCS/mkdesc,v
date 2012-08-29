@@ -1,0 +1,99 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@# @;
+
+
+1.2
+date	93.12.13.23.35.22;	author Mark;	state new;
+branches;
+next	1.1;
+
+1.1
+date	93.12.13.22.38.56;	author Mark;	state init;
+branches;
+next	;
+
+
+desc
+@mkdesc
+@
+
+
+1.2
+log
+@Modified to produce desc.doc.
+@
+text
+@#! /bin/csh 
+
+# USAGE
+#   mkdesc
+#
+# FUNCTION
+#   Creates the file $saclib/doc/desc.doc which is used by sdesc.
+
+if ($#argv != 0) then
+  echo "Usage:"
+  echo "  mkdesc"
+else
+  set descfile = $saclib/doc/desc.doc
+  cat > $descfile<<\EOF
+\EOF
+
+  foreach fname ($saclib/src/[A-H]*.[cs])
+    awk -f $saclib/bin/mkdesc.awk sc=0 ll=77 $fname >>$descfile
+  end
+
+  foreach fname ($saclib/src/I[A-P]*.[cs])
+    awk -f $saclib/bin/mkdesc.awk sc=0 ll=77 $fname >>$descfile
+  end
+
+  foreach fname ($saclib/src/I[Q-Z]*.[cs])
+    awk -f $saclib/bin/mkdesc.awk sc=0 ll=77 $fname >>$descfile
+  end
+
+  foreach fname ($saclib/src/[J-P]*.[cs])
+    awk -f $saclib/bin/mkdesc.awk sc=0 ll=77 $fname >>$descfile
+  end
+
+  foreach fname ($saclib/src/[Q-z]*.[cs])
+    awk -f $saclib/bin/mkdesc.awk sc=0 ll=77 $fname >>$descfile
+  end
+
+endif
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d4 1
+a4 1
+#   mkdesc <sc> <ll> <filenames>
+d7 1
+a7 9
+#   The files are assumed to be text files beginning with the standard SAC
+#   function specification header. The function name and the description of
+#   each file are extracted and formatted as follows:
+#   COLUMN  1      sc                                         ll
+#           <name> <text......................................>
+#                  <0 or more lines of additional text........>
+#
+#   If the function name consists of more than 'sc-2' characters the text in
+#   the first line will begin to the right of column 'sc'.
+d9 3
+a11 3
+if ($#argv < 3) then
+  echo "USAGE:"
+  echo "  mkdesc <sc> <ll> <filenames>"
+d13 14
+a26 2
+  foreach fname (${argv[3-]})
+    awk -f $saclib/bin/mkdesc.awk sc=$1 ll=$2 $fname
+d28 9
+@

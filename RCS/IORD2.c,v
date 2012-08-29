@@ -1,0 +1,122 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.01.09.16.35.23;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.01.09.16.34.52;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer, order of 2.
+@
+
+
+1.2
+log
+@The algorithm was improved.
+@
+text
+@/*===========================================================================
+			       n <- IORD2(A)
+
+Integer, order of 2.  
+
+Inputs
+  A : in Z, A not 0.  
+
+Outputs
+  n : the largest integer n such that 2^n divides A.
+===========================================================================*/
+#include "saclib.h"
+
+Word IORD2(A)
+       Word A;
+{
+       Word a,Ap,n;
+
+Step1: /* Count low-order BETA-digits. */
+       n = 0;
+       if (A < BETA)
+	  a = A;
+       else {
+	  Ap = A;
+	  while (FIRST(Ap) == 0) {
+	     Ap = RED(Ap);
+	     n = n + ZETA; }
+	  a = FIRST(Ap); }
+
+Step2: /* Count low-order bits. */
+       a = abs(a);
+       while ((a & 01) == 0) {
+	  a = a >> 1;
+	  n = n + 1; }
+
+Return: /* Prepare for return. */
+       return(n);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      n <- IORD2(a)
+d7 1
+a7 1
+  a : in Z, a not 0.  
+d10 2
+a11 2
+  n : the largest integer n such that 2^n divides a.
+======================================================================*/
+d14 2
+a15 2
+Word IORD2(a)
+       Word a;
+d17 1
+a17 2
+       Word a1,ap,n,q,r;
+       /* hide algorithm */
+d20 9
+a28 16
+       if (a < BETA)
+         {
+         n = -1;
+         a1 = a;
+         }
+       else
+         {
+         n = -ZETA - 1;
+         ap = a;
+         do
+           {
+           ADV(ap,&a1,&ap);
+           n = n + ZETA;
+           }
+         while (a1 == 0);
+         }
+d31 4
+a34 7
+       do
+         {
+         QREM(a1,2,&q,&r);
+         a1 = q;
+         n = n + 1;
+         }
+       while (r == 0);
+@

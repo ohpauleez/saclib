@@ -1,0 +1,98 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2001.05.11.18.31.22;	author saclib;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2001.05.11.18.29.45;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Gaussian integer binary greatest common divisor.
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@/*=======================================================================
+                              c <- GIBGCD(a,b)
+
+Gaussian integer binary greatest common divisor.
+
+Inputs
+  a, b : Gaussian intgegers.
+
+Outputs
+  c : a greatest common divisor of a and b (0 if a = b = 0).
+=======================================================================*/
+#include "saclib.h"
+
+Word GIBGCD(a,b)
+	Word a,b;
+{
+	Word c,d,dp,e,ep,q;
+
+	BDigit i;
+
+Step1: /* a or b zero. */
+	if (a == 0) {
+	   c = b;
+	   goto Return; }
+	if (b == 0) {
+	   c = a;
+	   goto Return; }
+
+Step2: /* Reduce the inputs. */
+	c = GIRP(a);
+	d = GIRP(b);
+	i = 0;
+	dp = GINORM(d);
+	while (d != 0) {
+	   e = GIMS(c,d);
+	   if (e == 0) {
+	      c = d;
+	      goto Return; }
+	   e = GIRP(e);
+	   SWRITE("i = ");
+	   IWRITE(i);
+	   SWRITE("\n");
+	   SWRITE("e = ");
+           GIWRITE(e);
+           SWRITE("\n");
+	   ep = GINORM(e);
+	   if (ICOMP(ep,dp) > 0)
+	      c = e;
+	   else {
+	      c = d;
+	      d = e;
+	      dp = ep; }
+	   i = i + 1; }
+
+Return: /* Return c. */
+	SWRITE("i = ");
+        IWRITE(i);
+        SWRITE("\n");
+	return(c);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

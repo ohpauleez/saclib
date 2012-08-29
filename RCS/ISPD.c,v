@@ -1,0 +1,169 @@
+head	1.4;
+access;
+symbols;
+locks
+	saclib:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	95.07.14.11.56.43;	author Mark;	state embe;
+branches;
+next	1.3;
+
+1.3
+date	93.12.29.22.12.44;	author Mark;	state bug;
+branches;
+next	1.2;
+
+1.2
+date	93.11.14.18.45.40;	author Mark;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	93.11.14.18.43.38;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Integer small prime divisors.
+@
+
+
+1.4
+log
+@Changed SMPRM to SPRIME.
+@
+text
+@/*===========================================================================
+			  ISPD(n; F,m)
+
+Integer small prime divisors.
+
+Inputs
+  n   : in Z. n > 0.
+
+Outputs
+  F,m : F is a list of primes (q_1,q_2,...,q_h), h non-negative,
+        q_1 <= q_2 <= ... <= q_h, such that n is equal to m
+	times the product of the q_i  and m is not divisible by
+	any prime in SPRIME.  Either m=1 or m > p^2 + 1, where p
+	is the largest element in SPRIME.
+===========================================================================*/
+#include "saclib.h"
+
+void ISPD(n, F_,m_)
+       Word n, *F_,*m_;
+{
+       Word F,Lp,m,p,q,r;
+
+Step1: /* Compute. */
+       F = NIL;
+       m = n;
+       Lp = SPRIME;
+       do {
+	  p = FIRST(Lp);
+	  if (m < BETA)
+	     QREM(m,p,&q,&r);
+	  else
+	     IDQR(m,p,&q,&r);
+	  if (r == 0) {
+	     F = COMP(p,F);
+	     m = q; }
+	  else
+	     Lp = RED(Lp); }
+       while (q > p && Lp != NIL);
+       if (q <= p && m != 1) {
+	  F = COMP(m,F);
+	  m = 1; }
+       F = INV(F);
+
+Return: /* Prepare for return. */
+       *F_ = F;
+       *m_ = m;
+       return;
+}
+@
+
+
+1.3
+log
+@The stopping condition in the do-while loop of Step1 should be:
+       while (q > p && Lp != NIL);
+rather than
+       while (q > p || Lp != NIL);
+@
+text
+@d2 1
+a2 1
+				ISPD(n; F,m)
+d11 4
+a14 3
+        q_1 <= q_2 <= ... <= q_h, such that n is equal to m times the
+        product of the q_i  and m is not divisible by any prime in SMPRM.
+        Either m=1 or m > p^2 + 1, where p is the largest element in SMPRM.
+d26 1
+a26 1
+       Lp = SMPRM;
+@
+
+
+1.2
+log
+@The specifications were corrected.
+@
+text
+@d37 1
+a37 1
+       while (q > p || Lp != NIL);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      ISPD(n; F,m)
+d4 1
+a4 1
+Integer small prime divisors. 
+d10 5
+a14 6
+  F,m : a list of primes (q_1,q_2,...,q_h), h non-negative, 
+        q_1 <= q_2 <= ... < q_h, 
+        such that n is equal to m times the  product of the q_i 
+        and m is not divisible by any prime in SMPRM.  
+        Either m=1 or m > 1,000,000.
+======================================================================*/
+a20 1
+       /* hide Lp,p,r; */
+d26 15
+a40 21
+       do
+         {
+         p = FIRST(Lp);
+         if (m < BETA)
+           QREM(m,p,&q,&r);
+         else
+           IDQR(m,p,&q,&r);
+         if (r == 0)
+           {
+           F = COMP(p,F);
+           m = q;
+           }
+         else
+           Lp = RED(Lp);
+         }
+       while (!(q <= p || Lp == NIL));
+       if (q <= p && m != 1)
+         {
+         F = COMP(m,F);
+         m = 1;
+         }
+@

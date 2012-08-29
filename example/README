@@ -1,0 +1,11 @@
+				  EXAMPLES
+				  ========
+
+
+
+itime 	... generates random integers and produces timings for elementary
+	    integer arithmetic.
+ipfac	... generates random reducible polynomials, factorizes them, and
+	    checks the correctness of the factorization.
+simple	... gives an example of how to initialize SACLIB directly (instead
+	    of using "sacMain").

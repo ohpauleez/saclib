@@ -1,0 +1,93 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	99.07.06.20.01.26;	author Werner;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	99.07.02.15.53.00;	author saclib;	state init;
+branches;
+next	1.1;
+
+1.1
+date	95.08.11.09.33.19;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@List delete element.
+@
+
+
+1.3
+log
+@The last statement of Step2 was changed from "Lp = INV(L);"
+to "Lp = L;".
+@
+text
+@/*===========================================================================
+		       Lp <- LDELETE(e,L)
+
+List delete element.
+
+Inputs
+  e : an object.
+  L : a list.
+
+Output
+  Lp : a list.  If e is in L then Lp is the list obtained by removing
+       the first occurrence of e in L.  Otherwise, Lp = L.
+===========================================================================*/
+#include "saclib.h"
+
+Word LDELETE(e,L)
+       Word e,L;
+{
+       Word Lp,Lt,L1;
+
+Step1: /* Initialize. */
+       Lt = L;
+       Lp = NIL;
+
+Step2: /* Loop. */
+       while (Lt != NIL) {
+	  ADV(Lt,&L1,&Lt);
+	  if (EQUAL(L1,e)) {
+	     Lp = INV(Lp);
+	     Lp = CONC(Lp,Lt);
+	     goto Return; }
+	  else
+	     Lp = COMP(L1,Lp); }
+       Lp = L;
+
+Return: /* Prepare for return. */
+       return(Lp);
+}
+@
+
+
+1.2
+log
+@List delete element.
+@
+text
+@d34 1
+a34 1
+       Lp = INV(Lp);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

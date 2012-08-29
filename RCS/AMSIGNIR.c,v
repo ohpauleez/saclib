@@ -1,0 +1,243 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.08.18.13.41.11;	author George;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	94.12.03.20.38.41;	author George;	state init;
+branches;
+next	1.1;
+
+1.1
+date	94.12.03.20.36.48;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic module sign, interval refinement.
+@
+
+
+1.3
+log
+@Made specs clearer.
+@
+text
+@/*======================================================================
+                      AMSIGNIR(M,I,b; s,J)
+
+Algebraic module sign, interval refinement.
+
+Inputs
+  M : the minimal integral polynomial of a real algebraic
+      number alpha.
+  I : an acceptable isolating interval for alpha.
+  b : an element of Z[alpha].
+
+Outputs
+  s  : sign(b).
+  J  : an acceptable isolating interval for alpha that is
+       a subinterval of I.
+======================================================================*/
+#include "saclib.h"
+
+void AMSIGNIR(M,I,b, s_,J_)
+
+       Word M,I,b;
+       Word *s_,*J_;
+{
+       Word s,J;
+       Word bs,bsp,h,k,kp,t,tp,u,v,w;
+
+Step1: /* b rational. */
+       if (b == 0) {
+          s = 0;
+          J = I;
+         goto Return; }
+       if (PDEG(b) == 0) {
+          s = ISIGNF(PLDCF(b));
+          J = I;
+          goto Return; }
+
+Step2: /* alpha rational. */
+       FIRST2(I,&u,&v);
+       w = RNDIF(v,u);
+       if (w == 0) {
+          s = IUPBES(b,u);
+          J = I;
+          goto Return; }
+
+Step3: /* Compute the transformed polynomial, bs, such that
+          the roots of bs in (0,1) correspond to the roots 
+          of b in I. */
+       RNFCL2(w,&k,&kp);
+       if (k == 0)
+          bs = b;
+       else
+          bs = IUPBHT(b,k);
+       if (u != 0) {
+          h = RNQ(u,w);
+          bs = IUPTR(bs,RNNUM(h)); }
+
+Step4: /* Obtain an isolating interval, J, for alpha containing
+          no roots of b and evaluate the sign of b at its 
+          bisection point. */
+       t = IUPBES(M,v);
+       J = I;
+       do {
+          FIRST2(J,&u,&v);
+          w = RIB(u,v);
+          bsp = IUPTR1(PRT(bs));
+          if (IUPVAR(bsp) == 0 && PORD(bsp) == 0) {
+             s = IUPBES(b,w);
+             goto Return; }
+          bs = IUPBHT(bs,-1);
+          tp = IUPBES(M,w);
+          if (t * tp < 0 || t == 0) {
+             u = w;
+             bs = IUPTR1(bs); }
+          else {
+             v = w;
+             t = tp; }
+          J = LIST2(u,v); }
+       while (1);
+
+Return:
+       *s_ = s;
+       *J_ = J;
+       return;
+}
+@
+
+
+1.2
+log
+@Corrected the specifications of both of the outputs.
+@
+text
+@d1 2
+a2 2
+/*===========================================================================
+                      AMSIGNIR(M,I,B; s,Is)
+d7 2
+a8 1
+  M : an element of Z[X].  M(alpha) = 0.  alpha a real algebraic number.
+d10 1
+a10 1
+  B : an element of Z[alpha]. gcd(M(X),B(X)) = 1.
+d13 4
+a16 4
+  s  : sign(B(alpha)).
+  Is : a left open right closed binary rational interval.  Is is an 
+       isolating interval for alpha containing no roots of B.
+===========================================================================*/
+d19 1
+a19 1
+void AMSIGNIR(M,I,B, s_,Is_)
+d21 2
+a22 2
+       Word M,I,B;
+       Word *s_,*Is_;
+d24 2
+a25 2
+       Word s,Is;
+       Word Bs,Bsp,h,k,kp,t,tp,u,us,v,vs,w,ws;
+d27 9
+a35 13
+Step1: /* B rational. */
+       if (B == 0)
+         {
+         s = 0;
+         Is = I;
+         goto Return;
+         }
+       if (PDEG(B) == 0)
+         {
+         s = ISIGNF(PLDCF(B));
+         Is = I;
+         goto Return;
+         }
+d40 8
+a47 9
+       if (w == 0)
+         {
+         s = IUPBES(B,u);
+         Is = I;
+         goto Return;
+         }
+
+Step3: /* Compute transformed polynomial Bs 
+          (roots of Bs in (0,1) correspond to roots of B in I. */
+d49 2
+a50 2
+       if (k != 0)
+         Bs = IUPBHT(B,k);
+d52 8
+a59 9
+         Bs = B;
+       if (u != 0)
+         {
+         h = RNQ(u,w);
+         Bs = IUPTR(Bs,RNNUM(h));
+         }
+
+Step4: /* Obtain an isolating interval for alpha containing no roots
+          of B and evaluate the sign of B at its bisection point. */
+d61 17
+a77 25
+       Is = I;
+       do
+         {
+         FIRST2(Is,&us,&vs);
+         ws = RIB(us,vs);
+         Bsp = IUPTR1(PRT(Bs));
+         if (IUPVAR(Bsp) == 0 && PORD(Bsp) == 0)
+           {
+           s = IUPBES(B,ws);
+           goto Return;
+           }
+         Bs = IUPBHT(Bs,-1);
+         tp = IUPBES(M,ws);
+         if (t * tp < 0 || t == 0)
+           {
+           us = ws;
+           Bs = IUPTR1(Bs);
+           }
+         else
+           {
+           vs = ws;
+           t = tp;
+           }
+         Is = LIST2(us,vs);
+         }
+d82 1
+a82 1
+       *Is_ = Is;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 1
+/*======================================================================
+d12 1
+a12 1
+  s  : sign(a).
+d14 2
+a15 2
+       isolating interval for alpha containing no roots of M.
+======================================================================*/
+@

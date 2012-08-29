@@ -1,0 +1,62 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2002.03.28.17.52.09;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational number to hardware interval.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                             LBRNHI(r; t,I)
+
+Input
+   r : a logarithmic binary rational number.
+
+Outputs
+   t : 0 or 1. 
+   I : if t = 0, the smallest hardware interval containing r.
+       Otherwise I is undefined due to exponent limitation.
+======================================================================*/
+#include "saclib.h"
+#include "complex.h"
+
+void LBRNHI(r, t_,I_)
+	Word r;
+	BDigit *t_;
+	interval *I_;
+{
+	BDigit t;
+	interval I;
+	ieee f1,f2;
+
+Step1: /* Apply LBRNIEEE. */
+	LBRNIEEE(r,-1, &f1,&t);
+	if (t != 0)
+           goto Return;
+	LBRNIEEE(r,+1, &f2,&t);
+        if (t != 0)
+           goto Return;
+	I.left = f1.num;
+	I.right = f2.num;
+
+Return: /* Return t and I. */
+	*t_ = t;
+	*I_ = I;
+}
+@

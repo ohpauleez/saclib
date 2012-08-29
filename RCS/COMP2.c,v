@@ -1,0 +1,95 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.02.23.20.01.49;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	94.02.23.19.59.59;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Composition 2.
+@
+
+
+1.2
+log
+@*** empty log message ***
+@
+text
+@/*===========================================================================
+			     M <- COMP2(a,b,L)
+
+Composition 2.
+
+Inputs
+  a, b  : objects.
+  L     : list.
+
+Outputs
+  M     : the list (a,b) concatenated with the list L.
+===========================================================================*/
+#include "saclib.h"
+
+Word COMP2(a,b,L)
+       Word a,b,L;
+{
+       Word M,N;
+
+Step1: /* Store a. */
+       M = AVAIL;
+       if (M == NIL) {
+	  GC();
+	  goto Step1; }
+       SFIRST(M,a);
+
+Step2: /* Store b. */
+       N = RED(M);
+       if (N == NIL) {
+	  GC();
+	  goto Step1; }
+       SFIRST(N,b);
+
+Step3: /* Set AVAIL to the reductum of N. */
+       AVAIL = RED(N);
+
+Step4: /* Set the reductum of N to L. */
+       SRED(N,L);
+
+Return: /* Prepare for return. */
+       return(M);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      M <- COMP2(a,b,L)
+d11 2
+a12 2
+  M     : COMP(a,COMP(b,L)).
+======================================================================*/
+d18 1
+a18 1
+       Word M;
+d20 19
+a38 2
+Step1: /* Compose. */
+       M = COMP(a,COMP(b,L));
+@

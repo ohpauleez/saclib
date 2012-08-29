@@ -1,0 +1,85 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.15.10.11;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.15.06;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point complex product.
+@
+
+
+1.2
+log
+@Deleted.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFCPR(u,v)
+a2 40
+Single-precision floating-point complex product.  
+
+Inputs
+  u,v : single-precision floating-point complex numbers.  
+
+Outputs
+  w   : a single-precision floating-point complex approximation to u*v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFCPR(u,v)
+       Word u,v;
+{
+       Word u1,u2,v1,v2,w,w1,w2,wp1,wp2,wpp1,wpp2;
+       /* hide u1,u2,v1,v2,w; */
+
+Step1: /* u or v zero. */
+       if (u == 0 || v == 0)
+         {
+         w = 0;
+         goto Return;
+         }
+
+Step2: /* General case. */
+       FIRST2(u,&u1,&u2);
+       FIRST2(v,&v1,&v2);
+       wp1 = SFRPR(u1,v1);
+       wpp1 = SFRPR(u2,v2);
+       w1 = SFRDIF(wp1,wpp1);
+       wp2 = SFRPR(u1,v2);
+       wpp2 = SFRPR(u2,v1);
+       w2 = SFRSUM(wp2,wpp2);
+       if (w1 == 0 && w2 == 0)
+         w = 0;
+       else
+         w = LIST2(w1,w2);
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

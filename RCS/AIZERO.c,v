@@ -1,0 +1,68 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2001.12.17.18.18.17;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	2001.05.11.18.27.26;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Array integer zero.
+@
+
+
+1.2
+log
+@Fixed the header.
+@
+text
+@/*========================================================================
+                           t <- AIZERO(A)
+
+Array integer zero.
+
+Input
+   A : an integer in array representation.
+
+Output
+   t : a BETA digit.  t = 1 if A = 0; t = 0 otherwise.
+========================================================================*/
+#include "saclib.h"
+
+BDigit AIZERO(A)
+	BDigit *A;
+{
+	BDigit t;
+
+Step1: /* Check the sign. */
+	if (A[0] == 0)
+	   t = 1;
+	else
+	   t = 0;
+
+Return: /* Return t. */
+        return(t);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                           t = AIZERO(A)
+@

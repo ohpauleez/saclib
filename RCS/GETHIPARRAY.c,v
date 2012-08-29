@@ -1,0 +1,70 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	99.07.15.15.21.57;	author George;	state embe;
+branches;
+next	1.1;
+
+1.1
+date	98.04.23.20.27.09;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Get hardware interval polynomial array.
+@
+
+
+1.2
+log
+@Removed the line "#include <stdlib.h>" since this include is now
+in saclib.h.
+@
+text
+@/*==========================================================================
+                              A <- GETHIPARRAY(n)
+
+Get hardware interval polynomial array.
+
+Input
+   n : a BETA-digit, n >= 0.
+
+Output
+   A : a pointer to an array of n + 1 hardware intervals.  The array 
+       is not subject to garbage collection.
+===========================================================================*/
+#include <stdio.h>
+#include "saclib.h"
+
+interval *GETHIPARRAY(n)
+	BDigit n;
+{
+	interval *A;
+
+Step1: /* Allocate memory for array. */
+	A = (interval *)malloc((n + 1)*sizeof(interval));
+	if (A == NULL)
+	   FAIL("GETHIPARRAY","Out of memory.");
+
+Return: /* Prepare for return. */
+	return(A);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@a13 1
+#include <stdlib.h>
+@

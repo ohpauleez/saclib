@@ -1,0 +1,225 @@
+head	1.4;
+access;
+symbols;
+locks
+	saclib:1.4; strict;
+comment	@ * @;
+
+
+1.4
+date	97.10.31.19.48.54;	author Mark;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	95.09.05.13.07.08;	author Mark;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	95.04.12.00.01.20;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	95.04.11.23.58.51;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Algebraic number field univariate polynomial squarefree norm.
+@
+
+
+1.4
+log
+@Step 1 corrected to deal correctly to deal with the case of no
+algebraic dependence between Bt and alpha.
+@
+text
+@/*===========================================================================
+		      AFUPSFN(M,B; s,Bt,F)
+
+Algebraic number field univariate polynomial squarefree norm.
+
+Inputs
+  M : in Z[t], the minimal polynomial of an algebraic number alpha.
+  B : in Q(alpha)[x].  B is squarefree and deg(B) >= 2.
+
+Outputs
+  s : a nonnegative BETA-digit.
+  Bt : in Q(alpha)[x].  Bt(alpha,x) = B(alpha,x-t*alpha), and
+       the norm of Bt(alpha,x) is squarefree.
+  F : a list (F_1,...,F_t) of the positive irreducible factors
+      of the norm of Bt(alpha,x).
+===========================================================================*/
+#include "saclib.h"
+
+void AFUPSFN(M,B,s_,Bt_,F_)
+
+       Word M,B,*s_,*Bt_,*F_;
+{
+       Word Bp,Bs,Bt,F,Mp,P,R,Rp,S,b,d,n,p,s;
+
+Step1: /* Compute norm and check if it is squarefree. */
+       S = PBIN(PMON(1,0),1,PMON(-1,1),0);
+       S = RPFIP(2,S);
+       S = AFPCR(1,S);
+       if (PDEGSV(2,AFPICR(1,B),1) == 0) {
+          Bt = AFPCMV(1,M,B,S);
+	  s = 1; }
+       else {
+          Bt = B;
+	  s = 0; }
+       P = MPRIME;
+       n = LENGTH(P);
+       d = MDRAN(n) + 1;
+       p = LELTI(P,d);
+       Mp = PINV(1,M,1);
+       while (1) {
+	  Bp = AFPICR(1,Bt);
+	  IPSRP(2,Bp,&b,&Bp);
+	  Bp = PCPV(2,Bp,1,2);
+	  if (PDEG(Bp) > 0) {
+	    R = MPRES(2,p,MPHOM(2,p,Mp),MPHOM(2,p,Bp));
+	    Rp = MUPDER(p,R);
+	    if (PDEG(MUPGCD(p,R,Rp)) == 0) {
+	      Bs = IPRES(2,Mp,Bp);
+	      Bs = IPABS(1,IPIPP(1,Bs));
+	      break; } }
+	  Bt = AFPCMV(1,M,Bt,S);
+	  d = MDRAN(n) + 1;
+	  p = LELTI(P,d);
+	  s++; }
+
+Step2: /* Factor the norm. */
+       F = NORMFAC(M,Bt,Bs);
+
+Return: /* Prepare for return. */
+       *s_  = s;
+       *Bt_ = Bt;
+       *F_  = F;
+       return;
+}
+@
+
+
+1.3
+log
+@Uses faster lifting and early factor detection, etc.
+@
+text
+@d44 11
+a54 11
+	  R = MPRES(2,p,MPHOM(2,p,Mp),MPHOM(2,p,Bp));
+	  Rp = MUPDER(p,R);
+	  if (PDEG(MUPGCD(p,R,Rp)) == 0) {
+	     Bs = IPRES(2,Mp,Bp);
+	     Bs = IPABS(1,IPIPP(1,Bs));
+	     break; }
+	  else {
+	     Bt = AFPCMV(1,M,Bt,S);
+	     d = MDRAN(n) + 1;
+	     p = LELTI(P,d);
+	     s++; } }
+@
+
+
+1.2
+log
+@AFUPSFN should be declared void.
+@
+text
+@d2 1
+a2 1
+		      AFUPSFN(M,B; t,Bt,F)
+d7 2
+a8 2
+  M : in Z[x], the minimal polynomial of an algebraic number alpha.
+  B : in Q(alpha)[x], squarefree.
+d11 5
+a15 4
+  t : in Z.
+  Bt : An element of Q(alpha)[x].  Bt(alpha,y) = B(alpha,y-t*alpha), 
+       and Norm(Bt(alpha,y)) is squarefree.
+  F  : A list (F_1,...,F_t) irreducible factors of Norm(Bt(alpha,y)).
+d19 1
+a19 1
+void AFUPSFN(M,B,t_,Bt_,F_)
+d21 1
+a21 1
+       Word M,B,*t_,*Bt_,*F_;
+d23 1
+a23 2
+       Word t,Bt,F;
+       Word Mp,Bs,Bsb,Bpb,C,S;
+d31 1
+a31 1
+	  t = 1; }
+d34 17
+a50 5
+	  t = 0; }
+       do {
+	  Bs = AFPNORM(1,M,Bt);
+	  IPGCDC(1,Bs,IPDMV(1,Bs),&C,&Bsb,&Bpb);
+	  if (PDEG(C)>0) {
+d52 3
+a54 2
+	     t++; } }
+       while (PDEG(C) > 0);
+d56 2
+a57 2
+Step2: /* Factor the norm Z[x]. */
+       F = IUSFPF(Bs);
+d60 1
+a60 1
+       *t_  = t;
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                          AFUPSFN(M,B;t,Bt,F)
+d7 2
+a8 3
+  M : An element of Z[x].  M is the integral minimal polynomial of an
+      algebraic number alpha.
+  B  : An element of Q(alpha)[x].  B is squarefree.
+d15 1
+a15 1
+======================================================================*/
+d18 1
+a18 1
+Word AFUPSFN(M,B,t_,Bt_,F_)
+d27 2
+a28 1
+       S = RPFIP(2,S);  S = AFPCR(1,S);
+d30 2
+a31 1
+          Bt = AFPCMV(1,M,B,S); t = 1; }
+d33 2
+a34 1
+          Bt = B;  t = 0; }
+d36 6
+a41 6
+           Bs = AFPNORM(1,M,Bt);
+           IPGCDC(1,Bs,IPDMV(1,Bs),&C,&Bsb,&Bpb);
+           if (PDEG(C)>0) {
+              Bt = AFPCMV(1,M,Bt,S); t++; }
+          }
+       while (PDEG(C)>0);
+d46 2
+a47 2
+Return:
+       *t_ = t;
+d49 1
+a49 1
+       *F_ = F;
+@

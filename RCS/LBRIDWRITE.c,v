@@ -1,0 +1,78 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	95.08.30.11.23.26;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	95.07.30.14.47.27;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Logarithmic binary rational interval decimal write.
+@
+
+
+1.2
+log
+@The BDigit declarations were changed to Word since BDigit caused problems
+with isac.
+@
+text
+@/*======================================================================
+                      LBRIDWRITE(I,n)
+
+Logarithmic binary rational interval decimal write. 
+
+Inputs
+   I : an open or one-point interval with logarithmic
+       binary rational number endpoints.  
+   n : a non-negative integer.  
+
+Side effects
+   If I is an open interval, the endpoints of I are 
+   approximated by n decimal digit fractions and printed, 
+   using RNDDWRITE.  The left endpoint is rounded down,
+   the right endpoint up.  If I is a one-point interval,
+   its one point is printed using RNDWRITE, which rounds
+   it to the nearest n-digit decimal fraction.
+======================================================================*/
+#include "saclib.h"
+
+void LBRIDWRITE(I,n)
+       Word I,n;
+{
+       Word a,b;
+
+Step1: /* Convert from logarithmic representation. */
+       FIRST2(I,&a,&b);
+       I = LIST2(LBRNRN(a),LBRNRN(b));
+
+Step2: /* Apply RIDWRITE. */
+       RIDWRITE(I,n);
+
+Return: /* Return. */
+        return;
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d22 1
+a22 2
+       BDigit n;
+       Word I;
+@

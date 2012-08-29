@@ -1,0 +1,55 @@
+head	1.1;
+access;
+symbols;
+locks
+	saclib:1.1; strict;
+comment	@ * @;
+
+
+1.1
+date	2000.07.10.18.42.13;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@Software interval to logarithmic binary rational interval.
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@/*======================================================================
+                      J <- SILBRI(I)
+
+Software interval to logarithmic binary rational interval.
+
+Input
+   I : a software interval.
+
+Output
+   J : a logarithmic binary rational number equal to I.
+======================================================================*/
+#include "saclib.h"
+#include "dcell.h"
+
+Word SILBRI(I)
+	BDigit *I;
+{
+
+	BDigit p;
+	Word a,b,J;
+
+Step1:/* Convert the endpoints. */
+	p = I[2];
+	a = FLBRN(I);
+	b = FLBRN(I + p + 3);
+	J = LIST2(a,b);
+
+Return: /* Return J. */
+	return(J);
+}
+@

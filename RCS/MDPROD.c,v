@@ -1,0 +1,74 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2002.01.14.21.50.04;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	2002.01.14.21.48.05;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Modular digit product.
+@
+
+
+1.2
+log
+@The new program avoids calling DPR and DQR.  It computes
+the result directly using double word arithmetic.
+@
+text
+@/*======================================================================
+                      c <- MDPROD(m,a,b)
+
+Modular digit product.  
+
+Inputs
+  m   : a positive BETA-integer.  
+  a,b : elements of Z_m.  
+
+Otuputs
+  c   : a * b.
+======================================================================*/
+#include "saclib.h"
+
+Word MDPROD(m,a,b)
+        Word m,a,b;
+{
+        Word c,i;
+	DWord C,P,Q,T;
+
+Step1: /* Multiply. */
+	P = a;
+	P = P * b;
+
+Step2: /* Divide. */
+	Q = P / m;
+
+Step3: /* Compute the remainder. */
+	T = Q * m;
+	C = P - T;
+	c = (Word)C;
+
+Return: /* Return c. */
+        return(c);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@@

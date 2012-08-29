@@ -1,0 +1,129 @@
+head	1.5;
+access;
+symbols;
+locks
+	saclib:1.5; strict;
+comment	@ * @;
+
+
+1.5
+date	99.07.15.15.20.02;	author George;	state embe;
+branches;
+next	1.4;
+
+1.4
+date	97.09.03.17.30.36;	author Chris;	state typo;
+branches;
+next	1.3;
+
+1.3
+date	97.08.29.15.49.48;	author George;	state spec;
+branches;
+next	1.2;
+
+1.2
+date	95.01.25.10.22.32;	author Mark;	state bug;
+branches;
+next	1.1;
+
+1.1
+date	93.06.01.17.35.51;	author Mark;	state new;
+branches;
+next	;
+
+
+desc
+@Get array.
+@
+
+
+1.5
+log
+@Removed the line "#include <stdlib.h>" since this include is now
+in saclib.h.
+@
+text
+@/*==========================================================================
+                              A <- GETARRAY(n)
+
+Get array.
+
+Input
+  n : a BETA-digit, n > 0.
+
+Output
+  A : a pointer to an array of n Words.  The array is not subject to
+      garbage collection.
+===========================================================================*/
+#include <stdio.h>
+#include "saclib.h"
+
+Word *GETARRAY(n)
+       Word n;
+{
+       Word *A;
+
+Step1: /* Allocate memory for array. */
+       A = (Word *)malloc((n)*sizeof(Word));
+       if (A==NULL)
+	  FAIL("GETARRAY","Out of memory.");
+
+Return: /* Prepare for return. */
+       return(A);
+}
+@
+
+
+1.4
+log
+@The old variable name p still appeared somewhere.
+@
+text
+@a13 1
+#include <stdlib.h>
+@
+
+
+1.3
+log
+@The spec's had A as the return value, while the code used the
+variable p.  The code has been changed to keep the name consistent
+with the spec's.
+@
+text
+@d24 1
+a24 1
+       if (p==NULL)
+@
+
+
+1.2
+log
+@The variable n should be enclosed in parenthesis.
+@
+text
+@d20 1
+a20 1
+       Word *p;
+d23 1
+a23 1
+       p = (Word *)malloc((n)*sizeof(Word));
+d28 1
+a28 1
+       return(p);
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d22 2
+a23 2
+Step1:  /* Allocate memory for array. */
+       p = (Word *)malloc(n*sizeof(Word));
+d25 1
+a25 1
+	 FAIL("GETARRAY","Out of memory.");
+@

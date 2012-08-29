@@ -1,0 +1,178 @@
+head	1.3;
+access;
+symbols;
+locks
+	saclib:1.3; strict;
+comment	@ * @;
+
+
+1.3
+date	95.08.11.09.22.54;	author Mark;	state algo;
+branches;
+next	1.2;
+
+1.2
+date	93.06.14.17.36.51;	author Mark;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	93.06.14.17.21.04;	author Mark;	state init;
+branches;
+next	;
+
+
+desc
+@Integral univariate polynomial factorization.
+@
+
+
+1.3
+log
+@Now calls the routines that have early factor detection.
+@
+text
+@/*===========================================================================
+			IUPFAC(A; s,c,L)
+
+Integral univariate polynomial factorization.
+
+Inputs
+  A : in Z[x], A non-zero.
+
+Outputs
+  s : a BETA-digit, s = sign(A).
+  c : in Z, c = cont(A).
+  L : a list ((e_1,A_1),...,(e_k,A_k)), k >= 0, with e_i in Z, e_i > 0,
+      e_1 <= e_2 <= ... <= e_k,  A_i in Z[x], A_i irreducible,
+      positive, and A = s * c * A_1^e_1 * ... * A_k^e_k.
+===========================================================================*/
+#include "saclib.h"
+
+void IUPFAC(A, s_,c_,L_)
+       Word A, *s_,*c_,*L_;
+{
+       Word A1,Ab,L,L1,P,S,c,e1,n,s;
+
+Step1: /* Compute sign, content and primitive part. */
+       IPSCPP(1,A,&s,&c,&Ab);
+
+Step2: /* Degree 0. */
+       n = PDEG(A);
+       if (n == 0) {
+	  L = NIL;
+	  goto Return; }
+
+Step3: /* Degree 1. */
+       if (n == 1) {
+	  L = LIST1(LIST2(1,Ab));
+	  goto Return; }
+
+Step4: /* Degree 2. */
+       if (n == 2) {
+	  L = IPPFAC2(1,Ab);
+	  goto Return; }
+
+Step5: /* Compute squarefree factorization. */
+       S = IPSF(1,Ab);
+
+Step6: /* Factor squarefree factors */
+       S = INV(S);
+       L = NIL;
+       do {
+	  ADV(S,&P,&S);
+	  FIRST2(P,&e1,&A1);
+	  L1 = IUSFPF(A1);
+	  do {
+	     ADV(L1,&A1,&L1);
+	     L = COMP(LIST2(e1,A1),L); }
+	  while (L1 != NIL); }
+       while (S != NIL);
+
+Return: /* Prepare for return. */
+       *s_ = s;
+       *c_ = c;
+       *L_ = L;
+       return;
+}
+@
+
+
+1.2
+log
+@Introduced special handling for degree 2.
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      IUPFAC(A; s,c,L)
+d7 1
+a7 1
+  A : in Z[X], A non-zero.
+d12 4
+a15 4
+  L : a list ((e1,A1),...,(ek,Ak)), k >= 0, with ei in Z, ei > 0,
+      e1 <= e2 <= ... <= ek, Ai in Z[X], Ai irreducible, positive,
+      and A = s * c * A1^e1 * ... * Ak^ek.
+======================================================================*/
+d21 1
+a21 1
+       Word A1,Ab,L,L1,P,S,c,e1,s,n;
+d29 2
+a30 2
+         L = NIL;
+         goto Return; }
+d33 3
+a35 3
+       if (n == 1) { 
+	 L = LIST1(LIST2(1,Ab));
+	 goto Return; }
+d38 3
+a40 3
+       if (n == 2) { 
+	 L = IPPFAC2(1,Ab);
+	 goto Return; }
+d49 7
+a55 7
+         ADV(S,&P,&S);
+         FIRST2(P,&e1,&A1);
+         L1 = IUSFPF(A1);
+         do {
+           ADV(L1,&A1,&L1);
+           L = COMP(LIST2(e1,A1),L); }
+	 while (L1 != NIL); }
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d16 1
+a16 1
+#include "saclib.h"
+d21 1
+a21 1
+       Word A1,Ab,L,L1,P,S,c,e1,s;
+d26 3
+a28 2
+Step2: /* Degree zero. */
+       if (PDEG(A) == 0) {
+d30 1
+a30 2
+         goto Return;
+       }
+d32 11
+a42 1
+Step3: /* Compute squarefree factorization. */
+d45 1
+a45 1
+Step4: /* Factor squarefree factors */
+d54 3
+a56 3
+           L = COMP(LIST2(e1,A1),L);
+	 } while (L1 != NIL);
+       } while (S != NIL);
+@

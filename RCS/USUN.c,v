@@ -1,0 +1,76 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	94.07.02.23.37.47;	author saclib;	state spec;
+branches;
+next	1.1;
+
+1.1
+date	94.07.02.23.36.12;	author saclib;	state init;
+branches;
+next	;
+
+
+desc
+@Unordered set union.
+@
+
+
+1.2
+log
+@Changed specs to allow arbitrary objects in sets.
+@
+text
+@/*===========================================================================
+			      C <- USUN(A,B)
+
+Unordered set union.
+
+Inputs
+  A,B : unordered lists of objects.
+        (A, B represent sets of objects.)
+
+Outputs
+  C   : unordered list representing the union of the sets A and B.
+===========================================================================*/
+#include "saclib.h"
+
+Word USUN(A,B)
+       Word A,B;
+{
+       Word C;
+
+Step1: /* Compute. */
+       C = CONC(USDIFF(A,B),B);
+
+Return: /* Prepare for return. */
+       return(C);
+}
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 2
+a2 2
+/*======================================================================
+                      C <- USUN(A,B)
+d7 2
+a8 2
+  A,B : unordered lists of of BETA-integers.
+        (A, B represent sets of BETA-integers.)
+d12 1
+a12 1
+======================================================================*/
+a18 1
+       /* hide algorithm */
+@

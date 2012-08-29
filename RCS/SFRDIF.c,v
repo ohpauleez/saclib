@@ -1,0 +1,66 @@
+head	1.2;
+access;
+symbols;
+locks
+	saclib:1.2; strict;
+comment	@ * @;
+
+
+1.2
+date	2000.04.28.16.57.12;	author George;	state del;
+branches;
+next	1.1;
+
+1.1
+date	2000.04.27.20.20.39;	author George;	state init;
+branches;
+next	;
+
+
+desc
+@Single-precision floating-point real difference.
+@
+
+
+1.2
+log
+@Delete.
+@
+text
+@[ removed from library ]
+
+@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d1 1
+a1 2
+/*======================================================================
+                      w <- SFRDIF(u,v)
+a2 21
+Single-precision floating-point real difference.  
+
+Inputs
+  u,v : single-precision floating-point real numbers.  
+
+Outputs
+  w   : a single-precision floating-point approximation to u-v.
+======================================================================*/
+#include "saclib.h"
+
+Word SFRDIF(u,v)
+       Word u,v;
+{
+       Word w;
+
+Step1: /* Compute. */
+       w = SFRSUM(u,SFRNEG(v));
+
+Return: /* Prepare for return. */
+       return(w);
+}
+@

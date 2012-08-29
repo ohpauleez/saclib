@@ -1,0 +1,283 @@
+head	1.6;
+access;
+symbols;
+locks
+	saclib:1.6; strict;
+comment	@ * @;
+
+
+1.6
+date	2002.01.29.20.22.35;	author George;	state spec;
+branches;
+next	1.5;
+
+1.5
+date	2001.07.30.17.43.46;	author George;	state spec;
+branches;
+next	1.4;
+
+1.4
+date	2001.07.11.17.46.29;	author Chris;	state bug;
+branches;
+next	1.3;
+
+1.3
+date	2001.07.11.17.43.33;	author saclib;	state init;
+branches;
+next	1.2;
+
+1.2
+date	2000.05.19.16.06.44;	author George;	state algo;
+branches;
+next	1.1;
+
+1.1
+date	98.04.23.20.27.05;	author George;	state new;
+branches;
+next	;
+
+
+desc
+@*
+Hardware interval polynomial real root isolation, standard interval,
+Descartes' method.
+@
+
+
+1.6
+log
+@Revised specification to require that A be squarefree.
+@
+text
+@/*======================================================================
+                      HIPRRISD(n,A,a,b; L,t)
+
+Hardware interval polynomial real root isolation, standard interval,
+Descartes' method.
+
+Inputs
+   n :  a positive beta-digit.
+   A :  a hardware interval polynomial of degree n.  A[n] 
+        does not contain 0 and A is squarefree.
+   a,b: logarithmic binary rational numbers, 0 <= a < b such that
+        (a,b) is a standard interval.
+
+Outputs
+   L : Let T be the linear transformation that maps the interval
+       (a,b) onto the interval (0,1).  If t = 0, L is a list of
+       standard and one-point binary rational isolating
+       intervals for the roots of A(T(x)) in (a,b).  If L = 
+       (I_1,I_2,...,I_r) then I_1 < I_2 < ... < I_r and each I_j
+       is a subinterval of (a,b).  If t /= 0 then L is undefined.
+   t : 0, 1 or 2.  If t = 1, the program failed to produce the
+       list L because of exponent limitation.  If t = 2, the
+       failure is due to mantissa limitation.
+======================================================================*/
+#include "saclib.h"
+
+void HIPRRISD(n,A,a,b, L_,t_)
+	BDigit n;
+	interval *A;
+	Word a,b,*L_;
+	BDigit *t_;
+{
+	BDigit s,s2,t,u,v;
+	Word c,L,L1,L2;
+	interval *B,*C;
+
+Step1: /* Case that A has at most one variation, */
+	HIPVCHT(n,A, &v,&t);
+	if (t != 0)
+	   goto Return;
+	if (v == 0) {
+	   L = NIL;
+	   goto Return; }
+	if (v == 1) {
+	   L = LIST1(LIST2(a,b));
+	   goto Return; }
+
+Step2: /* Isolate the roots of A in (0,1/2). */
+	HIPBHT(n,A,-1, &B,&t);
+	if (t == 0) {
+	   FREEARRAY(B);
+	   t = 1;
+	   goto Return; }
+	c = LBRIMID(LIST2(a,b));
+	s = LBRNSIGN(c);
+	if (s > 0)
+	   HIPRRISD(n,B,a,c, &L1,&t);
+	else
+	   HIPRRISD(n,B,c,b, &L1,&t);
+	if (t >0) {
+	   FREEARRAY(B);
+	   goto Return; }
+
+Step3: /* Isolate the roots of A in (1/2,1). */
+	FPCATCH();
+	C = HIPTR1(n,B);
+	FREEARRAY(B);
+	if (FPFLAG) {
+	   t = 1;
+	   FREEARRAY(C);
+	   goto Return; }
+	s2 = HISIGN(C[0]);
+	if (s2 == NIL) {
+	   FREEARRAY(C);
+	   t = 2;
+	   goto Return; }
+	if (s > 0)
+	   HIPRRISD(n,C,c,b, &L2,&t);
+	else
+	   HIPRRISD(n,C,a,c, &L2,&t);
+	FREEARRAY(C);
+	if (t > 0)
+	   goto Return;
+
+Step4: /* Include midpoint if a root. */
+	if (s > 0) {
+	   if (s2 == 0)
+	      L2 = COMP(LIST2(c,c),L2);
+	   L = CONC(L1,L2); }
+	else {
+	   if (s2 == 0) 
+	       L1 = COMP(LIST2(c,c),L1);
+           L = CONC(L2,L1); }
+
+Return: /* Return L and t. */
+	*L_ = L;
+	*t_ = t;
+	return;
+}
+@
+
+
+1.5
+log
+@Revised specification to require that a >= 0.
+@
+text
+@d10 1
+a10 1
+        does not contain 0.
+@
+
+
+1.4
+log
+@In Step 3, after the line "t = 1;" inserted the line
+"FREEARRAY(C);".
+@
+text
+@d11 1
+a11 1
+   a,b: logarithmic binary rational numbers, a < b such that
+@
+
+
+1.3
+log
+@Hardware interval polynomial real root isolation, standard interval,
+Descartes' method.
+@
+text
+@d70 1
+@
+
+
+1.2
+log
+@Revised the specifications and the algorithm in order to
+distinguish the causes of failure.
+@
+text
+@@
+
+
+1.1
+log
+@Initial revision
+@
+text
+@d2 1
+a2 1
+                      L <- HIPRRISD(n,A,a,b)
+d11 2
+a12 1
+   a,b: logarithmic binary rational numbers, a < b.
+d14 10
+a23 9
+Output
+   L : either 0 or a list (I_1,...,I_r), r >= 0, of standard and 
+       one-point binary rational intervals, with I_1 < ... < I_r.
+	Let T(x) = (b - a) x + a, the linear transformation that
+	maps the interval (0,1) onto the interval (b - a).  Let
+	A*(x) = U(A(x)), where U is the inverse of T.  If L /= 0,
+	L is a list of isolating intervals for the roots of A*(x)
+	in (a,b).  If L = 0, the program was not able to produce
+	such a list using hardware interval arithmetic.
+d27 1
+a27 1
+Word HIPRRISD(n,A,a,b)
+d30 2
+a31 1
+	Word a,b;
+d33 1
+a33 1
+	BDigit s,t,u,v;
+d38 3
+a40 1
+	v = HIPVCHT(n,A);
+a46 3
+	if (v == -1) {
+	   L = 0;
+	   goto Return; }
+d48 3
+a50 3
+Step2: /* Isolate roots of A in (0,1/2). */
+	HIPBHT(n,A,-1, &B,&u);
+	if (u == 0) {
+d52 1
+a52 1
+	   L = 0;
+d55 3
+a57 3
+	t = LBRNSIGN(c);
+	if (t > 0)
+	   L1 = HIPRRISD(n,B,a,c);
+d59 2
+a60 2
+	   L1 = HIPRRISD(n,B,c,b);
+	if (L1 == 0 || FPFLAG == 1) {
+a61 1
+	   L = 0;
+d64 2
+a65 1
+Step3: /* Isolate roots of A in (1/2,1). */
+a66 1
+	s = HISIGN(C[0]);
+d68 5
+a72 5
+	if (t > 0)
+	   L2 = HIPRRISD(n,C,c,b);
+	else
+	   L2 = HIPRRISD(n,C,a,c);
+	if (L2 == 0 || s == NIL) {
+d74 1
+a74 1
+	   L = 0;
+d76 7
+d85 2
+a86 2
+	if (t > 0) {
+	   if (s == 0)
+d90 1
+a90 1
+	   if (s == 0) 
+d94 4
+a97 5
+Step5: /* Free array C. */
+	FREEARRAY(C);
+
+Return: /* Return L. */
+	return(L);
+@
