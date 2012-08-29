@@ -1,3 +1,12 @@
+This was adapted by Paul deGrandis and redistributed.
+This is the last release of SAClib before the code base was cut over to C++
+
+For a rationale behind the port, please see the paper/thesis:
+Compiler-enforced Memory Semantics in the SACLIB Computer Algebra Library
+
+------------------------
+
+
                      SACLIB DISTRIBUTION INFORMATION
                      ===============================
 
